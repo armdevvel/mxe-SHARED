@@ -4,12 +4,12 @@ PKG             := libffi
 $(PKG)_WEBSITE  := https://sourceware.org/libffi/
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 3.3.fixed
-$(PKG)_CHECKSUM := f0adc5871d908fab414b17e066abb6f18438bab0d6d128051631ed3cd4c46dba
+$(PKG)_CHECKSUM := ba998513d28c325d0c1ad6e4791bda87d2e7dafbb34ef2cbf3ddbb91ee3dca30
 $(PKG)_GH_CONF  := atgreen/libffi/tags, v
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
-$(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://github.com/armdevvel/libffi/releases/download/3.3-fixed/libffi-3.3.fixed.tar.xz
-$(PKG)_URL_2    := https://github.com/armdevvel/libffi/releases/download/3.3-fixed/libffi-3.3.fixed.tar.xz
+$(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
+$(PKG)_URL      := https://github.com/armdevvel/libffi/releases/download/3.3-fix/libffi-3.3.fixed.tar.gz
+$(PKG)_URL_2    := https://github.com/armdevvel/libffi/releases/download/3.3-fix/libffi-3.3.fixed.tar.gz
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 $(PKG)_DEPS     := cc
 
