@@ -3,7 +3,7 @@
 PKG             := libffi
 $(PKG)_WEBSITE  := https://sourceware.org/libffi/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.2.1
+$(PKG)_VERSION  := 3.3.fixed
 $(PKG)_CHECKSUM := f0adc5871d908fab414b17e066abb6f18438bab0d6d128051631ed3cd4c46dba
 $(PKG)_GH_CONF  := atgreen/libffi/tags, v
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
