@@ -51,22 +51,34 @@ You should be good to go now! Go have fun with your heart's desires building wha
 
 ## Building (configuring) with each build system
 
-     *  autoconfigure:
-	- use ./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/mxe/usr/armv7-w64-mingw32
-
-     *  meson: 
-	- use included cross.txt and use as so - meson --cross-file=cross.txt --prefix /home/youruser/mxe/usr/armv7-w64-mingw32/ builddir
-
-     *  CMake:
-	- use armv7-w64-mingw32-cmake provided by MXE
-
-     *  ninja:
-	- not figured out, yet
-	  
-     *  normal make:
-	- for projects that still use this way for some reason, use make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mignw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as
+  * autoconfigure:
+    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/mxe/usr/armv7-w64-mingw32`
+  * meson: 
+    - use included cross.txt and use as so - `meson --cross-file=cross.txt --prefix /home/youruser/mxe/usr/armv7-w64-mingw32/ builddir`
+  * CMake:
+    - use `armv7-w64-mingw32-cmake` provided by MXE
+  * ninja:
+    - not figured out, yet
+  * normal make:
+    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mignw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
+  * MXE:
+    - this stays the same, but instead of a host triplet being i686-w64-mingw32 or x86_64-w64-mingw32, you use armv7-w64-mingw32 (without the .static or .shared). basically, run `make MXE_TARGETS="armv7-w64-mingw32" package`
 	
+## FAQ
+
+Q: Will this work on WSL? 
+A: Yes!
+
+Q: Do I need to have a specific distro?
+A: Nope! This is meant for any distro just like the normal MXE, this repo just comes with patches and extras for ARM development.
+
+Q: What if I have trouble with a package while building for ARM32?
+A: You can open an issue here, or try to fix it yourself if you wanted to. We may be busy, but we will get to your issue as soon as we possibly can!
+
+Q: What if I have more questions??
+A: As said, don't be afraid to open an issue for help. If the question is a very good one, we will put it here that way more people do not have to dig through issues for help.
 	
+
 	
 # Original README
 
