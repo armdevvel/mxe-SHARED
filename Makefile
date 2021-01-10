@@ -617,7 +617,12 @@ define TARGET_RULE
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
-                )))
+                )))\
+
+
+
+
+
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
 
