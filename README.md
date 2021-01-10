@@ -35,7 +35,7 @@ Although this version of MXE is meant for specifically WoA32 porting only, it do
 
 ## Setting up
 
-To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz)). CD to the MXE folder. Then run "git apply mxe-fixes.patch". Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
 
 ![MXEs usr folder](https://github.com/armdevvel/mxe/blob/master/images/mxeusr.png?raw=true)
 
@@ -45,7 +45,7 @@ make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && git apply mxe-fixes.patch && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz && tar -xf llvm-mingw-fixed-ubuntu-1804.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre )
+-- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz && tar -xf llvm-mingw-fixed-ubuntu-1804.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre )
 
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
