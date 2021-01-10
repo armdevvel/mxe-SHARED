@@ -12,7 +12,7 @@ MXE_TRIPLETS       := i686-w64-mingw32 x86_64-w64-mingw32 \
                       armv7-w64-mingw32 aarch64-w64-mingw32
 MXE_LIB_TYPES      := static shared
 MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
-                          $(addprefix $(TRIPLET).,$(MXE_LIB_TYPES))))
+                          $(TRIPLET)))
 MXE_TARGETS        := i686-w64-mingw32.static
 .DEFAULT_GOAL      := all-filtered
 
