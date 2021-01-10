@@ -617,11 +617,6 @@ define TARGET_RULE
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
-                )))\
-    $(if $(findstring 1,$(words $(subst ., ,$(filter-out $(BUILD),$(1))))),\
-        $(warning $(call WRAP_MESSAGE,\
-                Warning: Deprecated target specified "$(1)",\
-                Please use $(1).[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n) \
                 )))
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
