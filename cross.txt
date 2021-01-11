@@ -2,7 +2,7 @@
 system = 'windows'
 cpu_family = 'armv7'
 cpu = 'arm'
-endian = 'big'
+endian = 'little'
 
 
 [binaries]
