@@ -27,9 +27,6 @@ various target platforms, which:
     - `aarch64-w64-mingw32`
     - `i686-w64-mingw32`
     - `x86_64-w64-mingw32`
-  * Packages:
-    - static
-    - shared
     
 Although this version of MXE is meant for specifically WoA32 porting only, it doesn't mean that aarch64, i686, and x86_64 is going to be disabled, but beware packages may not build properly. 
 
