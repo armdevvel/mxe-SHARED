@@ -17,7 +17,6 @@ various target platforms, which:
   * allows inter-package and intra-package parallel builds whenever possible
   * bundles [ccache](https://ccache.samba.org) to speed up repeated builds
   * integrates well with autotools, cmake, qmake, and hand-written makefiles.
-  * has been in continuous development since 2007 and is used by several projects
   
 ## Supported Toolchains
 
@@ -28,7 +27,7 @@ various target platforms, which:
     - `i686-w64-mingw32`
     - `x86_64-w64-mingw32`
     
-Although this version of MXE is meant for specifically WoA32 porting only, it doesn't mean that aarch64, i686, and x86_64 is going to be disabled, but beware packages may not build properly. 
+Although this version of MXE is meant for specifically WoA32 porting only, it doesn't mean that aarch64, i686, and x86_64 is going to be disabled, but beware packages may not build properly (Especially being that MinGW is NOT GCC. It is Clang.). 
 
 ## Setting up
 

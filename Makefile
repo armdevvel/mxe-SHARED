@@ -13,11 +13,12 @@ MXE_TRIPLETS       := i686-w64-mingw32 x86_64-w64-mingw32 \
 MXE_LIB_TYPES      := static shared
 MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
                           $(TRIPLET)))
-MXE_TARGETS        := i686-w64-mingw32.static
+MXE_TARGETS        := armv7-w64-mingw32
 .DEFAULT_GOAL      := all-filtered
 
 DEFAULT_MAX_JOBS   := 6
 PRINTF_COL_1_WIDTH := 13
+DUMMY_PROXY        := 192.0.2.0
 SOURCEFORGE_MIRROR := downloads.sourceforge.net
 MXE_MIRROR         := https://mirror.mxe.cc/pkg
 PKG_MIRROR         := https://mxe-pkg.s3.amazonaws.com
@@ -38,21 +39,42 @@ LIBTOOL    := $(shell glibtool --help >/dev/null 2>&1 && echo g)libtool
 LIBTOOLIZE := $(shell glibtoolize --help >/dev/null 2>&1 && echo g)libtoolize
 OPENSSL    := openssl
 PATCH      := $(shell gpatch --help >/dev/null 2>&1 && echo g)patch
-PYTHON2    := $(or $(shell ([ `python -c "import sys; print('{0[0]}'.format(sys.version_info))"` == 2 ] && echo python) 2>/dev/null || \
-                           which python2 2>/dev/null || \
-                           which python2.7 2>/dev/null), \
-                   $(warning Warning: python v2 not found (or default python changed to v3))\
-                   $(shell touch check-requirements-failed))
+PYTHON     := $(shell PATH="$(ORIG_PATH)" which python)
+PY_XY_VER  := $(shell $(PYTHON) -c "import sys; print('{0[0]}.{0[1]}'.format(sys.version_info))")
 SED        := $(shell gsed --help >/dev/null 2>&1 && echo g)sed
 SORT       := $(shell gsort --help >/dev/null 2>&1 && echo g)sort
 DEFAULT_UA := $(shell wget --version | $(SED) -n 's,GNU \(Wget\) \([0-9.]*\).*,\1/\2,p')
 WGET_TOOL   = wget
 WGET        = $(WGET_TOOL) --user-agent='$(or $($(1)_UA),$(DEFAULT_UA))' -t 2 --timeout=6
 
-REQUIREMENTS := autoconf automake autopoint bash bison bzip2 flex \
-                $(BUILD_CC) $(BUILD_CXX) gperf intltoolize $(LIBTOOL) \
-                $(LIBTOOLIZE) lzip $(MAKE) $(OPENSSL) $(PATCH) $(PERL) python \
-                ruby $(SED) $(SORT) unzip wget xz 7za gdk-pixbuf-csource
+REQUIREMENTS := \
+    7za \
+    autoconf \
+    automake \
+    autopoint \
+    bash \
+    bison \
+    $(BUILD_CC) \
+    $(BUILD_CXX) \
+    bzip2 \
+    flex \
+    gdk-pixbuf-csource \
+    gperf \
+    intltoolize \
+    $(LIBTOOL) \
+    $(LIBTOOLIZE) \
+    lzip \
+    $(MAKE) \
+    $(OPENSSL) \
+    $(PATCH) \
+    perl \
+    $(PYTHON) \
+    ruby \
+    $(SED) \
+    $(SORT) \
+    unzip \
+    wget \
+    xz
 
 PREFIX     := $(PWD)/usr
 LOG_DIR    := $(PWD)/log
@@ -619,11 +641,6 @@ define TARGET_RULE
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
                 )))\
-
-
-
-
-
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
 
@@ -685,7 +702,8 @@ ifeq ($(findstring darwin,$(BUILD)),)
     PRELOAD   := LD_PRELOAD='$(NONET_LIB)'
 else
     NONET_LIB := $(PREFIX)/$(BUILD)/lib/nonetwork.dylib
-    PRELOAD   := DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES='$(NONET_LIB)'
+    PRELOAD   := DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES='$(NONET_LIB)' \
+                 http_proxy=$(DUMMY_PROXY) https_proxy=$(DUMMY_PROXY)
     NONET_CFLAGS := -arch x86_64
 endif
 
