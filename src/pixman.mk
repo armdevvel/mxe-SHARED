@@ -4,11 +4,11 @@ PKG             := pixman
 $(PKG)_WEBSITE  := https://cairographics.org/
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.33.6
-$(PKG)_CHECKSUM := 4e1e72c0ed31d10944f304976e87e6c87b441c853713eeecf115e22c23d4b17d
+$(PKG)_CHECKSUM := fde8ad0e84c36b618d23973aa25a282658b8d0a9ff4f2aa80056f96ee29155ca
 $(PKG)_SUBDIR   := pixman-$($(PKG)_VERSION)
 $(PKG)_FILE     := pixman-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://cairographics.org/snapshots/$($(PKG)_FILE)
-$(PKG)_URL_2    := https://xorg.freedesktop.org/archive/individual/lib/$($(PKG)_FILE)
+$(PKG)_URL_2    := https://github.com/armdevvel/pixman-autotools-mxe/releases/download/v0.33.6/pixman-0.33.6.tar.gz
 $(PKG)_DEPS     := cc libpng
 
 define $(PKG)_UPDATE
