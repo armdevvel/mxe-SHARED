@@ -6,7 +6,7 @@ $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 1.16.0
 $(PKG)_CHECKSUM := 1b6e8791dfad02cf9d8d8530ed1e31d8df51a6088cae0b9bf512047de8e816bb
 $(PKG)_SUBDIR   := cairo-$($(PKG)_VERSION)
-$(PKG)_FILE     := cairo-$($(PKG)_VERSION).tar.xz
+$(PKG)_FILE     := cairo-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/armdevvel/cairo/releases/download/v1.16.0/cairo-1.16.0.tar.gz
 $(PKG)_DEPS     := cc fontconfig freetype-bootstrap glib libpng lzo pixman zlib
 
