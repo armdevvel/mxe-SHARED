@@ -7,8 +7,8 @@ $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 1.60.0
 $(PKG)_CHECKSUM := 686affff989ac2488f79a97b9479efb9f2abae035b5ed4d8226de6857933fd3b
 $(PKG)_SUBDIR   := boost_$(subst .,_,$($(PKG)_VERSION))
-$(PKG)_FILE     := boost_$(subst .,_,$($(PKG)_VERSION)).tar.bz2
-$(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/boost/boost/$($(PKG)_VERSION)/$($(PKG)_FILE)
+$(PKG)_FILE     := boost_$(subst .,_,$($(PKG)_VERSION)).tar.gz
+$(PKG)_URL      := https://github.com/armdevvel/boost/releases/download/v1.75.0/boost_1_60_0.tar.gz
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 $(PKG)_DEPS     := cc bzip2 expat zlib
 
