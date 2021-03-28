@@ -73,7 +73,7 @@ define $(PKG)_BUILD
         '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-boost.exe' \
         -DBOOST_THREAD_USE_LIB \
         -lboost_serialization-mt-a32 \
-        -lboost_thread_win32-mt-a32 \
+        -lboost_thread-mt-a32 \
         -lboost_system-mt-a32 \
         -lboost_chrono-mt-a32 \
         -lboost_context-mt-a32
