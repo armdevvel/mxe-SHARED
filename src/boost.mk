@@ -68,16 +68,6 @@ define $(PKG)_BUILD
     # setup cmake toolchain
     echo 'set(Boost_THREADAPI "win32")' > '$(CMAKE_TOOLCHAIN_DIR)/$(PKG).cmake'
 
-    '$(TARGET)-g++' \
-        -W -Wall -Werror -ansi -U__STRICT_ANSI__ -pedantic \
-        '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-boost.exe' \
-        -DBOOST_THREAD_USE_LIB \
-        -lboost_serialization-mt-a32 \
-        -lboost_thread-mt-a32 \
-        -lboost_system-mt-a32 \
-        -lboost_chrono-mt-a32 \
-        -lboost_context-mt-a32
-
     # test cmake
     mkdir '$(1).test-cmake'
     cd '$(1).test-cmake' && '$(TARGET)-cmake' \
@@ -93,7 +83,7 @@ define $(PKG)_BUILD_$(BUILD)
     rm -f "$(PREFIX)/$(TARGET)/lib/libboost"*
 
     # compile boost build (b2)
-    cd '$(SOURCE_DIR)/tools/build/' && ./bootstrap.sh
+    cd '$(SOURCE_DIR)/' && ./bootstrap.sh
 
     # minimal native build - for more features, replace:
     # --with-system \
@@ -105,7 +95,7 @@ define $(PKG)_BUILD_$(BUILD)
 
     cd '$(SOURCE_DIR)' && \
         $(if $(call seq,darwin,$(OS_SHORT_NAME)),PATH=/usr/bin:$$PATH) \
-        ./tools/build/b2 \
+        ./b2 \
             -a \
             -q \
             -j '$(JOBS)' \
