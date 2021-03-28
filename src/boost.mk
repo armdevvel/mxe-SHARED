@@ -72,11 +72,11 @@ define $(PKG)_BUILD
         -W -Wall -Werror -ansi -U__STRICT_ANSI__ -pedantic \
         '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-boost.exe' \
         -DBOOST_THREAD_USE_LIB \
-        -lboost_serialization-mt \
-        -lboost_thread_win32-mt \
-        -lboost_system-mt \
-        -lboost_chrono-mt \
-        -lboost_context-mt
+        -lboost_serialization-mt-a32 \
+        -lboost_thread_win32-mt-a32 \
+        -lboost_system-mt-a32 \
+        -lboost_chrono-mt-a32 \
+        -lboost_context-mt-a32
 
     # test cmake
     mkdir '$(1).test-cmake'
