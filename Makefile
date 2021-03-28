@@ -31,6 +31,7 @@ SHELL      := bash
 
 MXE_TMP := $(PWD)
 
+ORIG_PATH  := $(call merge,:,$(filter-out $(PREFIX)/$(BUILD)/bin $(PREFIX)/bin,$(call split,:,$(PATH))))
 BUILD_CC   := $(shell (gcc --help >/dev/null 2>&1 && echo gcc) || (clang --help >/dev/null 2>&1 && echo clang))
 BUILD_CXX  := $(shell (g++ --help >/dev/null 2>&1 && echo g++) || (clang++ --help >/dev/null 2>&1 && echo clang++))
 DATE       := $(shell gdate --help >/dev/null 2>&1 && echo g)date
@@ -629,18 +630,12 @@ RTRIM            := $(SED) 's, \+$$$$,,'
 WRAP_MESSAGE      = $(\n)$(\n)$(call repeat,-,60)$(\n)$(1)$(and $(2),$(\n)$(\n)$(2))$(\n)$(call repeat,-,60)$(\n)
 
 define TARGET_RULE
-    $(if $(findstring i686-pc-mingw32,$(1)),\
-        $(error $(call WRAP_MESSAGE,\
-                Obsolete target specified: "$(1)",\
-                Please use i686-w64-mingw32.[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n)\
-                i686-pc-mingw32 removed 2014-10-14 (https://github.com/mxe/mxe/pull/529)\
-                )))\
     $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(BUILD) $(MXE_TRIPLETS)),$(1)),,\
         $(error $(call WRAP_MESSAGE,\
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
-                )))\
+                )))
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
 
