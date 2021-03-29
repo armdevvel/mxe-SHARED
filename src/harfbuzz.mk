@@ -14,7 +14,8 @@ define $(PKG)_BUILD
     cd '$(1)' && ./autogen.sh && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         ac_cv_header_sys_mman_h=no \
-        CXXFLAGS='-std=c++11' \
+        CXXFLAGS='-std=c++11 -pthread -pthreads' \
+        LDFLAGS='-pthread -pthreads' \
         LIBS='-lstdc++'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install
 endef
