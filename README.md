@@ -41,7 +41,7 @@ make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz && tar -xf llvm-mingw-fixed-ubuntu-1804.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre )
+-- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz && tar -xf llvm-mingw-fixed-ubuntu-1804.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost )
 
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
@@ -75,10 +75,10 @@ Q: What if I have more questions?? \
 A: As said, don't be afraid to open an issue for help. If the question is a very good one, we will put it here that way more people do not have to dig through issues for help.
 
 Q: So what libraries don't work? (ARM question) \
-A: Boost, GTK2, GTK3, FFTW3 (sometimes builds, but has strange issue, and it sometimes won't), GStreamer, and pthreads. Anything with OGL is hit or miss since ARM Windows is crazy.
+A: GTK2, and GTK3. Anything with OGL is hit or miss since ARM Windows is crazy.
 
 Q: So what libraries DO work? (ARM question) \
-A: SDL, SDL2, Qt5 (you have to configure it yourself), QtWebKit (with a ton of Makefile editing), GLib, GLEW and GLU, libffi, libjpeg, libxslt, libtiff, libpng, dbus, PCRE, libtasn, libwebp, libxml, OpenSSL (build on Windows required, but I have that, working towards working MXE build), liblzma, libexslt, libchromaprint, libav* (ffmpeg), json-c, json-glib, freetype, expat, fribidi, bzip2, libsamplerate, and pixman (MPFR, MPC, and GMP will build, but need work)
+A: SDL, SDL2, Qt5 (you have to configure it yourself), QtWebKit (with a ton of Makefile editing), GLib, GLEW and GLU, libffi, libjpeg, libxslt, libtiff, libpng, dbus, PCRE, libtasn, libwebp, libxml, OpenSSL (build on Windows required, but I have that, working towards working MXE build), liblzma, libexslt, libchromaprint, libav* (ffmpeg), json-c, json-glib, freetype, expat, fribidi, bzip2, libsamplerate, Boost (LETS GOO!), FFTW3, GStreamer (manual build), pthreads, and pixman (MPFR, MPC, and GMP will build, but need work)
 
 Q: So... are we getting an RT browser? \
 A: Sadly no, but also yes. The quickest way to explain is that Windows RT only has THUMB ARM mode, meaning it cannot run things such as JIT, which makes browsing the web painfully slow. However, the leaked Windows 10 on ARM32 image has full ARM32 CPU power and can run normal ARM32 code. We can build WebKit without JIT, if I am not mistaken, but it will be insanely slow. The best bet is to just upgrade to Windows 10 on ARM32. It's faster, and it allows for much more opportunity, but we know not all people can, therefore we will attempt to compile a JIT-less QtWebKit. We've got you covered, RT users!
