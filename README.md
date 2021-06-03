@@ -23,15 +23,12 @@ various target platforms, which:
   * Runtime: Clang disguised as MinGW-w64
   * Host Triplets:
     - `armv7-w64-mingw32`
-    - `aarch64-w64-mingw32`
-    - `i686-w64-mingw32`
-    - `x86_64-w64-mingw32`
     
-Although this version of MXE is meant for specifically WoA32 porting only, it doesn't mean that aarch64, i686, and x86_64 is going to be disabled, but beware packages may not build properly (Especially being that MinGW is NOT GCC. It is Clang.). 
+This version of MXE is meant for specifically WoA32 porting only, so packages will not build properly (Especially being that MinGW is NOT GCC. It is Clang.). For Aarch64 development, head over to [the Aarch64 development repos](https://github.com/aarch64devel/mxe) 
 
 ## Setting up
 
-To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
 
 ![MXEs usr folder](https://github.com/armdevvel/mxe/blob/master/images/mxeusr.png?raw=true)
 
