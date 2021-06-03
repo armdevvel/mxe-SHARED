@@ -38,7 +38,7 @@ make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/11.0/llvm-mingw-fixed-ubuntu-1804.tar.xz && tar -xf llvm-mingw-fixed-ubuntu-1804.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost )
+-- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/12.0/llvm-mingw-20210423-ucrt-ubuntu-18.04-x86_64-fixed.tar.gz && tar -xf llvm-mingw-20210423-ucrt-ubuntu-18.04-x86_64-fixed.tar.gz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost )
 
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
