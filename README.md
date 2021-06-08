@@ -40,6 +40,10 @@ make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame
 
 -- cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/12.0/llvm-mingw-20210423-ucrt-ubuntu-18.04-x86_64-fixed.tar.gz && tar -xf llvm-mingw-20210423-ucrt-ubuntu-18.04-x86_64-fixed.tar.gz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost )
 
+(or, if you would rather use a script, you can now use the sh script included! (run this in your home directory) -- 
+
+-- wget https://github.com/armdevvel/mxe/raw/master/mxe-curl-inst.sh && sh ./mxe-curl-inst.sh )
+
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
 ## Building (configuring) with each build system
