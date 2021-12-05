@@ -56,7 +56,7 @@ define $(PKG)_BUILD_NATIVE
     --prefix '$(PREFIX)' \
     build
 
-    cd '$(SOURCE_DIR)/build' && meson compile && meson install
+    cd '$(SOURCE_DIR)/build' && ninja && meson install
 endef
 
 define $(PKG)_BUILD_$(BUILD)
@@ -78,5 +78,5 @@ define $(PKG)_BUILD
     --prefix '$(PREFIX)/armv7-w64-mingw32' \
     build-arm
 
-    cd '$(SOURCE_DIR)/build-arm' && meson compile && meson install
+    cd '$(SOURCE_DIR)/build-arm' && ninja && meson install
 endef
