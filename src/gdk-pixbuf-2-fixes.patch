@@ -1,0 +1,26 @@
+Index: gdk-pixbuf/gdk-pixbuf-animation.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gdk-pixbuf/gdk-pixbuf-animation.h b/gdk-pixbuf/gdk-pixbuf-animation.h
+--- a/gdk-pixbuf/gdk-pixbuf-animation.h	
++++ b/gdk-pixbuf/gdk-pixbuf-animation.h	
+@@ -94,6 +94,8 @@
+ gboolean            gdk_pixbuf_animation_is_static_image  (GdkPixbufAnimation *animation);
+ GdkPixbuf          *gdk_pixbuf_animation_get_static_image (GdkPixbufAnimation *animation);
+ 
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+ GdkPixbufAnimationIter *gdk_pixbuf_animation_get_iter                        (GdkPixbufAnimation     *animation,
+                                                                               const GTimeVal         *start_time);
+ GType                   gdk_pixbuf_animation_iter_get_type                   (void) G_GNUC_CONST;
+@@ -102,7 +104,7 @@
+ gboolean                gdk_pixbuf_animation_iter_on_currently_loading_frame (GdkPixbufAnimationIter *iter);
+ gboolean                gdk_pixbuf_animation_iter_advance                    (GdkPixbufAnimationIter *iter,
+                                                                               const GTimeVal         *current_time);
+-
++#pragma clang diagnostic pop
+ 
+ #ifdef GDK_PIXBUF_ENABLE_BACKEND
+ 
