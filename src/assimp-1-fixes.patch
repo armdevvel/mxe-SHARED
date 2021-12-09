@@ -1,0 +1,43 @@
+diff --git a/assimp-3.2/code/BlenderDNA.inl b/assimp-3.2/code/BlenderDNA.inl
+index d3f8224a..1d0e1a82 100644
+--- a/code/BlenderDNA.inl
++++ b/code/BlenderDNA.inl
+@@ -425,6 +425,20 @@
+     return res;
+ }
+ 
++// Working around CLang: Offset not zero at the point of scalar access
++namespace
++{
++__attribute__((noinline)) // forcing CLang to parse one func at a time
++void StoreValue(const Structure& s,
++    DNA::FactoryPair builders,
++    boost::shared_ptr<ElemBase> out,
++    const FileDatabase& db
++)
++{
++    (s.*builders.second)(out,db);
++}
++}
++
+ //--------------------------------------------------------------------------------
+ template <> bool Structure :: ResolvePointer<boost::shared_ptr,ElemBase>(boost::shared_ptr<ElemBase>& out, 
+     const Pointer & ptrval, 
+@@ -472,14 +486,15 @@ template <> bool Structure :: ResolvePointer<boost::shared_ptr,ElemBase>(boost::
+     }
+ 
+     // allocate the object hull
+-    out = (s.*builders.first)();
++    auto p_get = builders.first;
++    out = (s.*p_get)();
+     
+     // cache the object immediately to prevent infinite recursion in a 
+     // circular list with a single element (i.e. a self-referencing element).
+     db.cache(out).set(s,out,ptrval);
+ 
+     // and do the actual conversion
+-    (s.*builders.second)(out,db);
++    StoreValue(s, builders, out, db);
+     db.reader->SetCurrentPos(pold);
+     
+     // store a pointer to the name string of the actual type

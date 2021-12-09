@@ -1,0 +1,64 @@
+diff --git a/crypto/aes/asm/aesv8-armx.pl b/crypto/aes/asm/aesv8-armx.pl
+index d6068dbf..769fcb08 100755
+--- a/crypto/aes/asm/aesv8-armx.pl
++++ b/crypto/aes/asm/aesv8-armx.pl
+@@ -63,9 +63,14 @@
+ $code.=<<___						if ($flavour !~ /64/);
+ .arch	armv7-a	// don't confuse not-so-latest binutils with argv8 :-)
+ .fpu	neon
++___
++$code.=<<___						if ($flavour !~ /64/ && $flavour !~ /thumb/);
+ .code	32
+ #undef	__thumb2__
+ ___
++$code.=<<___						if ($flavour !~ /64/ && $flavour =~ /thumb/);
++.thumb
++___
+ 
+ # Assembler mnemonics are an eclectic mix of 32- and 64-bit syntax,
+ # NEON is mostly 32-bit mnemonics, integer - mostly 64. Goal is to
+@@ -558,6 +563,7 @@ $code.=<<___;
+ 	 veor	$tmp0,$ivec,$rndlast
+ 	 subs	$len,$len,#0x30
+ 	 veor	$tmp1,$in0,$rndlast
++	 it	lo
+ 	 mov.lo	x6,$len			// x6, $cnt, is zero at this point
+ 	aesd	$dat0,q9
+ 	aesimc	$dat0,$dat0
+@@ -996,7 +1002,7 @@
+ 	s/\],#[0-9]+/]!/o;
+ 
+ 	s/[v]?(aes\w+)\s+([qv].*)/unaes($1,$2)/geo	or
+-	s/cclr\s+([^,]+),\s*([a-z]+)/mov$2	$1,#0/o	or
++	s/cclr\s+([^,]+),\s*([a-z]+)/it	$2\n	mov$2	$1,#0/o	or
+ 	s/vtbl\.8\s+(.*)/unvtbl($1)/geo			or
+ 	s/vdup\.32\s+(.*)/unvdup32($1)/geo		or
+ 	s/vmov\.32\s+(.*)/unvmov32($1)/geo		or
+diff --git a/crypto/modes/asm/ghashv8-armx.pl b/crypto/modes/asm/ghashv8-armx.pl
+index d0e398b5..6730bd8e 100644
+--- a/crypto/modes/asm/ghashv8-armx.pl
++++ b/crypto/modes/asm/ghashv8-armx.pl
+@@ -76,9 +76,14 @@ ___
+ $code.=".arch	armv8-a+crypto\n"	if ($flavour =~ /64/);
+ $code.=<<___				if ($flavour !~ /64/);
+ .fpu	neon
++___
++$code.=<<___	if ($flavour !~ /64/ && $flavour !~ /thumb/);
+ .code	32
+ #undef	__thumb2__
+ ___
++$code.=<<___	if ($flavour !~ /64/ && $flavour =~ /thumb/);
++.thumb
++___
+ 
+ ################################################################################
+ # void gcm_init_v8(u128 Htable[16],const u64 H[2]);
+@@ -767,7 +772,7 @@ if ($flavour =~ /64/) {			######## 64-bit code
+ 	# fix up remaining new-style suffixes
+ 	s/\],#[0-9]+/]!/o;
+ 
+-	s/cclr\s+([^,]+),\s*([a-z]+)/mov$2	$1,#0/o			or
++	s/cclr\s+([^,]+),\s*([a-z]+)/it	$2\n	mov$2	$1,#0/o			or
+ 	s/vdup\.32\s+(.*)/unvdup32($1)/geo				or
+ 	s/v?(pmull2?)\.p64\s+(.*)/unvpmullp64($1,$2)/geo		or
+ 	s/\bq([0-9]+)#(lo|hi)/sprintf "d%d",2*$1+($2 eq "hi")/geo	or

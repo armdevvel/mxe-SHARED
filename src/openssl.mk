@@ -31,6 +31,8 @@ define $(PKG)_BUILD
         $(if $(BUILD_STATIC),no-,)shared \
         no-capieng \
         --prefix='$(PREFIX)/$(TARGET)'
+    
+    # sadly, -j 1 is intentional: the generated makefile contains implicit dependencies ;(
     $(MAKE) -C '$(1)' all install_sw -j 1 \
         CC='$(TARGET)-gcc' \
         RANLIB='$(TARGET)-ranlib' \
@@ -42,3 +44,5 @@ endef
 
 $(PKG)_BUILD_i686-w64-mingw32   = $(subst @openssl-target@,mingw,$($(PKG)_BUILD))
 $(PKG)_BUILD_x86_64-w64-mingw32 = $(subst @openssl-target@,mingw64,$($(PKG)_BUILD))
+$(PKG)_BUILD_armv7-w64-mingw32   = $(subst @openssl-target@,armv7-w64-mingw32,$($(PKG)_BUILD))
+$(PKG)_BUILD_aarch64-w64-mingw32 = $(subst @openssl-target@,aarch64-w64-mingw32,$($(PKG)_BUILD))

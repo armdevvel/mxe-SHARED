@@ -1,0 +1,61 @@
+diff --git a/Configurations/10-main.conf b/Configurations/10-main.conf
+index eb92c24f..668a3bef 100644
+--- a/Configurations/10-main.conf
++++ b/Configurations/10-main.conf
+@@ -1433,6 +1433,34 @@ my %targets = (
+         multilib         => "64",
+         apps_aux_src     => add("win32_init.c"),
+     },
++    "armv7-w64-mingw32" => {
++        inherit_from     => [ "BASE_unix", asm("armv4_asm") ],
++        CC               => "armv7-w64-mingw32-gcc",
++        CFLAGS           => picker(default => "-Wall",
++                                   debug   => "-g -O0",
++                                   release => "-O3 -fomit-frame-pointer"),
++        cflags           => "-march=armv7-a -mthumb",
++        cppflags         => combine("-DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN",
++                                    threads("-D_MT")),
++        lib_cppflags     => "-DL_ENDIAN",
++        sys_id           => "MINGW32",
++        ex_libs          => add("-lws2_32 -lgdi32 -lcrypt32"),
++        bn_ops           => "BN_LLONG EXPORT_VAR_AS_FN",
++        thread_scheme    => "winthreads",
++        perlasm_scheme   => "coff-thumb",
++        dso_scheme       => "win32",
++        shared_target    => "mingw-shared",
++        shared_cppflags  => add("_WINDLL"),
++        shared_ldflag    => "-static-libgcc",
++        shared_rcflag    => "--target=pe-armv7",
++        shared_extension => ".dll",
++        multilib         => "",
++        apps_aux_src     => add("win32_init.c"),
++        # "WOW" stands for "Windows on Windows", and that word engages
++        # some installation path heuristics in unix-Makefile.tmpl... MOREINFO(treeswift)
++        build_scheme     => add("WOW", { separator => undef }),
++
++    },
+ 
+ #### UEFI
+     "UEFI" => {
+diff --git a/Configure b/Configure
+index 1d73d06e..a780cfd6 100755
+--- a/Configure
++++ b/Configure
+@@ -1141,7 +1141,7 @@ $target{CXXFLAGS}//=$target{CFLAGS} if $target{CXX};
+ $target{cxxflags}//=$target{cflags} if $target{CXX};
+ $target{exe_extension}="";
+ $target{exe_extension}=".exe" if ($config{target} eq "DJGPP"
+-                                  || $config{target} =~ /^(?:Cygwin|mingw)/);
++                                  || $config{target} =~ /Cygwin|mingw/);
+ $target{exe_extension}=".pm"  if ($config{target} =~ /vos/);
+ 
+ ($target{shared_extension_simple}=$target{shared_extension})
+@@ -1149,7 +1149,7 @@ $target{exe_extension}=".pm"  if ($config{target} =~ /vos/);
+     unless defined($target{shared_extension_simple});
+ $target{dso_extension}//=$target{shared_extension_simple};
+ ($target{shared_import_extension}=$target{shared_extension_simple}.".a")
+-    if ($config{target} =~ /^(?:Cygwin|mingw)/);
++    if ($config{target} =~ /Cygwin|mingw/);
+ 
+ # Fill %config with values from %user, and in case those are undefined or
+ # empty, use values from %target (acting as a default).
