@@ -1,25 +1,21 @@
-This file is part of MXE. See LICENSE.md for licensing information.
+diff --git a/src/util/xmlconfig.c b/src/util/xmlconfig.c
+index 26a811b..c8a2d4e 100644
+--- a/src/util/xmlconfig.c
++++ b/src/util/xmlconfig.c
+@@ -56,7 +56,6 @@ static inline void regfree(regex_t* r) {}
+ #endif
+ #include <fcntl.h>
+ #include <math.h>
+-#include "strndup.h"
+ #include "u_process.h"
+ #include "os_file.h"
 
-Contains ad hoc patches for cross building.
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Robert Manner <robert.manner@balabit.com>
-Date: Fri, 15 Dec 2017 16:40:18 +0100
-Subject: [PATCH] scons/crossmingw.py: compiler prefix can be customized
- through environment
-
-
-diff --git a/scons/crossmingw.py b/scons/crossmingw.py
-index 1111111..2222222 100644
---- a/scons/crossmingw.py
-+++ b/scons/crossmingw.py
-@@ -51,6 +51,9 @@ prefixes64 = SCons.Util.Split("""
- """)
- 
- def find(env):
-+    if os.environ['MINGW_PREFIX']:
-+        return os.environ['MINGW_PREFIX']
-+
-     if env['machine'] == 'x86_64':
-         prefixes = prefixes64
-     else:
+@@ -237,7 +236,7 @@ parseValue(driOptionValue *v, driOptionType type, const char *string)
+       break;
+    case DRI_STRING:
+       free(v->_string);
+-      v->_string = strndup(string, STRING_CONF_MAXLEN);
++      v->_string = strdup(string);
+       return true;
+    case DRI_SECTION:
+       unreachable("shouldn't be parsing values in section declarations");
