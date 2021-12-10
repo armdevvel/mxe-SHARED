@@ -1,0 +1,26 @@
+Post-build path wiring, pretty much ad-hoc. Can be put under IF(NOT CMAKE_CROSSCOMPILING).
+
+diff --git a/libmysql/CMakeLists.txt b/libmysql/CMakeLists.txt
+index 478a89cc..16c5099b 100644
+--- a/libmysql/CMakeLists.txt
++++ b/libmysql/CMakeLists.txt
+@@ -293,7 +293,7 @@ IF(WIN32)
+   # So that libmysql_api_test below can find the .dll
+   ADD_CUSTOM_COMMAND(TARGET libmysql POST_BUILD
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+-    "${CMAKE_BINARY_DIR}/library_output_directory/${CMAKE_CFG_INTDIR}/libmysql.dll"
++    "${CMAKE_BINARY_DIR}/library_output_directory/${CMAKE_CFG_INTDIR}/libmysqlclient.dll"
+     "${CMAKE_BINARY_DIR}/runtime_output_directory/${CMAKE_CFG_INTDIR}/libmysql.dll"
+     )
+ ENDIF()
+@@ -377,8 +377,10 @@ IF(MY_COMPILER_IS_GNU)
+     )
+ ENDIF()
+ 
++IF(NOT CMAKE_CROSSCOMPILING)
+ # Verify that libmysql_api_test runs OK
+ ADD_CUSTOM_COMMAND(TARGET libmysql_api_test POST_BUILD
+   COMMAND libmysql_api_test
+   > ${CMAKE_CURRENT_BINARY_DIR}/libmysql_api_test.out
+   )
++ENDIF()

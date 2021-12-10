@@ -2,20 +2,13 @@ This file is part of MXE. See LICENSE.md for licensing information.
 
 Contains ad hoc patches for cross building.
 
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: "fix@me" <fix@me>
-Date: Sun, 6 Sep 2015 22:34:47 +0100
-Subject: [PATCH 01/12] use comp_err tool built in native build
-
-See https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling#using-executables-in-the-build-created-during-the-build
-
-diff --git a/extra/CMakeLists.txt b/extra/CMakeLists.txt
+diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
 index 1111111..2222222 100644
---- a/extra/CMakeLists.txt
-+++ b/extra/CMakeLists.txt
-@@ -20,13 +20,29 @@ ${ZLIB_INCLUDE_DIR})
- # Default install component for the files here
- SET(MYSQL_INSTALL_COMPONENT Development)
+--- a/utilities/CMakeLists.txt
++++ b/utilities/CMakeLists.txt
+@@ -20,12 +20,27 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
  
 +# See https://bugs.mysql.com/bug.php?id=61340
 +# See https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling
@@ -23,7 +16,7 @@ index 1111111..2222222 100644
 +# when crosscompiling import the executable targets from a file
 +IF(CMAKE_CROSSCOMPILING)
 +  SET(IMPORT_COMP_ERR "IMPORTFILE-NOTFOUND"
-+  CACHE FILEPATH "Point it to the export file from a native build")
++  CACHE FILEPATH "Point it to the comp_err file from the native build")
 +  INCLUDE(${IMPORT_COMP_ERR})
 +ENDIF(CMAKE_CROSSCOMPILING)
 +
@@ -32,111 +25,59 @@ index 1111111..2222222 100644
 +#  (see above) by another build
 +# the IF() is not necessary, but makes the intention clearer
  IF(NOT CMAKE_CROSSCOMPILING)
-  ADD_EXECUTABLE(comp_err comp_err.c)
-  TARGET_LINK_LIBRARIES(comp_err mysys mysys_ssl)
-  SET_TARGET_PROPERTIES(comp_err PROPERTIES LINKER_LANGUAGE CXX)
-+ EXPORT(TARGETS comp_err FILE ${CMAKE_BINARY_DIR}/ImportCompErr.cmake)
+   MYSQL_ADD_EXECUTABLE(comp_err
+     comp_err.cc
+     LINK_LIBRARIES mysys
+     SKIP_INSTALL
+     )
++EXPORT(TARGETS comp_err FILE ${CMAKE_BINARY_DIR}/ImportCompErr.cmake)
  ENDIF()
  
+ MYSQL_ADD_EXECUTABLE(comp_client_err
+diff --git a/strings/CMakeLists.txt b/strings/CMakeLists.txt
+index 6a53ddfa..6381c32d 100644
+--- a/strings/CMakeLists.txt
++++ b/strings/CMakeLists.txt
+@@ -65,7 +65,16 @@ IF(MY_COMPILER_IS_CLANG AND
+   ADD_COMPILE_FLAGS(dtoa.cc COMPILE_FLAGS "-fno-strict-aliasing")
+ ENDIF()
  
-+# then use the target name as COMMAND, CMake >= 2.6 knows how to handle this
- ADD_CUSTOM_COMMAND(OUTPUT ${PROJECT_BINARY_DIR}/include/mysqld_error.h 
-                    ${PROJECT_BINARY_DIR}/sql/share/english/errmsg.sys
-                    COMMAND comp_err
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: "fix@me" <fix@me>
-Date: Sun, 6 Sep 2015 22:53:33 +0100
-Subject: [PATCH 02/12] fix extra qualification 'Handshake::'
-
-Compilation error.
-
-diff --git a/libmysql/authentication_win/handshake.h b/libmysql/authentication_win/handshake.h
+-MYSQL_ADD_EXECUTABLE(uca9dump uca9-dump.cc SKIP_INSTALL)
++IF(CMAKE_CROSSCOMPILING)
++  SET(IMPORT_UCA9DUMP "IMPORTFILE-NOTFOUND"
++  CACHE FILEPATH "Point it to the uca9dump file from the native build")
++  INCLUDE(${IMPORT_UCA9DUMP})
++ENDIF(CMAKE_CROSSCOMPILING)
++
++IF(NOT CMAKE_CROSSCOMPILING)
++  MYSQL_ADD_EXECUTABLE(uca9dump uca9-dump.cc SKIP_INSTALL)
++  EXPORT(TARGETS uca9dump FILE ${CMAKE_BINARY_DIR}/ImportUca9Dump.cmake)
++ENDIF()
+ 
+ SET(ZH_HANS_SRC_FILE ${CMAKE_SOURCE_DIR}/strings/lang_data/zh_hans.txt)
+ SET(ZH_HANS_DST_FILE ${CMAKE_BINARY_DIR}/strings/uca900_zh_tbls.cc)
+@@ -92,5 +101,14 @@ LIST(APPEND STRINGS_SOURCES ${JA_HANS_DST_FILE} ${ZH_HANS_DST_FILE})
+ ADD_DEFINITIONS(-DDISABLE_MYSQL_THREAD_H)
+ ADD_CONVENIENCE_LIBRARY(strings ${STRINGS_SOURCES})
+ 
+-MYSQL_ADD_EXECUTABLE(conf_to_src conf_to_src.cc SKIP_INSTALL)
+-TARGET_LINK_LIBRARIES(conf_to_src strings)
++IF(CMAKE_CROSSCOMPILING)
++  SET(IMPORT_CONF2SRC "IMPORTFILE-NOTFOUND"
++  CACHE FILEPATH "Point it to the conf_to_src file from the native build")
++  INCLUDE(${IMPORT_CONF2SRC})
++ENDIF(CMAKE_CROSSCOMPILING)
++
++IF(NOT CMAKE_CROSSCOMPILING)
++  MYSQL_ADD_EXECUTABLE(conf_to_src conf_to_src.cc SKIP_INSTALL)
++  TARGET_LINK_LIBRARIES(conf_to_src strings)
++  EXPORT(TARGETS conf_to_src FILE ${CMAKE_BINARY_DIR}/ImportConf2Src.cmake)
++ENDIF()
+diff --git a/mysys/my_gethwaddr.cc b/mysys/my_gethwaddr.cc
 index 1111111..2222222 100644
---- a/libmysql/authentication_win/handshake.h
-+++ b/libmysql/authentication_win/handshake.h
-@@ -100,7 +100,7 @@ public:
-   Handshake(const char *ssp, side_t side);
-   virtual ~Handshake();
- 
--  int Handshake::packet_processing_loop();
-+  int packet_processing_loop();
- 
-   bool virtual is_complete() const
-   {
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: "fix@me" <fix@me>
-Date: Mon, 7 Sep 2015 22:59:18 +0100
-Subject: [PATCH 03/12] fix case in headers and libs (should be lowercase)
-
-
-diff --git a/extra/yassl/src/yassl_int.cpp b/extra/yassl/src/yassl_int.cpp
-index 1111111..2222222 100644
---- a/extra/yassl/src/yassl_int.cpp
-+++ b/extra/yassl/src/yassl_int.cpp
-@@ -20,7 +20,7 @@
- // First include (the generated) my_config.h, to get correct platform defines.
- #include "my_config.h"
- #ifdef _WIN32
--#include<Windows.h>
-+#include<windows.h>
- #else
- #include <pthread.h>
- #endif
-diff --git a/include/mysql/psi/mysql_socket.h b/include/mysql/psi/mysql_socket.h
-index 1111111..2222222 100644
---- a/include/mysql/psi/mysql_socket.h
-+++ b/include/mysql/psi/mysql_socket.h
-@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- #ifdef _WIN32
-   #include <ws2def.h>
-   #include <winsock2.h>
--  #include <MSWSock.h>
-+  #include <mswsock.h>
-   #define SOCKBUF_T char
- #else
-   #include <netinet/in.h>
-diff --git a/libmysql/authentication_win/CMakeLists.txt b/libmysql/authentication_win/CMakeLists.txt
-index 1111111..2222222 100644
---- a/libmysql/authentication_win/CMakeLists.txt
-+++ b/libmysql/authentication_win/CMakeLists.txt
-@@ -26,7 +26,7 @@ SET(HEADERS common.h handshake.h)
- SET(PLUGIN_SOURCES plugin_client.cc handshake_client.cc log_client.cc common.cc handshake.cc)
- 
- ADD_CONVENIENCE_LIBRARY(auth_win_client ${PLUGIN_SOURCES} ${HEADERS})
--TARGET_LINK_LIBRARIES(auth_win_client Secur32)
-+TARGET_LINK_LIBRARIES(auth_win_client secur32)
- 
- # In IDE, group headers in a separate folder.
- 
-diff --git a/libmysql/authentication_win/plugin_client.cc b/libmysql/authentication_win/plugin_client.cc
-index 1111111..2222222 100644
---- a/libmysql/authentication_win/plugin_client.cc
-+++ b/libmysql/authentication_win/plugin_client.cc
-@@ -26,7 +26,7 @@
- */
- 
- #ifdef _MSC_VER
--#pragma comment(lib, "Secur32")
-+#pragma comment(lib, "secur32")
- #endif
- 
- static int win_auth_client_plugin_init(char*, size_t, int, va_list)
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: "fix@me" <fix@me>
-Date: Mon, 7 Sep 2015 23:01:35 +0100
-Subject: [PATCH 04/12] define missing types
-
-We do not use types CERT_NAME_BLOB and CRYPT_HASH_BLOB,
-though they are used in mprapi.h. And are not defined!
-
-diff --git a/mysys/my_gethwaddr.c b/mysys/my_gethwaddr.c
-index 1111111..2222222 100644
---- a/mysys/my_gethwaddr.c
-+++ b/mysys/my_gethwaddr.c
-@@ -137,6 +137,9 @@ my_bool my_gethwaddr(uchar *to)
+--- a/mysys/my_gethwaddr.cc
++++ b/mysys/my_gethwaddr.cc
+@@ -154,6 +154,9 @@
  #define VOID void
  #endif
  
@@ -146,13 +87,58 @@ index 1111111..2222222 100644
  #include <iphlpapi.h>
  
  /*
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "fix@me" <fix@me>
+Date: Mon, 7 Sep 2015 22:59:18 +0100
+Subject: [PATCH 03/12] fix case in headers and libs (should be lowercase)
+
+
+diff --git a/include/mysql/psi/mysql_socket.h b/include/mysql/psi/mysql_socket.h
+index 1111111..2222222 100644
+--- a/include/mysql/psi/mysql_socket.h
++++ b/include/mysql/psi/mysql_socket.h
+@@ -39,7 +39,7 @@
+ #include "mysql/psi/psi_socket.h"
+ /* For socket api */
+ #ifdef _WIN32
+-#include <MSWSock.h>
++#include <mswsock.h>
+ #ifdef WIN32_LEAN_AND_MEAN
+ #include <winsock2.h>
+ #include <ws2def.h>
+diff --git a/libmysql/authentication_win/CMakeLists.txt b/libmysql/authentication_win/CMakeLists.txt
+index 1111111..2222222 100644
+--- a/libmysql/authentication_win/CMakeLists.txt
++++ b/libmysql/authentication_win/CMakeLists.txt
+@@ -39,7 +39,7 @@
+   )
+ 
+ ADD_CONVENIENCE_LIBRARY(auth_win_client ${PLUGIN_SOURCES} ${HEADERS}
+-  LINK_LIBRARIES Secur32)
++  LINK_LIBRARIES secur32)
+ 
+ # In IDE, group headers in a separate folder.
+ 
+diff --git a/libmysql/authentication_win/plugin_client.cc b/libmysql/authentication_win/plugin_client.cc
+index 1111111..2222222 100644
+--- a/libmysql/authentication_win/plugin_client.cc
++++ b/libmysql/authentication_win/plugin_client.cc
+@@ -32,7 +32,7 @@
+ */
+ 
+ #ifdef _MSC_VER
+-#pragma comment(lib, "Secur32")
++#pragma comment(lib, "secur32")
+ #endif
+ 
+ static int win_auth_client_plugin_init(char *, size_t, int, va_list) {
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "fix@me" <fix@me>
 Date: Mon, 7 Sep 2015 23:04:23 +0100
-Subject: [PATCH 05/12] macro NATIVE_WIN32 for stuff we don't have here
+Subject: [PATCH 05/12] macro _MSC_VER for stuff we don't have here
 
-Macro NATIVE_WIN32 is undefined in MXE. It is used instead of _WIN32
+Macro _MSC_VER is undefined in MXE. It is used instead of _WIN32
 in #ifdef's where working variant is Unix and not Win32:
 
  * MXE has strtok_r, but not strtok_s
@@ -163,100 +149,28 @@ diff --git a/include/m_string.h b/include/m_string.h
 index 1111111..2222222 100644
 --- a/include/m_string.h
 +++ b/include/m_string.h
-@@ -127,7 +127,7 @@ static inline ulonglong my_strtoull(const char *nptr, char **endptr, int base)
+@@ -208,7 +208,7 @@
+ }
  
- static inline char *my_strtok_r(char *str, const char *delim, char **saveptr)
- {
+ static inline char *my_strtok_r(char *str, const char *delim, char **saveptr) {
 -#if defined _WIN32
-+#if NATIVE_WIN32
++#ifdef _MSC_VER
    return strtok_s(str, delim, saveptr);
  #else
    return strtok_r(str, delim, saveptr);
-diff --git a/include/my_global.h b/include/my_global.h
+diff --git a/mysys/stacktrace.cc b/mysys/stacktrace.cc
 index 1111111..2222222 100644
---- a/include/my_global.h
-+++ b/include/my_global.h
-@@ -205,7 +205,7 @@ C_MODE_START
- typedef int	(*qsort_cmp)(const void *,const void *);
- typedef int	(*qsort_cmp2)(const void*, const void *,const void *);
- C_MODE_END
--#ifdef _WIN32
-+#ifdef _MSC_VER
- typedef int       socket_len_t;
- typedef int       sigset_t;
- typedef int       mode_t;
-@@ -646,6 +646,9 @@ static inline struct tm *gmtime_r(const time_t *clock, struct tm *res)
-   return res;
- }
- 
-+#endif
-+
-+#ifdef _MSC_VER
- 
- /*
-   Declare a union to make sure FILETIME is properly aligned
-@@ -671,7 +674,7 @@ C_MODE_END
- 
- static inline void set_timespec_nsec(struct timespec *abstime, ulonglong nsec)
- {
--#ifndef _WIN32
-+#ifndef _MSC_VER
-   ulonglong now= my_getsystime() + (nsec / 100);
-   abstime->tv_sec=   now / 10000000ULL;
-   abstime->tv_nsec= (now % 10000000ULL) * 100 + (nsec % 100);
-@@ -697,7 +700,7 @@ static inline void set_timespec(struct timespec *abstime, ulonglong sec)
- */
- static inline int cmp_timespec(struct timespec *ts1, struct timespec *ts2)
- {
--#ifndef _WIN32
-+#ifndef _MSC_VER
-   if (ts1->tv_sec > ts2->tv_sec ||
-       (ts1->tv_sec == ts2->tv_sec && ts1->tv_nsec > ts2->tv_nsec))
-     return 1;
-@@ -715,7 +718,7 @@ static inline int cmp_timespec(struct timespec *ts1, struct timespec *ts2)
- 
- static inline ulonglong diff_timespec(struct timespec *ts1, struct timespec *ts2)
- {
--#ifndef _WIN32
-+#ifndef _MSC_VER
-   return (ts1->tv_sec - ts2->tv_sec) * 1000000000ULL +
-     ts1->tv_nsec - ts2->tv_nsec;
- #else
-diff --git a/include/thr_cond.h b/include/thr_cond.h
-index 1111111..2222222 100644
---- a/include/thr_cond.h
-+++ b/include/thr_cond.h
-@@ -39,7 +39,7 @@ typedef CONDITION_VARIABLE native_cond_t;
- typedef pthread_cond_t native_cond_t;
- #endif
- 
--#ifdef _WIN32
-+#ifdef _MSC_VER
- /**
-   Convert abstime to milliseconds
- */
-@@ -104,7 +104,7 @@ static inline int native_cond_timedwait(native_cond_t *cond,
-                                         const struct timespec *abstime)
- {
- #ifdef _WIN32
--  DWORD timeout= get_milliseconds(abstime);
-+  DWORD timeout= abstime->tv_nsec / 1000000 + abstime->tv_sec * 1000;
-   if (!SleepConditionVariableCS(cond, mutex, timeout))
-     return ETIMEDOUT;
-   return 0;
-diff --git a/mysys/stacktrace.c b/mysys/stacktrace.c
-index 1111111..2222222 100644
---- a/mysys/stacktrace.c
-+++ b/mysys/stacktrace.c
-@@ -15,7 +15,7 @@
- 
+--- a/mysys/stacktrace.cc
++++ b/mysys/stacktrace.cc
+@@ -47,7 +47,7 @@
+ #include "my_macros.h"
  #include "my_stacktrace.h"
  
 -#ifndef _WIN32
 +#ifndef _MSC_VER
- #include "my_pthread.h"
- #include "m_string.h"
  #include <signal.h>
+
+ #include "my_thread.h"
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "fix@me" <fix@me>
@@ -268,85 +182,29 @@ diff --git a/libmysql/CMakeLists.txt b/libmysql/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/libmysql/CMakeLists.txt
 +++ b/libmysql/CMakeLists.txt
-@@ -216,7 +216,7 @@ MACRO(GET_TARGET_NAME target out_name)
-   SET(${out_name} ${name})
- ENDMACRO()
+@@ -265,7 +265,7 @@
+   ENDIF()
+ ENDIF()
  
 -IF(UNIX)
 +IF(UNIX OR MINGW)
    MACRO(GET_VERSIONED_LIBNAME LIBNAME EXTENSION VERSION OUTNAME)
      SET(DOT_VERSION ".${VERSION}")
      IF(DOT_VERSION STREQUAL ".") 
-@@ -230,7 +230,7 @@ IF(UNIX)
-   ENDMACRO()
- ENDIF()
+@@ -298,7 +298,7 @@
+       )
+   ENDIF()
  
 -IF(UNIX)
 +IF(UNIX OR MINGW)
-   GET_TARGET_NAME(mysqlclient lib_name)
-   INSTALL_SYMLINK(mysqlclient
-     ${lib_name} ${CMAKE_STATIC_LIBRARY_PREFIX}mysqlclient_r.a
-@@ -252,7 +252,7 @@ IF(NOT DISABLE_SHARED)
-   MERGE_LIBRARIES(libmysql SHARED ${LIBS}
-     EXPORTS ${CLIENT_API_FUNCTIONS}
-     COMPONENT SharedLibraries)
--  IF(UNIX)
-+  IF(UNIX OR MINGW)
-     # libtool compatability
-     IF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD" OR APPLE)
-       SET(OS_SHARED_LIB_VERSION "${SHARED_LIB_MAJOR_VERSION}")
+   # libtool compatability
+   IF(FREEBSD OR APPLE)
+     SET(OS_SHARED_LIB_VERSION "${SHARED_LIB_MAJOR_VERSION}")
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "fix@me" <fix@me>
 Date: Thu, 8 Oct 2015 19:36:35 +1100
 Subject: [PATCH 07/12] allow install of mysql_config
-
-
-diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
-index 1111111..2222222 100644
---- a/scripts/CMakeLists.txt
-+++ b/scripts/CMakeLists.txt
-@@ -92,7 +92,7 @@ ENDIF()
- 
- SET(mysql_config_COMPONENT COMPONENT Development)
- 
--IF(WIN32)
-+IF(WIN32 AND NOT MINGW)
-   # On Windows, some .sh and some .pl.in files are configured 
-   # The resulting files will have .pl extension (those are perl scripts)
- 
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Boris Nagaev <bnagaev@gmail.com>
-Date: Wed, 11 Nov 2015 07:44:44 +0000
-Subject: [PATCH 08/12] add 'static' to some inline functions
-
-Fix https://gist.github.com/starius/71d5f276d62e58f36d2f
-See also https://stackoverflow.com/a/8502046
-
-diff --git a/include/my_global.h b/include/my_global.h
-index 1111111..2222222 100644
---- a/include/my_global.h
-+++ b/include/my_global.h
-@@ -340,7 +340,7 @@ typedef socket_len_t SOCKET_SIZE_TYPE; /* Used by NDB */
- 
- #if (_WIN32)
- #if !defined(_WIN64)
--inline double my_ulonglong2double(unsigned long long value)
-+static inline double my_ulonglong2double(unsigned long long value)
- {
-   long long nr=(long long) value;
-   if (nr >= 0)
-@@ -350,7 +350,7 @@ inline double my_ulonglong2double(unsigned long long value)
- #define ulonglong2double my_ulonglong2double
- #define my_off_t2double  my_ulonglong2double
- #endif /* _WIN64 */
--inline unsigned long long my_double2ulonglong(double d)
-+static inline unsigned long long my_double2ulonglong(double d)
- {
-   double t= d - (double) 0x8000000000000000ULL;
- 
-
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Boris Nagaev <bnagaev@gmail.com>
 Date: Wed, 16 Dec 2015 17:39:28 +0100
@@ -358,10 +216,28 @@ diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/scripts/CMakeLists.txt
 +++ b/scripts/CMakeLists.txt
-@@ -59,7 +59,10 @@ MACRO(EXTRACT_LINK_LIBRARIES target var)
+@@ -22,7 +22,16 @@
+ 
+ ADD_SUBDIRECTORY(sys_schema)
+ 
+-MYSQL_ADD_EXECUTABLE(comp_sql comp_sql.cc SKIP_INSTALL)
++IF(CMAKE_CROSSCOMPILING)
++  SET(IMPORT_COMP_SQL "IMPORTFILE-NOTFOUND"
++  CACHE FILEPATH "Point it to the comp_sql file from the native build")
++  INCLUDE(${IMPORT_COMP_SQL})
++ENDIF(CMAKE_CROSSCOMPILING)
++
++IF(NOT CMAKE_CROSSCOMPILING)
++  MYSQL_ADD_EXECUTABLE(comp_sql comp_sql.cc SKIP_INSTALL)
++  EXPORT(TARGETS comp_sql FILE ${CMAKE_BINARY_DIR}/ImportCompSql.cmake)
++ENDIF()
+ 
+ # Add compiler information, for easier debugging of output from mysql_config.
+ SET(COMPILER_ID_AND_VERSION
+@@ -327,7 +336,10 @@ MACRO(EXTRACT_LINK_LIBRARIES target var)
+     LIST(REMOVE_DUPLICATES ${target}_LIB_DEPENDS)
      FOREACH(lib ${${target}_LIB_DEPENDS})
        # Filter out "general", it is not a library, just CMake hint
-       # Also, remove duplicates
 -      IF(NOT lib STREQUAL "general" AND NOT ${var}  MATCHES "-l${lib} ")
 +      # To check if "${var}" contains "-l${lib} ", use replace
 +      # can't use MATCHES because ${lib} may contain special chars.
@@ -369,8 +245,16 @@ index 1111111..2222222 100644
 +      IF(NOT lib STREQUAL "general" AND ${var} STREQUAL ${var_repl})
          IF (lib MATCHES "^\\-l")
            SET(${var} "${${var}} ${lib} ") 
-         ELSEIF(lib MATCHES "^/")
-
+         ELSEIF (lib MATCHES "^\\-L")
+@@ -388,7 +400,7 @@ MESSAGE(STATUS "CONFIG_LIBS_PRIVATE ${CONFIG_LIBS_PRIVATE}")
+ 
+ SET(mysql_config_COMPONENT Development)
+ 
+-IF(WIN32)
++IF(WIN32 AND NOT MINGW)
+   # On Windows, some .sh and some .pl.in files are configured
+   # The resulting files will have .pl extension (those are perl scripts)
+ 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "fix@me" <fix@me>
 Date: Fri, 13 Nov 2015 10:22:12 -0500
@@ -382,7 +266,7 @@ diff --git a/configure.cmake b/configure.cmake
 index 1111111..2222222 100644
 --- a/configure.cmake
 +++ b/configure.cmake
-@@ -389,6 +389,7 @@ CHECK_INCLUDE_FILES (fnmatch.h HAVE_FNMATCH_H)
+@@ -233,6 +233,7 @@ CHECK_INCLUDE_FILES (fnmatch.h HAVE_FNMATCH_H)
  CHECK_INCLUDE_FILES (sys/un.h HAVE_SYS_UN_H)
  CHECK_INCLUDE_FILES (vis.h HAVE_VIS_H) # Used by libedit
  CHECK_INCLUDE_FILES (sasl/sasl.h HAVE_SASL_SASL_H) # Used by memcached
@@ -390,99 +274,17 @@ index 1111111..2222222 100644
  
  # For libevent
  CHECK_INCLUDE_FILES(sys/devpoll.h HAVE_DEVPOLL)
-diff --git a/include/my_pthread.h b/include/my_pthread.h
-index 1111111..2222222 100644
---- a/include/my_pthread.h
-+++ b/include/my_pthread.h
-@@ -20,7 +20,7 @@
- 
- #include "my_global.h"                          /* myf */
- 
--#if !defined(_WIN32)
-+#if !(defined(_WIN32) && !defined(USING_PTHREADS))
- #include <pthread.h>
- #endif
- 
-@@ -35,7 +35,7 @@ extern "C" {
- #define EXTERNC
- #endif /* __cplusplus */ 
- 
--#if defined(_WIN32)
-+#if defined(_WIN32) && !defined(__WINPTHREADS_VERSION)
- typedef DWORD		 pthread_t;
- #define pthread_self() GetCurrentThreadId()
- #define pthread_handler_t EXTERNC void * __cdecl
-@@ -51,7 +51,7 @@ typedef DWORD		 pthread_t;
- #include "thr_cond.h"
- #include "thr_rwlock.h"
- 
--#if defined(_WIN32)
-+#if defined(_WIN32) && !defined(__WINPTHREADS_VERSION)
- /*
-   Existing mysql_thread_create() or pthread_create() does not work well
-   in windows platform when threads are joined because
-diff --git a/mysys/CMakeLists.txt b/mysys/CMakeLists.txt
-index 1111111..2222222 100644
---- a/mysys/CMakeLists.txt
-+++ b/mysys/CMakeLists.txt
-@@ -78,6 +78,11 @@ IF(CMAKE_USE_PTHREADS_INIT AND CMAKE_C_FLAGS MATCHES "-fsanitize=")
-   TARGET_LINK_LIBRARIES(mysys pthread)
- ENDIF()
- 
-+IF(HAVE_PTHREAD_H)
-+  ADD_DEFINITIONS(-DUSING_PTHREADS)
-+  TARGET_LINK_LIBRARIES(mysys pthread)
-+ENDIF()
-+
- IF(WITH_UNIT_TESTS)
- 
- ADD_EXECUTABLE(thr_lock thr_lock.c)
-diff --git a/mysys/my_winthread.c b/mysys/my_winthread.c
-index 1111111..2222222 100644
---- a/mysys/my_winthread.c
-+++ b/mysys/my_winthread.c
-@@ -16,7 +16,7 @@
- /*****************************************************************************
- ** Simulation of posix threads calls for Windows
- *****************************************************************************/
--#if defined (_WIN32)
-+#if defined (_WIN32) && !defined (USING_PTHREADS)
- #include "mysys_priv.h"
- #include <process.h>
- #include <signal.h>
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Tony Theodore <tonyt@logyst.com>
-Date: Wed, 8 Feb 2017 11:51:42 +1100
-Subject: [PATCH 11/12] only define localtime_r and gmtime_r when pthreads
- isn't used
-
-
-diff --git a/include/my_global.h b/include/my_global.h
-index 1111111..2222222 100644
---- a/include/my_global.h
-+++ b/include/my_global.h
-@@ -629,7 +629,7 @@ enum loglevel {
- };
- 
- 
--#ifdef _WIN32
-+#if defined(_WIN32) && !defined(_POSIX_THREAD_SAFE_FUNCTIONS)
- /****************************************************************************
- ** Replacements for localtime_r and gmtime_r
- ****************************************************************************/
-
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Mark Brand <mabrand@mabrand.nl>
 Date: Mon, 17 Sep 2018 11:04:30 +0200
 Subject: [PATCH 12/12] mingw-w64 6 fix
 
 
-diff --git a/mysys/my_gethwaddr.c b/mysys/my_gethwaddr.c
+diff --git a/mysys/my_gethwaddr.cc b/mysys/my_gethwaddr.cc
 index 1111111..2222222 100644
---- a/mysys/my_gethwaddr.c
-+++ b/mysys/my_gethwaddr.c
-@@ -137,9 +137,11 @@ my_bool my_gethwaddr(uchar *to)
+--- a/mysys/my_gethwaddr.cc
++++ b/mysys/my_gethwaddr.cc
+@@ -137,9 +137,11 @@
  #define VOID void
  #endif
  

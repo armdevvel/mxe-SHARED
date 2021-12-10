@@ -1,0 +1,213 @@
+diff --git a/cmake/boost.cmake b/cmake/boost.cmake
+index 592a67f2..0d18d917 100644
+--- a/cmake/boost.cmake
++++ b/cmake/boost.cmake
+@@ -297,7 +297,7 @@ IF(NOT BOOST_MAJOR_VERSION EQUAL 10)
+   COULD_NOT_FIND_BOOST()
+ ENDIF()
+ 
+-IF(NOT BOOST_MINOR_VERSION EQUAL 70)
++IF(BOOST_MINOR_VERSION LESS 70)
+   MESSAGE(WARNING "Boost minor version found is ${BOOST_MINOR_VERSION} "
+     "we need 70"
+     )
+diff --git a/cmake/os/Windows.cmake b/cmake/os/Windows.cmake
+index 0e702201..271bbadd 100644
+--- a/cmake/os/Windows.cmake
++++ b/cmake/os/Windows.cmake
+@@ -32,7 +32,7 @@ INCLUDE (CheckCSourceRuns)
+ INCLUDE (CheckSymbolExists)
+ INCLUDE (CheckTypeSize)
+ 
+-IF(MY_COMPILER_IS_CLANG)
++IF(MY_COMPILER_IS_CLANG AND NOT MINGW)
+   SET(WIN32_CLANG 1)
+   SET(CMAKE_INCLUDE_SYSTEM_FLAG_C "/imsvc ")
+   SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "/imsvc ")
+@@ -58,14 +58,10 @@ ENDIF()
+ # Used by the test suite to ignore bugs on some platforms, 
+ IF(CMAKE_SIZEOF_VOID_P MATCHES 8)
+   SET(SYSTEM_TYPE "Win64")
+-  SET(MYSQL_MACHINE_TYPE "x86_64")
++  SET(MYSQL_MACHINE_TYPE "aarch64")
+ ELSE()
+-  IF(WITHOUT_SERVER)
+-    MESSAGE(WARNING "32bit is experimental!!")
+-  ELSE()
+-    MESSAGE(FATAL_ERROR "32 bit Windows builds are not supported. "
+-      "Clean the build dir and rebuild using -G \"${CMAKE_GENERATOR} Win64\"")
+-  ENDIF()
++  SET(SYSTEM_TYPE "Win32")
++  SET(MYSQL_MACHINE_TYPE "armv7")
+ ENDIF()
+ 
+ # Target Windows 7 / Windows Server 2008 R2 or later, i.e _WIN32_WINNT_WIN7
+diff --git a/cmake/maintainer.cmake b/cmake/maintainer.cmake
+index 55e8566b..c7b128de 100644
+--- a/cmake/maintainer.cmake
++++ b/cmake/maintainer.cmake
+@@ -47,11 +47,6 @@ IF(SIZEOF_VOIDP EQUAL 8)
+   STRING_APPEND(MY_WARNING_FLAGS " -Wmissing-format-attribute")
+ ENDIF()
+ 
+-# Clang 6.0 and newer on Windows treat -Wall as -Weverything; use /W4 instead
+-IF(WIN32_CLANG)
+-  STRING(REPLACE "-Wall -Wextra" "/W4" MY_WARNING_FLAGS "${MY_WARNING_FLAGS}")
+-ENDIF()
+-
+ # Common warning flags for GCC and Clang
+ SET(MY_C_WARNING_FLAGS "${MY_WARNING_FLAGS} -Wwrite-strings")
+ 
+diff --git a/router/src/harness/src/CMakeLists.txt b/router/src/harness/src/CMakeLists.txt
+index eec75aa9..136c6280 100644
+--- a/router/src/harness/src/CMakeLists.txt
++++ b/router/src/harness/src/CMakeLists.txt
+@@ -99,7 +99,7 @@ SET(harness_source
+   networking/resolver.cc
+   my_aes_openssl.cc)
+ 
+-IF(WIN32)
++IF(WIN32 AND NOT MINGW)
+   LIST(APPEND harness_source
+     filesystem-windows.cc
+     utilities-windows.cc
+@@ -119,7 +119,7 @@ INCLUDE_DIRECTORIES(
+   ${MySQLRouter_BINARY_DIR}/include
+   )
+ 
+-IF(WIN32)
++IF(WIN32 AND NOT MINGW)
+   INCLUDE(CheckIncludeFileCXX)
+   CHECK_INCLUDE_FILE_CXX("shlwapi.h" Shlwapi_FOUND)
+   IF(Shlwapi_FOUND)
+diff --git a/router/cmake/Plugin.cmake b/router/cmake/Plugin.cmake
+index 0d3cd705..48238a1e 100644
+--- a/router/cmake/Plugin.cmake
++++ b/router/cmake/Plugin.cmake
+@@ -150,9 +150,11 @@ FUNCTION(add_harness_plugin NAME)
+       INSTALL(TARGETS ${NAME}
+         RUNTIME DESTINATION ${_option_DESTINATION}
+         COMPONENT Router)
+-      INSTALL(FILES $<TARGET_PDB_FILE:${NAME}>
+-        DESTINATION ${_option_DESTINATION}
+-        COMPONENT Router)
++      IF(NOT MINGW)
++        INSTALL(FILES $<TARGET_PDB_FILE:${NAME}>
++          DESTINATION ${_option_DESTINATION}
++          COMPONENT Router)
++      ENDIF()
+     ELSE()
+       INSTALL(TARGETS ${NAME}
+         LIBRARY DESTINATION ${_option_DESTINATION}
+diff --git a/include/my_inttypes.h b/include/my_inttypes.h
+index b0945f08..50638531 100644
+--- a/include/my_inttypes.h
++++ b/include/my_inttypes.h
+@@ -40,7 +40,11 @@
+ #endif
+ 
+ #ifdef _WIN32
++#ifdef _MSC_VER
+ #include <BaseTsd.h>
++#else
++#include <unistd.h>
++#endif
+ typedef unsigned int uint;
+ typedef unsigned short ushort;
+ #endif
+@@ -119,7 +123,7 @@ typedef int myf; /* Type of MyFlags in my_funcs */
+ /* Length of decimal number represented by INT64. */
+ #define MY_INT64_NUM_DECIMAL_DIGITS 21U
+ 
+-#ifdef _WIN32
++#ifdef _MSC_VER
+ typedef SSIZE_T ssize_t;
+ #endif
+ 
+diff --git a/include/mysql/components/services/my_io_bits.h b/include/mysql/components/services/my_io_bits.h
+index 10d862aa..62d50f41 100644
+--- a/include/mysql/components/services/my_io_bits.h
++++ b/include/mysql/components/services/my_io_bits.h
+@@ -48,15 +48,15 @@
+ #endif
+ 
+ typedef int File; /* File descriptor */
+-#ifdef _WIN32
++#ifdef _MSC_VER
+ typedef int MY_MODE;
+ typedef int mode_t;
+ typedef int socket_len_t;
+ typedef SOCKET my_socket;
+ #else
+ typedef mode_t MY_MODE;
+ typedef socklen_t socket_len_t;
+-typedef int my_socket; /* File descriptor for sockets */
++typedef unsigned int my_socket; /* File descriptor for sockets */
+ #endif /* _WIN32 */
+ 
+ #endif /* COMPONENTS_SERVICES_MY_IO_BITS_H */
+ 
+diff --git a/include/my_systime.h b/include/my_systime.h
+index e4d145e5..576ee9af 100644
+--- a/include/my_systime.h
++++ b/include/my_systime.h
+@@ -79,6 +79,7 @@ inline struct tm *gmtime_r(const time_t *clock, struct tm *res) {
+   return res;
+ }
+ 
++#ifdef _MSC_VER
+ /**
+    Sleep the given number of seconds. POSIX compatibility.
+ 
+@@ -87,7 +88,7 @@ inline struct tm *gmtime_r(const time_t *clock, struct tm *res) {
+ inline void sleep(unsigned long seconds) {
+   std::this_thread::sleep_for(std::chrono::seconds{seconds});
+ }
+-
++#endif /* _MSC_VER */
+ #endif /* _WIN32 */
+ 
+ /**
+diff --git a/include/mysql/components/services/my_thread_bits.h b/include/mysql/components/services/my_thread_bits.h
+index 992f9a39..d8bdd1c4 100644
+--- a/include/mysql/components/services/my_thread_bits.h
++++ b/include/mysql/components/services/my_thread_bits.h
+@@ -31,7 +31,8 @@
+ #ifndef MYSQL_ABI_CHECK
+ #if defined(_WIN32)
+ #include <windows.h>
+-#else
++#endif
++#ifndef _MSC_VER
+ #include <pthread.h>  // IWYU pragma: export
+ #include <sched.h>    // IWYU pragma: export
+ #endif
+diff --git a/libbinlogevents/include/binlog_event.h b/libbinlogevents/include/binlog_event.h
+index e14a08ef..7d5bff1a 100644
+--- a/libbinlogevents/include/binlog_event.h
++++ b/libbinlogevents/include/binlog_event.h
+@@ -46,7 +46,6 @@
+ #include "event_reader.h"
+ #include "my_io.h"
+ 
+-#if defined(_WIN32)
++#ifdef _WIN32
+-#include <Winsock2.h>
+ #else
+ #include <sys/times.h>
+ #endif
+diff --git a/cmake/ssl.cmake b/cmake/ssl.cmake
+index 58c2567d..cdfc8d52 100644
+--- a/cmake/ssl.cmake
++++ b/cmake/ssl.cmake
+@@ -635,7 +635,9 @@ MACRO(MYSQL_CHECK_SSL_DLLS)
+       ELSE()
+         MESSAGE(STATUS "Cannot find SSL dynamic libraries")
+         IF(OPENSSL_MINOR_VERSION VERSION_EQUAL 1)
+-          SET(SSL_LIBRARIES ${SSL_LIBRARIES} crypt32.lib)
++          IF(NOT MINGW)
++            SET(SSL_LIBRARIES ${SSL_LIBRARIES} crypt32.lib)
++          ENDIF()
+           MESSAGE(STATUS "SSL_LIBRARIES ${SSL_LIBRARIES}")
+         ENDIF()
+       ENDIF()

@@ -3,12 +3,12 @@
 PKG             := libmysqlclient
 $(PKG)_WEBSITE  := https://dev.mysql.com/downloads/connector/c/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 6.1.6
-$(PKG)_CHECKSUM := 2222433012c415871958b61bc4f3683e1ebe77e3389f698b267058c12533ea78
-$(PKG)_SUBDIR   := mysql-connector-c-$($(PKG)_VERSION)-src
+$(PKG)_VERSION  := 8.0.18
+$(PKG)_CHECKSUM := 4cb39a315298eb243c25c53c184b3682b49c2a907a1d8432ba0620534806ade8
+$(PKG)_SUBDIR   := mysql-$($(PKG)_VERSION)
 $(PKG)_FILE     := $($(PKG)_SUBDIR).tar.gz
-$(PKG)_URL      := https://dev.mysql.com/get/Downloads/Connector-C/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc openssl zlib
+$(PKG)_URL      := https://cdn.mysql.com/archives/mysql-8.0/$($(PKG)_FILE)
+$(PKG)_DEPS     := cc openssl zlib protobuf lz4 libevent curl
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://dev.mysql.com/downloads/connector/c/' | \
@@ -22,25 +22,35 @@ define $(PKG)_BUILD
     mkdir '$(1).native'
     cd '$(1).native' && cmake \
          '$(1)'
-    $(MAKE) -C '$(1).native' -j '$(JOBS)' VERBOSE=1
+    $(MAKE) -C '$(1).native' -j '$(JOBS)' VERBOSE=1 comp_err comp_sql
     # cross-compilation
     mkdir '$(1).build'
     cd '$(1).build' && '$(TARGET)-cmake' \
         -DIMPORT_COMP_ERR='$(1).native/ImportCompErr.cmake' \
+        -DIMPORT_COMP_SQL='$(1).native/ImportCompSql.cmake' \
+		-DIMPORT_UCA9DUMP='$(1).native/ImportUca9Dump.cmake' \
+        -DIMPORT_CONF2SRC='$(1).native/ImportConf2Src.cmake' \
         -DHAVE_GCC_ATOMIC_BUILTINS=1 \
         -DDISABLE_SHARED=$(CMAKE_STATIC_BOOL) \
+        -DWITHOUT_SERVER=ON \
         -DENABLE_DTRACE=OFF \
         -DWITH_ZLIB=system \
+        -DWITH_SSL=system \
+        -DWITH_BOOST=system \
+        -DWITH_SYSTEM_LIBS=ON \
+        -DCMAKE_INSTALL_PREFIX=$(PREFIX)/$(TARGET) \
         '$(1)'
 
     # def file created by cmake creates link errors
     $(if $(findstring i686-w64-mingw32.shared,$(TARGET)),
         cp '$(PWD)/src/$(PKG).def' '$(1).build/libmysql/libmysql_exports.def')
 
-    $(MAKE) -C '$(1).build' -j '$(JOBS)' VERBOSE=1
+    $(MAKE) -C '$(1).build' -j '$(JOBS)' VERBOSE=1 libmysql
     $(MAKE) -C '$(1).build/include'  -j 1 install VERBOSE=1
     $(MAKE) -C '$(1).build/libmysql' -j 1 install VERBOSE=1
-    $(MAKE) -C '$(1).build/scripts'  -j 1 install VERBOSE=1
+    
+    # issues with scripts/sys_schema/comp_sql -- neeed?
+    # $(MAKE) -C '$(1).build/scripts'  -j 1 install VERBOSE=1
 
     # no easy way to configure location of dll
     -mv '$(PREFIX)/$(TARGET)/lib/$(PKG).dll' '$(PREFIX)/$(TARGET)/bin/'
