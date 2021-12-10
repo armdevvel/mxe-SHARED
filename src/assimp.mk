@@ -22,5 +22,5 @@ define $(PKG)_BUILD
     '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-assimp.exe' \
-        `'$(TARGET)-pkg-config' assimp minizip --cflags --libs`
+        `'$(TARGET)-pkg-config' assimp minizip --cflags --libs` -lc++
 endef
