@@ -4,7 +4,6 @@ cpu_family = 'armv7'
 cpu = 'arm'
 endian = 'little'
 
-
 [binaries]
 c = 'armv7-w64-mingw32-gcc'
 cpp = 'armv7-w64-mingw32-g++'
