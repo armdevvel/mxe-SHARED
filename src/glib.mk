@@ -79,4 +79,7 @@ define $(PKG)_BUILD
     build-arm
 
     cd '$(SOURCE_DIR)/build-arm' && ninja && meson install
+    ln -s '$(PREFIX)/bin/glib-genmarshal'        '$(PREFIX)/$(TARGET)/bin/glib-genmarshal'
+    ln -s '$(PREFIX)/bin/glib-compile-schemas'   '$(PREFIX)/$(TARGET)/bin/glib-compile-schemas'
+    ln -s '$(PREFIX)/bin/glib-compile-resources' '$(PREFIX)/$(TARGET)/bin/glib-compile-resources'
 endef
