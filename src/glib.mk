@@ -68,9 +68,6 @@ endef
 define $(PKG)_BUILD
     # other packages expect glib-tools in $(TARGET)/bin
     rm -f  usr/armv7-w64-mingw32/bin/glib-*
-    ln -sf '$(PREFIX)/$(BUILD)/bin/glib-genmarshal'        '$(PREFIX)/$(TARGET)/bin/'
-    ln -sf '$(PREFIX)/$(BUILD)/bin/glib-compile-schemas'   '$(PREFIX)/$(TARGET)/bin/'
-    ln -sf '$(PREFIX)/$(BUILD)/bin/glib-compile-resources' '$(PREFIX)/$(TARGET)/bin/'
 
     # cross build
     cd '$(SOURCE_DIR)' && meson \
