@@ -1,0 +1,14 @@
+diff --git a/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp b/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp
+index e8f78eef..b9b2fc67 100644
+--- a/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp
++++ b/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp
+@@ -605,6 +605,9 @@ static inline void* currentThreadStackBase()
+     // FIXME: why only for MSVC?
+     PNT_TIB64 pTib = reinterpret_cast<PNT_TIB64>(NtCurrentTeb());
+     return reinterpret_cast<void*>(pTib->StackBase);
++#elif OS(WINDOWS) && CPU(ARM) && (COMPILER(MSVC) || COMPILER(GCC))
++    PNT_TIB pTib = reinterpret_cast<PNT_TIB>(NtCurrentTeb());
++    return reinterpret_cast<void*>(pTib->StackBase);
+ #elif OS(WINDOWS) && CPU(X86) && COMPILER(GCC)
+     // offset 0x18 from the FS segment register gives a pointer to
+     // the thread information block for the current thread
