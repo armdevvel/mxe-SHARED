@@ -1,0 +1,13 @@
+diff --git a/src/imageformats/configure.json b/src/imageformats/configure.json
+index 5b876c30..122567c3 100644
+--- a/src/imageformats/configure.json
++++ b/src/imageformats/configure.json
+@@ -35,7 +35,6 @@
+             },
+             "sources": [
+-                { "type": "pkgConfig", "args": "jasper" },
+-                { "libs": "-ljasper" }
++                { "libs": "-ljasper -ljpeg-turbo" }
+             ]
+         },
+         "mng": {

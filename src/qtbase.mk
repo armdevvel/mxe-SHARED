@@ -41,7 +41,7 @@ define $(PKG)_BUILD
             -force-pkg-config \
             -no-use-gold-linker \
             -release \
-            $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
+            -shared \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             -no-icu \
             -opengl dynamic \
