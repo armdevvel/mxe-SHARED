@@ -6,15 +6,15 @@ $(PKG)_FILE     := mesa-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://gitlab.freedesktop.org/$(PKG)/$(PKG)/-/archive/$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := gcc
 
+define $(PKG)_FIXPATH
+	mkdir -p '$(PREFIX)/$(TARGET)/$(2)' && \
+  	cp -R --no-dereference --preserve=mode,links -v '$(BUILD_DIR)/$(1)/'* '$(PREFIX)/$(TARGET)/$(2)/'
+endef
+
 define $(PKG)_BUILD
-	# MOREINFO generalize target machine inference?
-	# Note: was $(if $(findstring 64,$(TARGET)),x86_64,x86)
-
-	# MOREINFO how to select driver d3d12?
-
     cd '$(SOURCE_DIR)' && meson \
         --cross-file=$(PWD)/cross.txt \
-        --prefix '$(PREFIX)/armv7-w64-mingw32' \
+        --prefix '$(BUILD_DIR)' \
 		-D egl=enabled \
 		-D dri-drivers=auto \
 		-D gallium-drivers=d3d12,tegra,swr,swrast,auto \
@@ -27,9 +27,9 @@ define $(PKG)_BUILD
 	# Unknown target: libgl-gdi (was passed to SCons)
 	cd '$(SOURCE_DIR)/build-arm' && ninja && meson install
 
-    for i in EGL GLES GLES2 GLES3 KHR; do \
-        $(INSTALL) -d "$(PREFIX)/$(TARGET)/include/$$i"; \
-        $(INSTALL) -m 644 "$(SOURCE_DIR)/include/$$i/"* "$(PREFIX)/$(TARGET)/include/$$i/"; \
-    done
-    $(INSTALL) -m 755 '$(SOURCE_DIR)/build-arm/src/gallium/targets/libgl-gdi/opengl32.dll' '$(PREFIX)/$(TARGET)/bin/'
+    # EGL GLES GLES2 GLES3 KHR...
+	$(call $(PKG)_FIXPATH,include,include/mesa)
+    $(call $(PKG)_FIXPATH,lib,lib/mesa)
+    $(call $(PKG)_FIXPATH,bin,bin/mesa)
+    $(call $(PKG)_FIXPATH,share,share/mesa)
 endef
