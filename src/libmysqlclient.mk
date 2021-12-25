@@ -49,7 +49,7 @@ define $(PKG)_BUILD
     $(MAKE) -C '$(1).build/include'  -j 1 install VERBOSE=1
     $(MAKE) -C '$(1).build/libmysql' -j 1 install VERBOSE=1
     
-    # issues with scripts/sys_schema/comp_sql -- neeed?
+    # issues with scripts/sys_schema/comp_sql
     # $(MAKE) -C '$(1).build/scripts'  -j 1 install VERBOSE=1
 
     # no easy way to configure location of dll
@@ -58,9 +58,9 @@ define $(PKG)_BUILD
     # missing headers
     $(INSTALL) -m644 '$(1)/include/'thr_* '$(1)/include/'my_thr* '$(PREFIX)/$(TARGET)/include'
 
-    # build test with mysql_config
-    '$(TARGET)-g++' \
-        -W -Wall -Werror -ansi -pedantic \
-        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
-        `'$(PREFIX)/$(TARGET)/bin/mysql_config' --cflags --libs`
+    # build test with mysql_config, disabled since it needs comp_sql from the scripts above
+    # '$(TARGET)-g++' \
+    #    -W -Wall -Werror -ansi -pedantic \
+    #    '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
+    #    `'$(PREFIX)/$(TARGET)/bin/mysql_config' --cflags --libs`
 endef

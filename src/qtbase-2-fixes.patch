@@ -11,3 +11,25 @@ index f56b2b94..1c51f8cd 100644
              "condition": "config.win32 && !config.winrt",
              "output": [
                  { "type": "publicFeature", "name": "dynamicgl" },
+diff --git a/src/gui/gui.pro b/src/gui/gui.pro
+index 20372d92..4e9f6062 100644
+--- a/src/gui/gui.pro
++++ b/src/gui/gui.pro
+@@ -63,13 +63,13 @@ qtConfig(angle) {
+     !mingw|qtConfig(debug_and_release): debug_suffix="d"
+     CMAKE_GL_INCDIRS = $$CMAKE_INCLUDE_DIR
+     CMAKE_ANGLE_EGL_DLL_RELEASE = libEGL.dll
+-    CMAKE_ANGLE_EGL_IMPLIB_RELEASE = libEGL.$${QMAKE_EXTENSION_STATICLIB}
++    CMAKE_ANGLE_EGL_IMPLIB_RELEASE = EGL.dll.$${QMAKE_EXTENSION_STATICLIB}
+     CMAKE_ANGLE_GLES2_DLL_RELEASE = libGLESv2.dll
+-    CMAKE_ANGLE_GLES2_IMPLIB_RELEASE = libGLESv2.$${QMAKE_EXTENSION_STATICLIB}
++    CMAKE_ANGLE_GLES2_IMPLIB_RELEASE = GLESv2.dll.$${QMAKE_EXTENSION_STATICLIB}
+     CMAKE_ANGLE_EGL_DLL_DEBUG = libEGL$${debug_suffix}.dll
+-    CMAKE_ANGLE_EGL_IMPLIB_DEBUG = libEGL$${debug_suffix}.$${QMAKE_EXTENSION_STATICLIB}
++    CMAKE_ANGLE_EGL_IMPLIB_DEBUG = EGL$${debug_suffix}.dll.$${QMAKE_EXTENSION_STATICLIB}
+     CMAKE_ANGLE_GLES2_DLL_DEBUG = libGLESv2$${debug_suffix}.dll
+-    CMAKE_ANGLE_GLES2_IMPLIB_DEBUG = libGLESv2$${debug_suffix}.$${QMAKE_EXTENSION_STATICLIB}
++    CMAKE_ANGLE_GLES2_IMPLIB_DEBUG = GLESv2$${debug_suffix}.dll.$${QMAKE_EXTENSION_STATICLIB}
+ 
+     CMAKE_QT_OPENGL_IMPLEMENTATION = GLESv2
+ } else {
