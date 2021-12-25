@@ -53,7 +53,6 @@ define $(PKG)_BUILD
 	mkdir -p '$(SOURCE_DIR)/third_party/zlib' && cd '$(SOURCE_DIR)/third_party/zlib' \
 		&& $(call UNPACK_ARCHIVE,$(PWD)/resources/google_zlib-0949050.tar.gz) --strip-components=1 \
 		&& $(PATCH) -p1 -u < '$(PWD)/src/google-zlib-far-undef.patch' \
-		&& cp '$(PWD)/src/angle-CMakeLists.txt' '$(SOURCE_DIR)/CMakeLists.txt' \
 		&& cp '$(PWD)/src/angle_commit.h' '$(SOURCE_DIR)' \
 		&& cp '$(PWD)/src/angle_commit.h' '$(SOURCE_DIR)/src/common' \
 		&& cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
@@ -63,5 +62,10 @@ define $(PKG)_BUILD
 		
 	$(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
 	$(MAKE) -C '$(BUILD_DIR)' -j 1 install
-	cp '$(SOURCE_DIR)/LICENSE' '$(PREFIX)/$(TARGET)/share/$(PKG)/copyright'
+	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
+		< '$(SOURCE_DIR)/egl.pc.in' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/egl.pc'
+	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
+		< '$(SOURCE_DIR)/glesv2.pc.in' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/glesv2.pc'
+	$(INSTALL) -d '$(PREFIX)/$(TARGET)/share/$(PKG)' && \
+	$(INSTALL) -m 644 '$(SOURCE_DIR)/LICENSE' '$(PREFIX)/$(TARGET)/share/$(PKG)/copyright'
 endef

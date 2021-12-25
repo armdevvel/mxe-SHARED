@@ -6,15 +6,10 @@ $(PKG)_FILE     := mesa-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://gitlab.freedesktop.org/$(PKG)/$(PKG)/-/archive/$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := gcc
 
-define $(PKG)_FIXPATH
-	mkdir -p '$(PREFIX)/$(TARGET)/$(2)' && \
-  	cp -R --no-dereference --preserve=mode,links -v '$(BUILD_DIR)/$(1)/'* '$(PREFIX)/$(TARGET)/$(2)/'
-endef
-
 define $(PKG)_BUILD
     cd '$(SOURCE_DIR)' && meson \
         --cross-file=$(PWD)/cross.txt \
-        --prefix '$(BUILD_DIR)' \
+        --prefix '$(PREFIX)/$(TARGET)/mesa' \
 		-D egl=enabled \
 		-D dri-drivers=auto \
 		-D gallium-drivers=d3d12,tegra,swr,swrast,auto \
@@ -26,10 +21,4 @@ define $(PKG)_BUILD
 
 	# Unknown target: libgl-gdi (was passed to SCons)
 	cd '$(SOURCE_DIR)/build-arm' && ninja && meson install
-
-    # EGL GLES GLES2 GLES3 KHR...
-	$(call $(PKG)_FIXPATH,include,include/mesa)
-    $(call $(PKG)_FIXPATH,lib,lib/mesa)
-    $(call $(PKG)_FIXPATH,bin,bin/mesa)
-    $(call $(PKG)_FIXPATH,share,share/mesa)
 endef

@@ -1,0 +1,37 @@
+This file is part of vcpkg port setup for ANGLE. See angle.mk for licensing information.
+
+The pkgconfig script is credit of shinchiro.
+
+diff --git a/egl.pc.in b/egl.pc.in
+new file mode 100644
+index 0000000..dd4e52a
+--- /dev/null
++++ b/egl.pc.in
+@@ -0,0 +1,10 @@
++prefix=%PREFIX%
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: egl
++Description: A conformant EGL implementation for Windows.
++Version: 1.4
++Libs: -L${libdir} -lEGL
++Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
++Cflags: -I${includedir} -DEGL_NO_X11
+
+diff --git a/glesv2.pc.in b/glesv2.pc.in
+new file mode 100644
+index 0000000..dd4e52a
+--- /dev/null
++++ b/glesv2.pc.in
+@@ -0,0 +1,10 @@
++prefix=%PREFIX%
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: glesv2
++Description: A conformant OpenGL ES 2 implementation for Windows.
++Version: 2.0
++Libs: -L${libdir} -lGLESv2
++Libs.private: -lpthread -pthread -lm -ldl -ldxguid -ld3d9 -lstdc++
++Cflags: -I${includedir}
