@@ -7,7 +7,7 @@ index 839b3b5c..d0f7d81f 100644
      }
      INSTALLS += target
 +} else {
-+    target.path = $$[QT_INSTALL_PREFIX]/bin
++    target.path = $$[QT_INSTALL_PREFIX]
 +    export(target.path)
 +    INSTALLS += target
  }
