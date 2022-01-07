@@ -58,6 +58,7 @@ define $(PKG)_BUILD
 		&& cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
 			-DDISABLE_INSTALL_HEADERS=0 \
 			-DANGLE_IS_32_BIT_CPU=1 \
+			-DCMAKE_BUILD_TYPE=DEBUG \
 			-DBUILD_SHARED_LIBS=1
 		
 	$(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
@@ -68,4 +69,10 @@ define $(PKG)_BUILD
 		< '$(SOURCE_DIR)/glesv2.pc.in' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/glesv2.pc'
 	$(INSTALL) -d '$(PREFIX)/$(TARGET)/share/$(PKG)' && \
 	$(INSTALL) -m 644 '$(SOURCE_DIR)/LICENSE' '$(PREFIX)/$(TARGET)/share/$(PKG)/copyright'
+
+	'$(TARGET)-g++' -W -Wall \
+        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-angle.exe' \
+            `'$(TARGET)-pkg-config' egl --cflags --libs` \
+            `'$(TARGET)-pkg-config' glesv2 --cflags --libs` \
+			-lkernel32
 endef

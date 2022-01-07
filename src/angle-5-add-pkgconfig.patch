@@ -33,5 +33,5 @@ index 0000000..dd4e52a
 +Description: A conformant OpenGL ES 2 implementation for Windows.
 +Version: 2.0
 +Libs: -L${libdir} -lGLESv2
-+Libs.private: -lpthread -pthread -lm -ldl -ldxguid -ld3d9 -lstdc++
++Libs.private: -lpthread -pthread -lm -ldxguid -ld3d9 -lstdc++
 +Cflags: -I${includedir}
