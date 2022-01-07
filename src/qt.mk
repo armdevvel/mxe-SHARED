@@ -39,15 +39,16 @@ define $(PKG)_BUILD
         -xplatform win32-g++-4.6 \
         -device-option CROSS_COMPILE=$(TARGET)- \
         -device-option PKG_CONFIG='$(TARGET)-pkg-config' \
+        -pkg-config \
         -force-pkg-config \
         -release \
         -exceptions \
-        -static \
+        -shared \
         -prefix '$(PREFIX)/$(TARGET)/qt' \
         -prefix-install \
         -script \
         -no-iconv \
-        -opengl desktop \
+        -opengl dynamic \
         -no-webkit \
         -no-glib \
         -no-gstreamer \

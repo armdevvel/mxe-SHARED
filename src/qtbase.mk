@@ -9,7 +9,7 @@ $(PKG)_CHECKSUM := 909fad2591ee367993a75d7e2ea50ad4db332f05e1c38dd7a5a274e156a4e
 $(PKG)_SUBDIR   := $(PKG)-everywhere-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-everywhere-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/official_releases/qt/5.15/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libmysqlclient libpng mesa openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd
+$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libmysqlclient libpng angle openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
@@ -28,8 +28,9 @@ define $(PKG)_BUILD
         PSQL_LIBS="-lpq -lsecur32 `'$(TARGET)-pkg-config' --libs-only-l openssl pthreads` -lws2_32" \
         SYBASE_LIBS="-lsybdb `'$(TARGET)-pkg-config' --libs-only-l openssl` -liconv -lws2_32" \
         PKG_CONFIG="${TARGET}-pkg-config" \
-        PKG_CONFIG_SYSROOT_DIR="/" \
+        PKG_CONFIG_SYSROOT_DIR="$(PREFIX)/$(TARGET)" \
         PKG_CONFIG_LIBDIR="$(PREFIX)/$(TARGET)/lib/pkgconfig" \
+        QMAKE_LIBDIR_EGL="$(PREFIX)/$(TARGET)/lib" \
         MAKE=$(MAKE) \
         ./configure \
             -opensource \
@@ -41,15 +42,14 @@ define $(PKG)_BUILD
             -force-pkg-config \
             -no-use-gold-linker \
             -release \
-            $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
+            -shared \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             -no-icu \
-            -opengl dynamic \
+            -opengl es2 \
             -no-glib \
             -accessibility \
             -nomake examples \
             -nomake tests \
-            -plugin-sql-mysql \
             -mysql_config $(PREFIX)/$(TARGET)/bin/mysql_config \
             -plugin-sql-sqlite \
             -plugin-sql-odbc \
@@ -69,10 +69,20 @@ define $(PKG)_BUILD
             -v \
             $($(PKG)_CONFIGURE_OPTS)
 
+    # EGL and GLESv2 stub libraries
+    mkdir -p '$(SOURCE_DIR)/lib'
+    ln -sf '$(PREFIX)/$(TARGET)/lib/libEGL.dll.a' '$(SOURCE_DIR)/lib/liblibEGL.a'
+    ln -sf '$(PREFIX)/$(TARGET)/lib/libGLESv2.dll.a' '$(SOURCE_DIR)/lib/liblibGLESv2.a'
+
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     rm -rf '$(PREFIX)/$(TARGET)/qt5'
     $(MAKE) -C '$(1)' -j 1 install
     ln -sf '$(PREFIX)/$(TARGET)/qt5/bin/qmake' '$(PREFIX)/bin/$(TARGET)'-qmake-qt5
+
+    # ...also for dependent modules
+    $(INSTALL) -d '$(PREFIX)/$(TARGET)/qt5/lib'
+    ln -sf '$(PREFIX)/$(TARGET)/lib/libEGL.dll.a' '$(PREFIX)/$(TARGET)/qt5/lib/liblibEGL.a'
+    ln -sf '$(PREFIX)/$(TARGET)/lib/libGLESv2.dll.a' '$(PREFIX)/$(TARGET)/qt5/lib/liblibGLESv2.a'
 
     mkdir            '$(1)/test-qt'
     cd               '$(1)/test-qt' && '$(PREFIX)/$(TARGET)/qt5/bin/qmake' '$(PWD)/src/qt-test.pro'

@@ -11,11 +11,18 @@ $(PKG)_FILE      = $(subst qtbase,qtconnectivity,$(qtbase_FILE))
 $(PKG)_URL       = $(subst qtbase,qtconnectivity,$(qtbase_URL))
 $(PKG)_DEPS     := cc qtbase qtdeclarative
 
+$(PKG)_BTHPROPS := /mnt/c/Program Files (x86)/Windows Kits/10/Lib/10.0.10240.0/um/arm/bthprops.lib
+
 define $(PKG)_UPDATE
     echo $(qtbase_VERSION)
 endef
 
 define $(PKG)_BUILD
+    # Need bthrpos.lib -- if we are on WSL, obtain it automatically.
+    ls '$(PREFIX)/$(TARGET)/lib/bthprops.lib' \
+        || $(INSTALL) -m 644 '$($(PKG)_BTHPROPS)' '$(PREFIX)/$(TARGET)/lib' \
+        || (echo "Please copy or symlink bthprops.lib from Windows 10 SDK into $(PREFIX)/$(TARGET)/lib" && false)
+
     cd '$(1)' && '$(PREFIX)/$(TARGET)/qt5/bin/qmake'
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install

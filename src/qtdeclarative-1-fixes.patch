@@ -1,0 +1,13 @@
+diff --git a/config.tests/d3d12/d3d12.cpp b/config.tests/d3d12/d3d12.cpp
+index 0bf90cc4..324fe017 100644
+--- a/config.tests/d3d12/d3d12.cpp
++++ b/config.tests/d3d12/d3d12.cpp
+@@ -37,8 +37,6 @@
+ **
+ ****************************************************************************/
+ 
+-#include <d3d12.h>
+-#include <dxgi1_4.h>
+ #include <wrl/client.h>
+ 
+ using namespace Microsoft::WRL;
