@@ -19,6 +19,7 @@ sudo apt update && sudo apt install \
     libc6-dev-i386 \
     libgdk-pixbuf2.0-dev \
     libltdl-dev \
+    libncurses5-dev \
     libssl-dev \
     libtool-bin \
     libxml-parser-perl \
