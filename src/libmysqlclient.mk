@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := 4cb39a315298eb243c25c53c184b3682b49c2a907a1d8432ba0620534806a
 $(PKG)_SUBDIR   := mysql-$($(PKG)_VERSION)
 $(PKG)_FILE     := $($(PKG)_SUBDIR).tar.gz
 $(PKG)_URL      := https://cdn.mysql.com/archives/mysql-8.0/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc openssl zlib protobuf lz4 libevent curl
+$(PKG)_DEPS     := cc openssl zlib protobuf lz4 libevent curl zstd
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://dev.mysql.com/downloads/connector/c/' | \
