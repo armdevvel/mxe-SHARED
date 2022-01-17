@@ -34,28 +34,26 @@ To use this for ARM development easily, first clone this repository to your home
 
 Once done, you can run a make command to build all known working WoA libraries. CD back to the root dir of MXE and run the following.
 
-`make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c`
+`make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c`
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- `cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 && cd mxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/13.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make MXE_TARGETS="armv7-w64-mingw32" libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c` )
+-- `cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 armmxe && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/13.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
 
-(or, if you would rather use a script, you can use the sh script included! -- 
+(or, if you would rather use a script, you can use the sh script included for Ubuntu! -- 
 
--- `wget https://raw.githubusercontent.com/armdevvel/mxe/master/mxe-curl-inst.sh && sh ./mxe-curl-inst.sh` )
+-- `wget https://raw.githubusercontent.com/armdevvel/mxe/master/mxe-ubuntu-install.sh && sh ./mxe-ubuntu-install.sh` )
 
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
 ## Building (configuring) with each build system
 
   * autoconfigure:
-    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/mxe/usr/armv7-w64-mingw32`
+    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/armmxe/usr/armv7-w64-mingw32`
   * meson: 
-    - use included cross.txt and use as so - `meson --cross-file=cross.txt --prefix /home/youruser/mxe/usr/armv7-w64-mingw32/ builddir`
+    - use included cross.txt and use as so - `meson --cross-file=/home/youruser/armmxe/cross.txt --prefix /home/youruser/armmxe/usr/armv7-w64-mingw32/ builddir`
   * CMake:
     - use `armv7-w64-mingw32-cmake` provided by MXE
-  * ninja:
-    - not figured out, yet
   * normal make:
     - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mignw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
   * MXE:
