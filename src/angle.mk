@@ -70,8 +70,6 @@ define $(PKG)_BUILD
 	$(INSTALL) -d '$(PREFIX)/$(TARGET)/share/$(PKG)' && \
 	$(INSTALL) -m 644 '$(SOURCE_DIR)/LICENSE' '$(PREFIX)/$(TARGET)/share/$(PKG)/copyright'
 
-	$(SED) '0,/GLDEBUGPROCKHR/s//EGLDEBUGPROCKHR/' '$(PREFIX)/$(TARGET)/include/GLES2/gl2ext_explicit_context_autogen.inc' > '$(PREFIX)/$(TARGET)/include/GLES2/gl2ext_explicit_context_autogen.inc'
-
 	'$(TARGET)-g++' -W -Wall \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-angle.exe' \
             `'$(TARGET)-pkg-config' egl --cflags --libs` \
