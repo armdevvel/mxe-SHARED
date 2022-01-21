@@ -1,0 +1,52 @@
+diff -Naur a/src/corelib/global/qendian.h b/src/corelib/global/qendian.h
+--- a/src/corelib/global/qendian.h	2020-10-27 04:02:11.000000000 -0400
++++ b/src/corelib/global/qendian.h	2022-01-21 09:38:01.691424242 -0500
+@@ -48,6 +48,9 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++// include limits so that the build doesn't fail :)
++#include <limits>
++
+ #ifdef min // MSVC
+ #undef min
+ #undef max
+diff -Naur a/src/corelib/global/qfloat16.h b/src/corelib/global/qfloat16.h
+--- a/src/corelib/global/qfloat16.h	2020-10-27 04:02:11.000000000 -0400
++++ b/src/corelib/global/qfloat16.h	2022-01-21 09:38:11.723350244 -0500
+@@ -45,6 +45,9 @@
+ #include <QtCore/qmetatype.h>
+ #include <string.h>
+ 
++// include limits so that the build doesn't fail :)
++#include <limits>
++
+ #if defined(QT_COMPILER_SUPPORTS_F16C) && defined(__AVX2__) && !defined(__F16C__)
+ // All processors that support AVX2 do support F16C too. That doesn't mean
+ // we're allowed to use the intrinsics directly, so we'll do it only for
+diff -Naur a/src/corelib/text/qbytearraymatcher.h b/src/corelib/text/qbytearraymatcher.h
+--- a/src/corelib/text/qbytearraymatcher.h	2020-10-27 04:02:11.000000000 -0400
++++ b/src/corelib/text/qbytearraymatcher.h	2022-01-21 09:38:31.407197731 -0500
+@@ -42,6 +42,9 @@
+ 
+ #include <QtCore/qbytearray.h>
+ 
++// include limits so that the build doesn't fail :)
++#include <limits>
++
+ QT_BEGIN_NAMESPACE
+ 
+ 
+diff -Naur a/src/corelib/tools/qoffsetstringarray_p.h b/src/corelib/tools/qoffsetstringarray_p.h
+--- a/src/corelib/tools/qoffsetstringarray_p.h	2020-10-27 04:02:11.000000000 -0400
++++ b/src/corelib/tools/qoffsetstringarray_p.h	2022-01-21 09:39:05.210914101 -0500
+@@ -56,6 +56,9 @@
+ #include <tuple>
+ #include <array>
+ 
++// include limits so that the build doesn't fail :)
++#include <limits>
++
+ QT_BEGIN_NAMESPACE
+ 
+ namespace QtPrivate {
