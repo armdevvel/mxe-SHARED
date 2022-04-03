@@ -21,6 +21,9 @@ define $(PKG)_BUILD
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install
 
+    # just replaced with egl cause why not (it fixes the build)
+    $(SED) -i 's/-lstdc++/-lEGL/g' '$(PREFIX)/$(TARGET)/qt5/lib/Qt5UiTools.prl'
+
     # test QUiLoader
     $(CMAKE_TEST)
 endef
