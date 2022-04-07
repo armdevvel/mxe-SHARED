@@ -12,7 +12,7 @@ $(PKG)_URL      := https://download.qt.io/snapshots/ci/qtwebkit/5.212/latest/src
 $(PKG)_DEPS     := cc libxml2 libxslt libwebp qtbase qtmultimedia qtquickcontrols \
                    qtsensors qtwebchannel sqlite
 
-define $(PKG)_BUILD_SHARED
+define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
         -DCMAKE_INSTALL_PREFIX=$(PREFIX)/$(TARGET)/qt5 \
         -DCMAKE_CXX_FLAGS='-fpermissive' \
@@ -24,9 +24,14 @@ define $(PKG)_BUILD_SHARED
         -DENABLE_WEB_AUDIO=ON \
         -DUSE_GSTREAMER=OFF \
         -DUSE_MEDIA_FOUNDATION=OFF \
-        -DUSE_QT_MULTIMEDIA=ON
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 || $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+        -DUSE_QT_MULTIMEDIA=ON \
+        -DENABLE_JIT=OFF \
+        -DENABLE_API_TESTS=OFF \
+        -G Ninja
+    $(SED) -i 's/-fno-keep-inline-dllexport/-liconv -lws2_32 -licuin -licuuc -licudt -llzma -lpthread -pthread -pthreads -lEGL -lGLESv2/g' '$(BUILD_DIR)/build.ninja'
+    $(SED) -i 's/-ladvapi32/-ladvapi32 -lEGL -lGLESv2/g' '$(BUILD_DIR)/build.ninja'
+    ninja -C '$(BUILD_DIR)' -j '$(JOBS)' || ninja -C '$(BUILD_DIR)' -j '$(JOBS)'
+    ninja -C '$(BUILD_DIR)' install
 
     # build test manually
     # add $(BUILD_TYPE_SUFFIX) for debug builds - see qtbase.mk
