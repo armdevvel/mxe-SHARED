@@ -7,8 +7,8 @@ $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := d15be77864e18f407c317be6f6bc06ee2b7d070a
 $(PKG)_CHECKSUM := 6df064353f453b9c85295341e619cabb5de3d6a64c8faed0560cddc723e22505
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
-$(PKG)_FILE     := src.tar.gz
-$(PKG)_URL      := https://download.pahaze.net/ARM/mxe/ANGLE/src/src.tar.gz
+$(PKG)_FILE     := angle-src.tar.gz
+$(PKG)_URL      := https://download.pahaze.net/ARM/mxe/ANGLE/src/MSVC.tar.gz
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
