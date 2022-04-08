@@ -1,0 +1,262 @@
+diff -ruN a/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp b/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp
+--- a/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp	2022-04-07 21:39:04.297222410 -0400
+@@ -37,7 +37,7 @@
+ **
+ ****************************************************************************/
+ 
+-#include "Wmcodecdsp.h"
++#include "wmcodecdsp.h"
+ #include "mfaudiodecodercontrol.h"
+ 
+ MFAudioDecoderControl::MFAudioDecoderControl(QObject *parent)
+diff -ruN a/src/plugins/wmf/decoder/mfdecodersourcereader.h b/src/plugins/wmf/decoder/mfdecodersourcereader.h
+--- a/src/plugins/wmf/decoder/mfdecodersourcereader.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/decoder/mfdecodersourcereader.h	2022-04-07 21:38:27.725194714 -0400
+@@ -39,9 +39,9 @@
+ 
+ #ifndef MFDECODERSOURCEREADER_H
+ #define MFDECODERSOURCEREADER_H
+-#include <mfapi.h>
+-#include <mfidl.h>
+-#include <Mfreadwrite.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
++#include <mfreadwrite.h>
+ 
+ #include <QtCore/qobject.h>
+ #include <QtCore/qmutex.h>
+diff -ruN a/src/plugins/wmf/mfstream.h b/src/plugins/wmf/mfstream.h
+--- a/src/plugins/wmf/mfstream.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/mfstream.h	2022-04-07 21:45:08.121561322 -0400
+@@ -40,8 +40,8 @@
+ #ifndef MFSTREAM_H
+ #define MFSTREAM_H
+ 
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ #include <QtCore/qmutex.h>
+ #include <QtCore/qiodevice.h>
+ #include <QtCore/qcoreevent.h>
+diff -ruN a/src/plugins/wmf/player/mfactivate.cpp b/src/plugins/wmf/player/mfactivate.cpp
+--- a/src/plugins/wmf/player/mfactivate.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfactivate.cpp	2022-04-07 21:44:11.377502417 -0400
+@@ -39,7 +39,7 @@
+ 
+ #include "mfactivate.h"
+ 
+-#include <mfapi.h>
++#include <mfapi2.h>
+ 
+ MFAbstractActivate::MFAbstractActivate()
+     : m_attributes(0)
+diff -ruN a/src/plugins/wmf/player/mfactivate.h b/src/plugins/wmf/player/mfactivate.h
+--- a/src/plugins/wmf/player/mfactivate.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfactivate.h	2022-04-07 21:42:25.413397613 -0400
+@@ -40,7 +40,7 @@
+ #ifndef MFACTIVATE_H
+ #define MFACTIVATE_H
+ 
+-#include <mfidl.h>
++#include <mfidl2.h>
+ 
+ class MFAbstractActivate : public IMFActivate
+ {
+diff -ruN a/src/plugins/wmf/player/mfaudioendpointcontrol.h b/src/plugins/wmf/player/mfaudioendpointcontrol.h
+--- a/src/plugins/wmf/player/mfaudioendpointcontrol.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfaudioendpointcontrol.h	2022-04-07 21:44:22.741514070 -0400
+@@ -40,8 +40,8 @@
+ #ifndef MFAUDIOENDPOINTCONTROL_H
+ #define MFAUDIOENDPOINTCONTROL_H
+ 
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ 
+ #include "qaudiooutputselectorcontrol.h"
+ 
+diff -ruN a/src/plugins/wmf/player/mfmetadatacontrol.cpp b/src/plugins/wmf/player/mfmetadatacontrol.cpp
+--- a/src/plugins/wmf/player/mfmetadatacontrol.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfmetadatacontrol.cpp	2022-04-07 21:51:12.881973259 -0400
+@@ -43,7 +43,7 @@
+ 
+ #include "mfmetadatacontrol.h"
+ #include "mfplayerservice.h"
+-#include "Propkey.h"
++#include "propkey.h"
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
+diff -ruN a/src/plugins/wmf/player/mfmetadatacontrol.h b/src/plugins/wmf/player/mfmetadatacontrol.h
+--- a/src/plugins/wmf/player/mfmetadatacontrol.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfmetadatacontrol.h	2022-04-07 21:42:42.705414207 -0400
+@@ -41,7 +41,7 @@
+ #define MFMETADATACONTROL_H
+ 
+ #include <qmetadatareadercontrol.h>
+-#include "Mfidl.h"
++#include "mfidl2.h"
+ 
+ QT_USE_NAMESPACE
+ 
+diff -ruN a/src/plugins/wmf/player/mfplayercontrol.cpp b/src/plugins/wmf/player/mfplayercontrol.cpp
+--- a/src/plugins/wmf/player/mfplayercontrol.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfplayercontrol.cpp	2022-04-07 21:51:24.925987602 -0400
+@@ -38,7 +38,7 @@
+ ****************************************************************************/
+ 
+ #include "mfplayercontrol.h"
+-#include <qtcore/qdebug.h>
++#include <QtCore/qdebug.h>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
+diff -ruN a/src/plugins/wmf/player/mfplayerservice.h b/src/plugins/wmf/player/mfplayerservice.h
+--- a/src/plugins/wmf/player/mfplayerservice.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfplayerservice.h	2022-04-07 21:44:33.349525015 -0400
+@@ -40,8 +40,8 @@
+ #ifndef MFPLAYERSERVICE_H
+ #define MFPLAYERSERVICE_H
+ 
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ 
+ #include "qmediaplayer.h"
+ #include "qmediaresource.h"
+diff -ruN a/src/plugins/wmf/player/mfplayersession.h b/src/plugins/wmf/player/mfplayersession.h
+--- a/src/plugins/wmf/player/mfplayersession.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfplayersession.h	2022-04-07 21:44:36.421528196 -0400
+@@ -40,8 +40,8 @@
+ #ifndef MFPLAYERSESSION_H
+ #define MFPLAYERSESSION_H
+ 
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ 
+ #include "qmediaplayer.h"
+ #include "qmediaresource.h"
+diff -ruN a/src/plugins/wmf/player/mftvideo.cpp b/src/plugins/wmf/player/mftvideo.cpp
+--- a/src/plugins/wmf/player/mftvideo.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mftvideo.cpp	2022-04-07 21:40:52.013311869 -0400
+@@ -43,7 +43,7 @@
+ #include <mferror.h>
+ #include <strmif.h>
+ #include <uuids.h>
+-#include <InitGuid.h>
++#include <initguid.h>
+ #include <d3d9.h>
+ #include <qdebug.h>
+ 
+diff -ruN a/src/plugins/wmf/player/mftvideo.h b/src/plugins/wmf/player/mftvideo.h
+--- a/src/plugins/wmf/player/mftvideo.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mftvideo.h	2022-04-07 21:44:38.749530610 -0400
+@@ -40,8 +40,8 @@
+ #ifndef MFTRANSFORM_H
+ #define MFTRANSFORM_H
+ 
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ #include <QtCore/qlist.h>
+ #include <QtCore/qmutex.h>
+ #include <QtMultimedia/qvideosurfaceformat.h>
+diff -ruN a/src/plugins/wmf/player/mfvideorenderercontrol.cpp b/src/plugins/wmf/player/mfvideorenderercontrol.cpp
+--- a/src/plugins/wmf/player/mfvideorenderercontrol.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfvideorenderercontrol.cpp	2022-04-07 22:03:34.711035662 -0400
+@@ -44,18 +44,24 @@
+ 
+ #include <qabstractvideosurface.h>
+ #include <qvideosurfaceformat.h>
+-#include <qtcore/qtimer.h>
+-#include <qtcore/qmutex.h>
+-#include <qtcore/qcoreevent.h>
+-#include <qtcore/qcoreapplication.h>
+-#include <qtcore/qthread.h>
++#include <QtCore/qtimer.h>
++#include <QtCore/qmutex.h>
++#include <QtCore/qcoreevent.h>
++#include <QtCore/qcoreapplication.h>
++#include <QtCore/qthread.h>
+ #include "guiddef.h"
+-#include <qtcore/qdebug.h>
++#include <QtCore/qdebug.h>
+ #include <QtMultimedia/private/qmediaopenglhelper_p.h>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ #define PAD_TO_DWORD(x)  (((x) + 3) & ~3)
+ 
++#if !(defined (_MSC_VER))
++ #undef __uuidof
++ template<typename Type> struct uuidThing { static CLSID get() { false; return CLSID(); } };
++ #define __uuidof(x)  uuidThing<x>::get()
++#endif
++
+ namespace
+ {
+     class MediaSampleVideoBuffer : public QAbstractVideoBuffer
+@@ -903,8 +909,6 @@
+         private:
+             MFTIME m_time;
+         };
+-
+-    protected:
+         void customEvent(QEvent *event)
+         {
+             QMutexLocker locker(&m_mutex);
+@@ -919,6 +923,8 @@
+                QObject::customEvent(event);
+             }
+         }
++
++    protected:
+         HRESULT m_startResult;
+ 
+     private:
+diff -ruN a/src/plugins/wmf/player/mfvideorenderercontrol.h b/src/plugins/wmf/player/mfvideorenderercontrol.h
+--- a/src/plugins/wmf/player/mfvideorenderercontrol.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/mfvideorenderercontrol.h	2022-04-07 21:44:42.985535010 -0400
+@@ -41,8 +41,8 @@
+ #define MFVIDEORENDERERCONTROL_H
+ 
+ #include "qvideorenderercontrol.h"
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ 
+ QT_USE_NAMESPACE
+ 
+diff -ruN a/src/plugins/wmf/player/samplegrabber.h b/src/plugins/wmf/player/samplegrabber.h
+--- a/src/plugins/wmf/player/samplegrabber.h	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/player/samplegrabber.h	2022-04-07 21:44:45.581537709 -0400
+@@ -43,8 +43,8 @@
+ #include <QtCore/qmutex.h>
+ #include <QtCore/qlist.h>
+ #include <QtMultimedia/qaudioformat.h>
+-#include <mfapi.h>
+-#include <mfidl.h>
++#include <mfapi2.h>
++#include <mfidl2.h>
+ 
+ class MFAudioProbeControl;
+ 
+diff -ruN a/src/plugins/wmf/wmfserviceplugin.cpp b/src/plugins/wmf/wmfserviceplugin.cpp
+--- a/src/plugins/wmf/wmfserviceplugin.cpp	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/wmf/wmfserviceplugin.cpp	2022-04-07 21:45:15.353568953 -0400
+@@ -45,7 +45,7 @@
+ #include "mfplayerservice.h"
+ #include "mfdecoderservice.h"
+ 
+-#include <mfapi.h>
++#include <mfapi2.h>
+ 
+ namespace
+ {

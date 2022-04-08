@@ -1,0 +1,10 @@
+--- a/src/plugins/plugins.pro	2020-10-27 04:02:12.000000000 -0400
++++ b/src/plugins/plugins.pro	2022-04-07 21:37:10.989141695 -0400
+@@ -34,7 +34,6 @@
+     SUBDIRS += audiocapture \
+                windowsaudio
+ 
+-    qtConfig(directshow): SUBDIRS += directshow
+     qtConfig(wmf): SUBDIRS += wmf
+ }
+ 

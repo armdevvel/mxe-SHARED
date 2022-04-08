@@ -1,0 +1,65 @@
+--- a/src/multimedia/configure.json	2020-10-27 04:02:12.000000000 -0400
++++ b/src/multimedia/configure.json	2022-04-07 21:50:35.433928909 -0400
+@@ -10,7 +10,6 @@
+         "options": {
+             "alsa": "boolean",
+             "evr": { "type": "boolean" },
+-            "directshow": { "type": "boolean" },
+             "wmf": { "type": "boolean" },
+             "gstreamer": { "type": "optionalString", "values": [ "no", "yes", "0.10", "1.0" ] },
+             "pulseaudio": "boolean"
+@@ -32,13 +31,6 @@
+                 { "libs": "-framework AVFoundation -framework Foundation" }
+             ]
+         },
+-        "directshow": {
+-            "label": "DirectShow",
+-            "test": "directshow",
+-            "sources": [
+-                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32" }
+-            ]
+-        },
+         "gstreamer_0_10": {
+             "label": "GStreamer 0.10",
+             "export": "gstreamer",
+@@ -144,7 +136,7 @@
+             "label": "WMF",
+             "test": "wmf",
+             "sources": [
+-                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lMf -lMfuuid -lMfplat -lPropsys" }
++                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lmf -lmfuuid -lmfplat -lpropsys -lmfuuid2 -lpropsys2" }
+             ]
+         }
+     },
+@@ -200,11 +192,6 @@
+             "condition": "libs.avfoundation",
+             "output": [ "feature", "privateFeature" ]
+         },
+-        "directshow": {
+-            "label": "DirectShow",
+-            "condition": "config.win32 && libs.directshow",
+-            "output": [ "feature", "privateFeature" ]
+-        },
+         "evr": {
+             "label": "evr.h",
+             "condition": "config.win32 && tests.evr",
+@@ -290,11 +277,6 @@
+             "condition": "config.win32 && tests.wmsdk",
+             "output": [ "privateFeature" ]
+         },
+-        "wshellitem": {
+-            "label": "WShellItem",
+-            "condition": "config.win32 && features.directshow && tests.wshellitem",
+-            "output": [ "feature", "privateFeature" ]
+-        },
+         "wmf": {
+             "label": "Windows Media Foundation",
+             "condition": "config.win32 && libs.wmf",
+@@ -319,7 +301,6 @@
+                 "mmrenderer",
+                 "avfoundation",
+                 "wasapi",
+-                "directshow",
+                 "wmf"
+             ]
+         }
