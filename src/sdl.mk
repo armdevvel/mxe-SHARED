@@ -25,6 +25,10 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --enable-threads \
         --enable-directx \
+        --disable-video-opengl \
+        --disable-video-opengles \
+        --disable-video-opengles1 \
+        --disable-video-opengles2 \
         --disable-stdio-redirect
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install-bin install-hdrs install-lib install-data
