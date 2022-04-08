@@ -4,7 +4,7 @@ PKG             := openssl
 $(PKG)_WEBSITE  := https://www.openssl.org/
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 1.1.1k
-$(PKG)_CHECKSUM := ded4c2b3efaa1787ddc9c7b6bc121d123c904f1b2a3a381078ee5e75f0382fb4
+$(PKG)_CHECKSUM := c94dcec69a0462eb6e0362f2adfb0e4ce721ea520605dfad31266b2aa22548cc
 $(PKG)_SUBDIR   := openssl-$($(PKG)_VERSION)
 $(PKG)_FILE     := openssl-src.tar.gz
 $(PKG)_URL      := https://download.pahaze.net/ARM/mxe/OpenSSL/src/MSVC.tar.gz
@@ -19,4 +19,6 @@ define $(PKG)_BUILD
 		< '$(SOURCE_DIR)/libcrypto.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/libcrypto.pc'
 	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
 		< '$(SOURCE_DIR)/libssl.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/libssl.pc'
+	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
+		< '$(SOURCE_DIR)/openssl.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/openssl.pc'
 endef
