@@ -1,0 +1,2 @@
+These files are the EXACT same as what vcpkg's compilation of OpenSSL with MSVC produces.
+No source code was edited.
