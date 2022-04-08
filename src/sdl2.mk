@@ -22,6 +22,10 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --enable-threads \
         --enable-directx \
+        --disable-video-opengl \
+        --disable-video-opengles \
+        --disable-video-opengles1 \
+        --disable-video-opengles2 \
         --enable-libsamplerate \
         --enable-libsamplerate-shared=$(if $(BUILD_SHARED),yes,no)
     $(SED) -i 's,defined(__MINGW64_VERSION_MAJOR),defined(__MINGW64_VERSION_MAJOR) \&\& defined(_WIN64),' '$(1)/include/SDL_cpuinfo.h'
