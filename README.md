@@ -38,7 +38,7 @@ Once done, you can run a make command to build all known working WoA libraries. 
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- `cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 armmxe && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/13.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
+-- `cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 armmxe && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
 
 (or, if you would rather use a script, you can use the sh script included for Ubuntu! -- 
 
