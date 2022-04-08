@@ -14,6 +14,7 @@ $(PKG)_DEPS     := cc
 define $(PKG)_BUILD
 	cp $(PREFIX)/../resources/MSVC-ANGLE/lib/* $(PREFIX)/$(TARGET)/lib
 	cp -r $(PREFIX)/../resources/MSVC-ANGLE/include/* $(PREFIX)/$(TARGET)/include
+	cp $(PREFIX)/../resources/MSVC-ANGLE/bin/* $(PREFIX)/$(TARGET)/bin
 
 	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
 		< '$(SOURCE_DIR)/../egl.pc.in' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/egl.pc'
