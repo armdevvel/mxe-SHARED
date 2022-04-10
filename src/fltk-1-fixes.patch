@@ -1,0 +1,35 @@
+diff -ruN a/src/CMakeLists.txt b/src/CMakeLists.txt
+--- a/src/CMakeLists.txt	2022-04-10 15:42:28.274535729 -0400
++++ b/src/CMakeLists.txt	2022-04-10 15:42:45.478559763 -0400
+@@ -306,13 +306,6 @@
+ endif (OPTION_USE_SYSTEM_LIBPNG)
+ 
+ #######################################################################
+-
+-if (OPENGL_FOUND)
+-   FL_ADD_LIBRARY(fltk_gl STATIC "${GLCPPFILES}")
+-   target_link_libraries(fltk_gl fltk ${OPENGL_LIBRARIES})
+-endif (OPENGL_FOUND)
+-
+-#######################################################################
+ # Build shared libraries (optional)
+ #######################################################################
+ 
+@@ -364,17 +357,6 @@
+ 	target_link_libraries(fltk_images_SHARED fltk_z_SHARED)
+     endif (OPTION_USE_SYSTEM_ZLIB)
+ 
+-    ###################################################################
+-
+-    if (OPENGL_FOUND)
+-      FL_ADD_LIBRARY(fltk_gl SHARED "${GLCPPFILES}")
+-      if (MSVC)
+-	target_link_libraries(fltk_gl_SHARED fltk ${OPENGL_LIBRARIES})
+-      else ()
+-	target_link_libraries(fltk_gl_SHARED fltk_SHARED ${OPENGL_LIBRARIES})
+-      endif (MSVC)
+-    endif (OPENGL_FOUND)
+-
+ endif (OPTION_BUILD_SHARED_LIBS)
+ 
+ #######################################################################
