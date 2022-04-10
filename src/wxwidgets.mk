@@ -17,7 +17,7 @@ define $(PKG)_CONFIGURE_OPTS
         --disable-universal \
         --with-themes=all \
         --with-msw \
-        --with-opengl \
+        --without-opengl \
         --with-libpng=sys \
         --with-libjpeg=sys \
         --with-libtiff=sys \
