@@ -20,7 +20,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    # why was disable-visibility not even here before Windows doesn't use ELF
+    # Why was disable-visibility not even here before? Windows doesn't use ELF
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --enable-explicit-deps \
