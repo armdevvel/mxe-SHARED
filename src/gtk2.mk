@@ -20,6 +20,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # why was disable-visibility not even here before Windows doesn't use ELF
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --enable-explicit-deps \
@@ -29,8 +30,10 @@ define $(PKG)_BUILD
         --disable-test-print-backend \
         --disable-gtk-doc \
         --disable-man \
+        --disable-visibility \
         --with-included-immodules \
         --without-x
+    echo "testpixbuf.c: test-inline-pixbufs.h" >> '$(BUILD_DIR)/demos/Makefile'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT) EXTRA_DIST=
 
@@ -38,8 +41,7 @@ define $(PKG)_BUILD
     # and *.def files aren't really relevant for MXE
     rm -f '$(PREFIX)/$(TARGET)/lib/gailutil.def'
 
-    '$(TARGET)-gcc' \
-        -W -Wall -Werror -ansi \
+    '$(TARGET)-gcc' -ansi \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk2.exe' \
         `'$(TARGET)-pkg-config' gtk+-2.0 gmodule-2.0 --cflags --libs`
 endef
