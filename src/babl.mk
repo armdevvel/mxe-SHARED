@@ -1,7 +1,7 @@
 # This file is part of MXE. See LICENSE.md for licensing information.
 
 PKG             := babl
-$(PKG)_WEBSITE  := https://gtk.org/
+$(PKG)_WEBSITE  := https://gegl.org/babl/
 $(PKG)_DESCR    := Pixel encoding and color space conversion engine in C 
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.1.92
