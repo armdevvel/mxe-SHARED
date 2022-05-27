@@ -14,6 +14,6 @@ $(PKG)_DEPS     := cc libmypaint
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS)
-    $(MAKE) -C '$(1)' -j '$(JOBS)'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install
+    $(MAKE) -C '$(1)' -j '$(JOBS)' datarootdir='$(PREFIX)/$(TARGET)/lib'
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install datarootdir='$(PREFIX)/$(TARGET)/lib'
 endef
