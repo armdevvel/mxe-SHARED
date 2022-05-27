@@ -16,5 +16,3 @@ define $(PKG)_BUILD
     cd '$(SOURCE_DIR)' && meson --prefix '$(PREFIX)/$(TARGET)' --cross-file=cross.txt build
     cd '$(SOURCE_DIR)/build' && ninja -j '$(JOBS)' && meson install
 endef
-
-$(PKG)_BUILD_SHARED =
