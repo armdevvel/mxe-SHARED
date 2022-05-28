@@ -4,11 +4,11 @@ PKG             := glib
 $(PKG)_WEBSITE  := https://gtk.org/
 $(PKG)_DESCR    := GLib
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.50.2
-$(PKG)_CHECKSUM := 981472151d46213087c1f0b4a26853ba0cf93d2f8708c3e164c5d507d566641d
-$(PKG)_SUBDIR   := glib
-$(PKG)_FILE     := glib.tar.gz
-$(PKG)_URL      := https://github.com/armdevvel/glib/releases/download/v2.48/glib.tar.gz
+$(PKG)_VERSION  := 2.69.3
+$(PKG)_CHECKSUM := 47af2c6e06becee44d447ae7d1212dbab255b002b5141d9b62a4357c0ecc058f
+$(PKG)_SUBDIR   := glib-$($(PKG)_VERSION)
+$(PKG)_FILE     := glib-$($(PKG)_VERSION).tar.xz
+$(PKG)_URL      := https://download.gnome.org/sources/glib/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc dbus gettext libffi libiconv pcre zlib $(BUILD)~$(PKG)
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
@@ -70,6 +70,7 @@ define $(PKG)_BUILD
     rm -f  usr/armv7-w64-mingw32/bin/glib-*
 
     # cross build
+    cp '$(SOURCE_DIR)/../../cross.txt' '$(SOURCE_DIR)'
     cd '$(SOURCE_DIR)' && meson \
     --cross-file=cross.txt \
     --prefix '$(PREFIX)/armv7-w64-mingw32' \
