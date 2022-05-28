@@ -1,31 +1,26 @@
 # This file is part of MXE. See LICENSE.md for licensing information.
 
 PKG             := libsoup
-$(PKG)_WEBSITE  := https://github.com/GNOME/libsoup
-$(PKG)_DESCR    := HTTP client/server library for GNOME
+$(PKG)_WEBSITE  := https://wiki.gnome.org/Projects/libsoup
+$(PKG)_DESCR    := An HTTP client/server library for GNOME
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.57.1
-$(PKG)_APIVER   := 2.4
-$(PKG)_CHECKSUM := 675c3bc11c2a6347625ca5215720d41c84fd8e9498dd664cda8a635fd5105a26
-$(PKG)_GH_CONF  := GNOME/libsoup/tags,,,pre\|SOUP\|base
-$(PKG)_DEPS     := cc glib libxml2 sqlite
+$(PKG)_VERSION  := 3.0.6
+$(PKG)_CHECKSUM := b45d59f840b9acf9bb45fd45854e3ef672f57e3ab957401c3ad8d7502ac23da6
+$(PKG)_SUBDIR   := libsoup-$($(PKG)_VERSION)
+$(PKG)_FILE     := libsoup-$($(PKG)_VERSION).tar.xz
+$(PKG)_URL      := https://download.gnome.org/sources/libsoup/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
+$(PKG)_DEPS     := cc glib libidn2 libiconv libpsl 
 
 define $(PKG)_BUILD
-    cd '$(SOURCE_DIR)' && \
-        NOCONFIGURE=1 \
-        ACLOCAL_FLAGS=-I'$(PREFIX)/$(TARGET)/share/aclocal' \
-        ./autogen.sh
-    cd '$(BUILD_DIR)' && '$(SOURCE_DIR)'/configure \
-        $(MXE_CONFIGURE_OPTS) \
-        --disable-vala \
-        --without-apache-httpd \
-        --without-gssapi \
-        $(shell [ `uname -s` == Darwin ] && echo "INTLTOOL_PERL=/usr/bin/perl")
-    $(MAKE) -C '$(BUILD_DIR)' -j $(JOBS)
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+    cp '$(SOURCE_DIR)/../../cross.txt' '$(SOURCE_DIR)'
+    cd '$(SOURCE_DIR)' && meson \
+    --cross-file=cross.txt \
+    --prefix '$(PREFIX)/armv7-w64-mingw32' \
+    -Dtls_check=false \
+    -Dtests=false \
+    build
+    # Packages never add what's really required for their libs... (Also have to temporarily hardcode armv7's pkg config)
+    $(SED) -i 's/-lpsl/`armv7-w64-mingw32-pkg-config --libs libpsl libidn2`/g' '$(SOURCE_DIR)/build/build.ninja'
 
-    $(TARGET)-gcc \
-        -W -Wall -Werror -ansi \
-        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
-        `$(TARGET)-pkg-config $(PKG)-$($(PKG)_APIVER) --cflags --libs`
+    cd '$(SOURCE_DIR)/build' && ninja -j '$(JOBS)' && meson install
 endef
