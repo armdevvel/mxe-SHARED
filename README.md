@@ -1,6 +1,6 @@
 # MXE (M cross environment) - for ARM32 Windows development
 
-This is a modified version of MXE that comes with fixed scripts and sources that way Windows on ARM32 can have development for it. 
+This is an UNSTABLE modified version of MXE that comes with fixed scripts and sources that way Windows on ARM32 can have proper development for it. 
 
 MXE (M cross environment) is a GNU Makefile that compiles a cross
 compiler and cross compiles many free libraries such as SDL and
@@ -24,7 +24,7 @@ various target platforms, which:
   * Host Triplets:
     - `armv7-w64-mingw32`
     
-This version of MXE is meant for specifically WoA32 porting only, so packages will not build properly (Especially being that MinGW is NOT GCC. It is Clang.). For Aarch64 development (for NOW), head over to [the Aarch64 development repos](https://github.com/aarch64devel/mxe) 
+This version of MXE is meant for specifically WoA32 porting only, but to just add more, it's unstable, so packages will not build properly (Especially being that MinGW is NOT GCC. It is Clang.). For Aarch64 development (for NOW), head over to [the Aarch64 development repos](https://github.com/aarch64devel/mxe). For stable(-ish) ARM32 development (for NOW), head over to the [STABLE repo](https://github.com/armdevvel/mxe).
 
 ## Setting up
 
@@ -38,20 +38,20 @@ Once done, you can run a make command to build all known working WoA libraries. 
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- `cd ~ && git clone https://github.com/armdevvel/mxe --depth=1 armmxe && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
+-- `cd ~ && git clone https://github.com/armdevvel/mxe-UNSTABLE --depth=1 armmxe-unstable && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
 
 (or, if you would rather use a script, you can use the sh script included for Ubuntu! -- 
 
--- `wget https://raw.githubusercontent.com/armdevvel/mxe/master/mxe-ubuntu-install.sh && sh ./mxe-ubuntu-install.sh` )
+-- `wget https://raw.githubusercontent.com/armdevvel/mxe-UNSTABLE/master/mxe-ubuntu-install.sh && sh ./mxe-ubuntu-install.sh` )
 
 You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
 ## Building (configuring) with each build system
 
   * autoconfigure:
-    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/armmxe/usr/armv7-w64-mingw32`
+    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/armmxe-unstable/usr/armv7-w64-mingw32`
   * meson: 
-    - use included cross.txt and use as so - `meson --cross-file=/home/youruser/armmxe/cross.txt --prefix /home/youruser/armmxe/usr/armv7-w64-mingw32/ builddir`
+    - use included cross.txt and use as so - `meson --cross-file=/home/youruser/armmxe-unstable/cross.txt --prefix /home/youruser/armmxe-unstable/usr/armv7-w64-mingw32/ builddir`
   * CMake:
     - use `armv7-w64-mingw32-cmake` provided by MXE
   * normal make:
