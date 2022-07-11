@@ -21,5 +21,6 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --without-x
+    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_CRUFT)
 endef

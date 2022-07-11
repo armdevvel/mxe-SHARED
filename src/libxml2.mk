@@ -19,6 +19,7 @@ endef
 
 define $(PKG)_BUILD
     $(SED) -i 's,`uname`,MinGW,g' '$(1)/xml2-config.in'
+    $(SED) -i 's/-Wl,--version-script=/ /g' '$(SOURCE_DIR)/configure'
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --with-zlib='$(PREFIX)/$(TARGET)/lib' \

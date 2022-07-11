@@ -2,14 +2,4 @@
 
 -------------------------------------------------------------------------------------------------------------------
 
-libffi - Has `--version-script` argument - Fix: Use sed to remove it from Makefiles - Will be pushed soon.
-
-libmodplug - Has undefined symbols: `__chkstk`, `__rt_udiv64`, `__rt_sdiv`, `__rt_udiv`, and `__rt_sdiv64` - Fix: Use patches or sed to remove `-nostdlib` (why is this even here?) - Will be pushed soon.
-
-libusb1 - Has `--add-stdcall-alias` argument - Fix: Use sed to remove it from Makefiles - Will be pushed soon.
-
-libxml2 - Has `--version-script` argument - Fix: Use sed to remove it from Makefiles - Will be pushed soon.
-
-pcre - Has undefined symbols: `__chkstk`, `__rt_udiv64`, and `__rt_sdiv64` - Fix: Use patches or sed to remove `-nostdlib` (why is this even here?) - Will be pushed soon.
-
-tiff - Has undefined symbol: `__chkstk` - Fix: Use patches or sed to remove `-nostdlib` (why is this even here?) - Will be pushed soon.
+Boost - Issue: I don't know - Fix: I don't know, I hate this library and its build system - I'll look at it when I have to.

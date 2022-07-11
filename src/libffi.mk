@@ -19,9 +19,9 @@ define $(PKG)_BUILD
     # build and install the library
     cd '$(BUILD_DIR)' && $(SOURCE_DIR)/configure \
         $(MXE_CONFIGURE_OPTS)
+    $(SED) -i 's/-Wl,--version-script,libffi.map/ /g' '$(BUILD_DIR)/Makefile'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
-
 endef
 
 define $(PKG)_BUILD_$(BUILD)

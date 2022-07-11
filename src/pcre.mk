@@ -28,6 +28,7 @@ define $(PKG)_BUILD_SHARED
         --disable-pcregrep-libz \
         --disable-pcregrep-libbz2 \
         --disable-pcretest-libreadline
+    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_PROGRAMS) dist_html_DATA= dist_doc_DATA=
     rm -f '$(PREFIX)/$(TARGET)'/share/man/man1/pcre*.1
     rm -f '$(PREFIX)/$(TARGET)'/share/man/man3/pcre*.3

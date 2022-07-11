@@ -19,6 +19,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    $(SED) -i 's/ -Wl,--add-stdcall-alias/ /g' '$(SOURCE_DIR)/configure'
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         CFLAGS=-D_WIN32_WINNT=0x0500
