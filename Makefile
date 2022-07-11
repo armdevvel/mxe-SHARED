@@ -587,7 +587,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := SHARED)
+    $(eval $(TARGET)_UC_LIB_TYPE := SHARED))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
