@@ -9,7 +9,7 @@ $(PKG)_SUBDIR   := zlib-$($(PKG)_VERSION)
 $(PKG)_FILE     := zlib-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://zlib.net/$($(PKG)_FILE)
 $(PKG)_URL_2    := https://$(SOURCEFORGE_MIRROR)/project/libpng/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc $(BUILD)~$(PKG)
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
 $(PKG)_DEPS_$(BUILD) :=
@@ -18,6 +18,14 @@ define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://zlib.net/' | \
     $(SED) -n 's,.*zlib-\([0-9][^>]*\)\.tar.*,\1,ip' | \
     head -1
+endef
+
+define $(PKG)_BUILD_$(BUILD)
+    # Copied since shared likes to use Win's Makefile even if Linux
+    cd '$(1)' && CHOST='$(TARGET)' ./configure \
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --static
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install
 endef
 
 define $(PKG)_BUILD

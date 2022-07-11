@@ -2,12 +2,19 @@
 
 ------------------------------------------------------------------------------------------------------------
 
+atk \
 bzip2 \
+cairo \
 ccache \
 cmake \
 dbus \
 expat \
+fontconfig \
+freetype-bootstrap \
+gdk-pixbuf \
 gettext \
+glib \
+jasper \
 jpeg \
 lame \
 libffi \
@@ -22,11 +29,13 @@ libwebp \
 libxml2 \
 libyaml \
 libzip \
+lzo \
 mpg123 \
 ogg \
 opus \
 opusfile \
 pcre \
+pixman \
 sdl \
 sdl_image \
 sdl_mixer \
@@ -37,6 +46,7 @@ smpeg \
 smpeg2 \
 tiff \
 vorbis \
+xorg-macros \
 xz \
 yasm \
 zlib
