@@ -22,6 +22,7 @@ endef
 
 define $(PKG)_BUILD
     cd '$(1)' && $(SHELL) ./configure \
+        LDFLAGS="-lssp" \
         $(MXE_CONFIGURE_OPTS)
     $(MAKE) -C '$(1)' -j '$(JOBS)' SHELL=$(SHELL) $(MXE_DISABLE_CRUFT)
     $(MAKE) -C '$(1)' -j 1 install SHELL=$(SHELL) $(MXE_DISABLE_CRUFT)
