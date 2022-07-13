@@ -22,7 +22,7 @@ define $(PKG)_BUILD
     cd '$(1)' && autoreconf -fi -I'$(PREFIX)/$(TARGET)/share/aclocal'
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
-        LDFLAGS="-Wl,--allow-multiple-definition" \
+        LDFLAGS="-Wl,--allow-multiple-definition" \ 
         $(if $(BUILD_STATIC), \
            --disable-modules,) \
         --with-included-loaders \

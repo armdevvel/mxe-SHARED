@@ -45,5 +45,3 @@ define $(PKG)_BUILD
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk2.exe' \
         `'$(TARGET)-pkg-config' gtk+-2.0 gmodule-2.0 --cflags --libs`
 endef
-
-$(PKG)_BUILD_SHARED =

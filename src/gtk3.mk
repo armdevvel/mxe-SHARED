@@ -28,7 +28,8 @@ define $(PKG)_BUILD
         --disable-gtk-doc \
         --disable-man \
         --with-included-immodules \
-        --enable-win32-backend
+        --enable-win32-backend \
+        LDFLAGS="`$(TARGET)-pkg-config --libs glib-2.0 gmodule-2.0 gio-2.0 gobject-2.0 gdk-pixbuf-2.0 epoxy`"
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT) EXTRA_DIST=
 
@@ -39,5 +40,5 @@ define $(PKG)_BUILD
     '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk3.exe' \
-        `'$(TARGET)-pkg-config' gtk+-3.0 --cflags --libs`
+        `'$(TARGET)-pkg-config' gtk+-3.0 glib-2.0 gmodule-2.0 gio-2.0 gobject-2.0 gdk-pixbuf-2.0 epoxy --cflags --libs`
 endef

@@ -13,22 +13,12 @@ diff --git a/include/epoxy/gl.h b/include/epoxy/gl.h
 index 1111111..2222222 100644
 --- a/include/epoxy/gl.h
 +++ b/include/epoxy/gl.h
-@@ -71,7 +71,17 @@ extern "C" {
+@@ -71,7 +71,7 @@ extern "C" {
  #endif
  
  #ifndef EPOXY_IMPORTEXPORT
 -#define EPOXY_IMPORTEXPORT __declspec(dllimport)
-+#  ifdef EPOXY_SHARED
-+#    ifdef EPOXY_DLL
-+#      define EPOXY_IMPORTEXPORT __declspec(dllexport)
-+#    else
-+#      define EPOXY_IMPORTEXPORT __declspec(dllimport)
-+#    endif
-+#  elif EPOXY_STATIC
-+#    define EPOXY_IMPORTEXPORT
-+#  else
-+#    error "Please define EPOXY_STATIC or EPOXY_SHARED"
-+#  endif
++#define EPOXY_IMPORTEXPORT
  #endif
  
  #ifndef GLAPI

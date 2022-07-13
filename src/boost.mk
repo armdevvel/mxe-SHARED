@@ -44,7 +44,7 @@ define $(PKG)_BUILD
         address-model=$(BITS) \
         architecture=arm \
         binary-format=pe \
-        link=$(if $(BUILD_STATIC),static,shared) \
+        link=static \
         target-os=windows \
         threadapi=win32 \
         threading=multi \
@@ -61,9 +61,6 @@ define $(PKG)_BUILD
         -sEXPAT_INCLUDE='$(PREFIX)/$(TARGET)/include' \
         -sEXPAT_LIBPATH='$(PREFIX)/$(TARGET)/lib' \
         install
-
-    $(if $(BUILD_SHARED), \
-        mv -fv '$(PREFIX)/$(TARGET)/lib/'libboost_*.dll '$(PREFIX)/$(TARGET)/bin/')
 
     # setup cmake toolchain
     echo 'set(Boost_THREADAPI "win32")' > '$(CMAKE_TOOLCHAIN_DIR)/$(PKG).cmake' 

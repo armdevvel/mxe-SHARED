@@ -29,52 +29,21 @@ endef
 
 define $(PKG)_BUILD_COMMON
     rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'*'.{a,dll,dll.a})
+    $(SED) -i 's/-Wl,-Bsymbolic/ /g' '$(SOURCE_DIR)/source/config/mh-mingw'
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/source/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --with-cross-build='$(PREFIX)/$(BUILD)/$(PKG)' \
         SHELL=$(SHELL) \
         $($(PKG)_CONFIGURE_OPTS)
         
-    cp $(SOURCE_DIR)/icufix.patch $(BUILD_DIR)
-    cd $(BUILD_DIR) && git apply icufix.patch
-
     cd $(BUILD_DIR) && $(MAKE) -j '$(JOBS)' VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
-    
-    # sloppy fix please don't Get angry
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicudt.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicudt.a
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicuin.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicuin.a
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicuio.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicuio.a
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicutest.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicutest.a
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicutu.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicutu.a
-    cp $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libsicuuc.a $(SOURCE_DIR)/../../usr/armv7-w64-mingw32/lib/libicuuc.a
-endef
-
-define $(PKG)_BUILD_TEST
-    # NOOOOOO MOOOOOOOOORE tests!!!!!!!!!!!!!!!!!!!!!!
 endef
 
 define $(PKG)_BUILD_SHARED
     $($(PKG)_BUILD_COMMON)
-    # icu4c installs its DLLs to lib/. Move them
- to bin/.
-    mv -fv $(PREFIX)/$(TARGET)/lib/icu*.dll '$(PREFIX)/$(TARGET)/bin/'
-
-    # stub data is icudt.dll, actual data is libicudt.dll - prefer actual
-    test ! -e '$(PREFIX)/$(TARGET)/lib/libicudt$($(PKG)_MAJOR).dll' \
-        || mv -fv '$(PREFIX)/$(TARGET)/lib/libicudt$($(PKG)_MAJOR).dll' '$(PREFIX)/$(TARGET)/bin/icudt$($(PKG)_MAJOR).dll'
-
-    $($(PKG)_BUILD_TEST)
-
-    # bundle test to verify deployment
-    rm -rfv '$(PREFIX)/$(TARGET)/bin/test-$(PKG)' '$(PREFIX)/$(TARGET)/bin/test-$(PKG).zip'
-    $(INSTALL) -d '$(PREFIX)/$(TARGET)/bin/test-$(PKG)'
-    cp $$($(TARGET)-peldd --all '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe') '$(PREFIX)/$(TARGET)/bin/test-$(PKG)'
-    cd '$(PREFIX)/$(TARGET)/bin' && 7za a -tzip test-$(PKG).zip test-$(PKG)
-    rm -rfv '$(PREFIX)/$(TARGET)/bin/test-$(PKG)'
 endef
 
 define $(PKG)_BUILD
     $($(PKG)_BUILD_COMMON)
-    $($(PKG)_BUILD_TEST)
 endef
