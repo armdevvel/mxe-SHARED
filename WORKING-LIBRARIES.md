@@ -8,6 +8,7 @@ cairo \
 ccache \
 cmake \
 dbus \
+expat \
 fontconfig \
 freetype \
 freetype-bootstrap \
@@ -20,7 +21,6 @@ icu4c \
 jasper \
 jpeg \
 lame \
-libepoxy \
 libffi \
 libgcrypt \
 libgpg_error \
