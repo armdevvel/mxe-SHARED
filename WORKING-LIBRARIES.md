@@ -16,11 +16,13 @@ gdk-pixbuf \
 gettext \
 glib \
 gtk2 \
+gtk3 \
 harfbuzz \
 icu4c \
 jasper \
 jpeg \
 lame \
+libepoxy \
 libffi \
 libgcrypt \
 libgpg_error \

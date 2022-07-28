@@ -8,9 +8,14 @@ $(PKG)_CHECKSUM := 6700ddedffb827b42c72cce1e0be6fba67b678b19bf256e1b5efd3ea38cc2
 $(PKG)_GH_CONF  := anholt/libepoxy/releases/latest
 # prefix `v` removed from 1.4.1 onwards, remove URL_2 after update
 $(PKG)_URL_2    := https://github.com/anholt/libepoxy/archive/v$($(PKG)_VERSION).tar.gz
-$(PKG)_DEPS     := cc xorg-macros
+$(PKG)_DEPS     := angle cc xorg-macros
 
 define $(PKG)_BUILD
+    if [ ! -f $(PREFIX)/$(TARGET)/lib/libopengl32.a ] ; \
+    then \
+        cp $(PREFIX)/$(TARGET)/lib/libGLESv2.dll.a $(PREFIX)/$(TARGET)/lib/libopengl32.a ; \
+    fi \
+
     cd '$(SOURCE_DIR)' && autoreconf -fi -I'$(PREFIX)/$(TARGET)/share/aclocal'
     cd '$(BUILD_DIR)' && \
         CFLAGS='$(if $(BUILD_STATIC),-DEPOXY_STATIC,-DEPOXY_SHARED -DEPOXY_DLL)' \
