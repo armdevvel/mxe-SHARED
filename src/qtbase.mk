@@ -9,7 +9,7 @@ $(PKG)_CHECKSUM := 909fad2591ee367993a75d7e2ea50ad4db332f05e1c38dd7a5a274e156a4e
 $(PKG)_SUBDIR   := $(PKG)-everywhere-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-everywhere-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/official_releases/qt/5.15/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libpng angle openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd
+$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libpng angle openssl pcre2 sqlite zlib zstd $(BUILD)~zstd
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
@@ -53,7 +53,6 @@ define $(PKG)_BUILD
             -nomake tests \
             -plugin-sql-sqlite \
             -plugin-sql-odbc \
-            -plugin-sql-psql \
             -plugin-sql-tds -D Q_USE_SYBASE \
             -system-zlib \
             -system-libpng \

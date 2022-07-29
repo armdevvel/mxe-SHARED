@@ -1,0 +1,202 @@
+diff --color -Naur a/glib/poppler-action.cc b/glib/poppler-action.cc
+--- a/glib/poppler-action.cc	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-action.cc	2022-07-29 01:16:46.009198411 -0400
+@@ -25,7 +25,7 @@
+  * @title: PopplerAction
+  */
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerDest, poppler_dest, poppler_dest_copy, poppler_dest_free)
++G_DEFINE_BOXED_TYPE(PopplerDest, poppler_dest, poppler_dest_copy, poppler_dest_free)
+ 
+ /**
+  * poppler_dest_copy:
+@@ -88,7 +88,7 @@
+     return retval;
+ }
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerAction, poppler_action, poppler_action_copy, poppler_action_free)
++G_DEFINE_BOXED_TYPE(PopplerAction, poppler_action, poppler_action_copy, poppler_action_free)
+ 
+ /**
+  * poppler_action_free:
+diff --color -Naur a/glib/poppler-annot.cc b/glib/poppler-annot.cc
+--- a/glib/poppler-annot.cc	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-annot.cc	2022-07-29 01:16:46.009198411 -0400
+@@ -1693,7 +1693,7 @@
+ }
+ 
+ /* PopplerAnnotCalloutLine */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerAnnotCalloutLine, poppler_annot_callout_line, poppler_annot_callout_line_copy, poppler_annot_callout_line_free)
++G_DEFINE_BOXED_TYPE(PopplerAnnotCalloutLine, poppler_annot_callout_line, poppler_annot_callout_line_copy, poppler_annot_callout_line_free)
+ 
+ /**
+  * poppler_annot_callout_line_new:
+diff --color -Naur a/glib/poppler-document.cc b/glib/poppler-document.cc
+--- a/glib/poppler-document.cc	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-document.cc	2022-07-29 01:16:46.013198476 -0400
+@@ -2355,7 +2355,7 @@
+     int index;
+ };
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerIndexIter, poppler_index_iter, poppler_index_iter_copy, poppler_index_iter_free)
++G_DEFINE_BOXED_TYPE(PopplerIndexIter, poppler_index_iter, poppler_index_iter_copy, poppler_index_iter_free)
+ 
+ /**
+  * poppler_index_iter_copy:
+@@ -2574,7 +2574,7 @@
+     int index;
+ };
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerFontsIter, poppler_fonts_iter, poppler_fonts_iter_copy, poppler_fonts_iter_free)
++G_DEFINE_BOXED_TYPE(PopplerFontsIter, poppler_fonts_iter, poppler_fonts_iter_copy, poppler_fonts_iter_free)
+ 
+ /**
+  * poppler_fonts_iter_get_full_name:
+@@ -3106,7 +3106,7 @@
+     int index;
+ };
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerLayersIter, poppler_layers_iter, poppler_layers_iter_copy, poppler_layers_iter_free)
++G_DEFINE_BOXED_TYPE(PopplerLayersIter, poppler_layers_iter, poppler_layers_iter_copy, poppler_layers_iter_free)
+ 
+ /**
+  * poppler_layers_iter_copy:
+diff --color -Naur a/glib/poppler-page.cc b/glib/poppler-page.cc
+--- a/glib/poppler-page.cc	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-page.cc	2022-07-29 01:16:46.017198540 -0400
+@@ -1563,7 +1563,7 @@
+ 
+ /* PopplerRectangle type */
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerRectangle, poppler_rectangle, poppler_rectangle_copy, poppler_rectangle_free)
++G_DEFINE_BOXED_TYPE(PopplerRectangle, poppler_rectangle, poppler_rectangle_copy, poppler_rectangle_free)
+ 
+ /**
+  * poppler_rectangle_new:
+@@ -1605,7 +1605,7 @@
+ 
+ /* PopplerPoint type */
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerPoint, poppler_point, poppler_point_copy, poppler_point_free)
++G_DEFINE_BOXED_TYPE(PopplerPoint, poppler_point, poppler_point_copy, poppler_point_free)
+ 
+ /**
+  * poppler_point_new:
+@@ -1654,7 +1654,7 @@
+ 
+ /* PopplerQuadrilateral type */
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerQuadrilateral, poppler_quadrilateral, poppler_quadrilateral_copy, poppler_quadrilateral_free)
++G_DEFINE_BOXED_TYPE(PopplerQuadrilateral, poppler_quadrilateral, poppler_quadrilateral_copy, poppler_quadrilateral_free)
+ 
+ /**
+  * poppler_quadrilateral_new:
+@@ -1702,7 +1702,7 @@
+ 
+ /* PopplerTextAttributes type */
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerTextAttributes, poppler_text_attributes, poppler_text_attributes_copy, poppler_text_attributes_free)
++G_DEFINE_BOXED_TYPE(PopplerTextAttributes, poppler_text_attributes, poppler_text_attributes_copy, poppler_text_attributes_free)
+ 
+ /**
+  * poppler_text_attributes_new:
+@@ -1801,7 +1801,7 @@
+  */
+ 
+ /* PopplerColor type */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerColor, poppler_color, poppler_color_copy, poppler_color_free)
++G_DEFINE_BOXED_TYPE(PopplerColor, poppler_color, poppler_color_copy, poppler_color_free)
+ 
+ /**
+  * poppler_color_new:
+@@ -1845,7 +1845,7 @@
+ }
+ 
+ /* PopplerLinkMapping type */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerLinkMapping, poppler_link_mapping, poppler_link_mapping_copy, poppler_link_mapping_free)
++G_DEFINE_BOXED_TYPE(PopplerLinkMapping, poppler_link_mapping, poppler_link_mapping_copy, poppler_link_mapping_free)
+ 
+ /**
+  * poppler_link_mapping_new:
+@@ -1897,7 +1897,7 @@
+ }
+ 
+ /* Poppler Image mapping type */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerImageMapping, poppler_image_mapping, poppler_image_mapping_copy, poppler_image_mapping_free)
++G_DEFINE_BOXED_TYPE(PopplerImageMapping, poppler_image_mapping, poppler_image_mapping_copy, poppler_image_mapping_free)
+ 
+ /**
+  * poppler_image_mapping_new:
+@@ -1936,7 +1936,7 @@
+ }
+ 
+ /* Page Transition */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerPageTransition, poppler_page_transition, poppler_page_transition_copy, poppler_page_transition_free)
++G_DEFINE_BOXED_TYPE(PopplerPageTransition, poppler_page_transition, poppler_page_transition_copy, poppler_page_transition_free)
+ 
+ /**
+  * poppler_page_transition_new:
+@@ -1980,7 +1980,7 @@
+ }
+ 
+ /* Form Field Mapping Type */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerFormFieldMapping, poppler_form_field_mapping, poppler_form_field_mapping_copy, poppler_form_field_mapping_free)
++G_DEFINE_BOXED_TYPE(PopplerFormFieldMapping, poppler_form_field_mapping, poppler_form_field_mapping_copy, poppler_form_field_mapping_free)
+ 
+ /**
+  * poppler_form_field_mapping_new:
+@@ -2032,7 +2032,7 @@
+ }
+ 
+ /* PopplerAnnot Mapping Type */
+-POPPLER_DEFINE_BOXED_TYPE(PopplerAnnotMapping, poppler_annot_mapping, poppler_annot_mapping_copy, poppler_annot_mapping_free)
++G_DEFINE_BOXED_TYPE(PopplerAnnotMapping, poppler_annot_mapping, poppler_annot_mapping_copy, poppler_annot_mapping_free)
+ 
+ /**
+  * poppler_annot_mapping_new:
+diff --color -Naur a/glib/poppler-private.h b/glib/poppler-private.h
+--- a/glib/poppler-private.h	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-private.h	2022-07-29 01:16:46.021198608 -0400
+@@ -143,21 +143,6 @@
+ GDateTime *_poppler_convert_pdf_date_to_date_time(const GooString *date);
+ GooString *_poppler_convert_date_time_to_pdf_date(GDateTime *datetime);
+ 
+-/*
+- * A convenience macro for boxed type implementations, which defines a
+- * type_name_get_type() function registering the boxed type.
+- */
+-#define POPPLER_DEFINE_BOXED_TYPE(TypeName, type_name, copy_func, free_func)                                                                                                                                                                   \
+-    GType type_name##_get_type(void)                                                                                                                                                                                                           \
+-    {                                                                                                                                                                                                                                          \
+-        static volatile gsize g_define_type_id__volatile = 0;                                                                                                                                                                                  \
+-        if (g_once_init_enter(&g_define_type_id__volatile)) {                                                                                                                                                                                  \
+-            GType g_define_type_id = g_boxed_type_register_static(g_intern_static_string(#TypeName), (GBoxedCopyFunc)copy_func, (GBoxedFreeFunc)free_func);                                                                                    \
+-            g_once_init_leave(&g_define_type_id__volatile, g_define_type_id);                                                                                                                                                                  \
+-        }                                                                                                                                                                                                                                      \
+-        return g_define_type_id__volatile;                                                                                                                                                                                                     \
+-    }
+-
+ void _poppler_error_cb(ErrorCategory category, Goffset pos, const char *message);
+ 
+ #endif
+diff --color -Naur a/glib/poppler-structure-element.cc b/glib/poppler-structure-element.cc
+--- a/glib/poppler-structure-element.cc	2022-07-29 01:15:54.904330018 -0400
++++ b/glib/poppler-structure-element.cc	2022-07-29 01:16:46.021198608 -0400
+@@ -581,7 +581,7 @@
+     unsigned index;
+ };
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerStructureElementIter, poppler_structure_element_iter, poppler_structure_element_iter_copy, poppler_structure_element_iter_free)
++G_DEFINE_BOXED_TYPE(PopplerStructureElementIter, poppler_structure_element_iter, poppler_structure_element_iter_copy, poppler_structure_element_iter_free)
+ 
+ /**
+  * poppler_structure_element_iter_copy:
+@@ -763,7 +763,7 @@
+     PopplerColor color;
+ };
+ 
+-POPPLER_DEFINE_BOXED_TYPE(PopplerTextSpan, poppler_text_span, poppler_text_span_copy, poppler_text_span_free)
++G_DEFINE_BOXED_TYPE(PopplerTextSpan, poppler_text_span, poppler_text_span_copy, poppler_text_span_free)
+ 
+ enum
+ {

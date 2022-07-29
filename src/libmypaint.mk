@@ -16,6 +16,6 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --disable-introspection \
         --enable-gegl
-    $(MAKE) -C '$(1)' -j '$(JOBS)'
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS="-lintl -no-undefined"
     $(MAKE) -C '$(1)' -j '$(JOBS)' install
 endef

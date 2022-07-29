@@ -3,16 +3,20 @@
 ------------------------------------------------------------------------------------------------------------
 
 atk \
+babl \
 bzip2 \
 cairo \
 ccache \
 cmake \
+curl \
 dbus \
 expat \
 fontconfig \
+freetds \
 freetype \
 freetype-bootstrap \
 gdk-pixbuf \
+gegl \
 gettext \
 glib \
 gtk2 \
@@ -21,15 +25,22 @@ harfbuzz \
 icu4c \
 jasper \
 jpeg \
+json-c \
+json-glib \
 lame \
+lcms \
 libepoxy \
 libffi \
 libgcrypt \
 libgpg_error \
 libiconv \
+libidn2 \
 libmodplug \
+libmypaint \
 libpng \
 libsamplerate \
+libssh2 \
+libunistring \
 libusb1 \
 libwebp \
 libxml2 \
@@ -38,11 +49,16 @@ libzip \
 lzo \
 mpg123 \
 ogg \
+openjpeg \
+openssl \
 opus \
 opusfile \
 pango \
 pcre \
+pcre2 \
 pixman \
+poppler \
+qtbase \
 sdl \
 sdl_image \
 sdl_mixer \
@@ -53,9 +69,11 @@ sdl2_mixer \
 sdl2_ttf \
 smpeg \
 smpeg2 \
+sqlite \
 tiff \
 vorbis \
 xorg-macros \
 xz \
 yasm \
-zlib
+zlib \
+zstd
