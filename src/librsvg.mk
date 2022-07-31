@@ -28,7 +28,7 @@ define $(PKG)_BUILD
 
     '$(TARGET)-gcc' \
         -mwindows -W -Wall -Werror -Wno-error=deprecated-declarations \
-        -std=c99 -pedantic \
+        -std=c11 -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-librsvg.exe' \
         `'$(TARGET)-pkg-config' librsvg-2.0 --cflags --libs`
 endef

@@ -16,6 +16,7 @@ define $(PKG)_BUILD
         CXX='$(TARGET)-g++' \
         PKG_CONFIG='$(PREFIX)/bin/$(TARGET)-pkg-config' \
         MAKE=$(MAKE)
+    $(SED) -i 's/-nostdlib/ /g' '$(BUILD_DIR)/libtool'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT)
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT)
 endef

@@ -26,6 +26,7 @@ define $(PKG)_BUILD
         PKG_CONFIG='$(PREFIX)/bin/$(TARGET)-pkg-config' \
         $(shell [ `uname -s` == Darwin ] && echo "PERL=/usr/bin/perl") \
         MAKE=$(MAKE)
+    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
     $(MAKE) -C '$(1)/gio/src' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= MISC_STUFF=
     $(MAKE) -C '$(1)'         -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
 endef
