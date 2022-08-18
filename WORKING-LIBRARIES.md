@@ -27,7 +27,6 @@ glib \
 glibmm \
 gst-plugins-base \
 gstreamer \
-gtk2 \
 gtk3 \
 gtkmm3 \
 harfbuzz \
