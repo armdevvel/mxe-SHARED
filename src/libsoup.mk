@@ -9,7 +9,7 @@ $(PKG)_CHECKSUM := b45d59f840b9acf9bb45fd45854e3ef672f57e3ab957401c3ad8d7502ac23
 $(PKG)_SUBDIR   := libsoup-$($(PKG)_VERSION)
 $(PKG)_FILE     := libsoup-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/libsoup/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc glib libidn2 libiconv libpsl 
+$(PKG)_DEPS     := cc glib libidn2 libiconv libnghttp2 libpsl sqlite
 
 define $(PKG)_BUILD
     cp '$(SOURCE_DIR)/../../cross.txt' '$(SOURCE_DIR)'
