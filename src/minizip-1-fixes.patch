@@ -46,7 +46,7 @@ index 1111111..2222222 100644
          list(APPEND MINIZIP_INC ${BZIP2_INCLUDE_DIRS})
          list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
 -        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
-+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbz2")
++        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbz2 -lcrypt32")
      endif()
  endif()
  

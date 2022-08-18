@@ -18,6 +18,7 @@ define $(PKG)_BUILD
     --prefix '$(PREFIX)/armv7-w64-mingw32' \
     -Dtls_check=false \
     -Dtests=false \
+    -Dintrospection="disabled" \
     build
     # Packages never add what's really required for their libs... (Also have to temporarily hardcode armv7's pkg config)
     $(SED) -i 's/-lpsl/`armv7-w64-mingw32-pkg-config --libs libpsl libidn2`/g' '$(SOURCE_DIR)/build/build.ninja'

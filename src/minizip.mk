@@ -13,6 +13,7 @@ define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
         -DBUILD_TEST=OFF \
         -DUSE_ZLIB=ON
+    $(SED) -i 's/-ladvapi32/-ladvapi32 -lcrypt32/g' '$(BUILD_DIR)/CMakeFiles/minizip.dir/linklibs.rsp'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 
