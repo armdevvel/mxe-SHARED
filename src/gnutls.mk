@@ -31,6 +31,7 @@ define $(PKG)_BUILD
         --without-p11-kit \
         --disable-silent-rules \
         CFLAGS='-D_WIN32_WINNT=0x0600'
+    $(SED) -i 's/-nostdlib/ /g' '$(BUILD_DIR)/libtool'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 

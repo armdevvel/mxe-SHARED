@@ -10,7 +10,7 @@ $(PKG)_GH_CONF  := georgmartius/vid.stab/tags,v
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
-    cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)'
+    cd '$(BUILD_DIR)' && $(TARGET)-cmake -DSSE2_FOUND=NO -DUSE_OMP=NO '$(SOURCE_DIR)'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 

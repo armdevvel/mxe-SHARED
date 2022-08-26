@@ -1,0 +1,12 @@
+diff --color -Naur a/common/cpu.c b/common/cpu.c
+--- a/common/cpu.c	2022-08-25 03:18:04.699535741 -0400
++++ b/common/cpu.c	2022-08-25 03:17:45.247564590 -0400
+@@ -100,7 +100,7 @@
+ #if (ARCH_PPC && SYS_LINUX) || (ARCH_ARM && !HAVE_NEON)
+ #include <signal.h>
+ #include <setjmp.h>
+-static sigjmp_buf jmpbuf;
++static jmp_buf jmpbuf;
+ static volatile sig_atomic_t canjump = 0;
+ 
+ static void sigill_handler( int sig )

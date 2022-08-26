@@ -3,13 +3,13 @@
 PKG             := ffmpeg
 $(PKG)_WEBSITE  := https://ffmpeg.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 4.2.3
-$(PKG)_CHECKSUM := 217eb211c33303b37c5521a5abe1f0140854d6810c6a6ee399456cc96356795e
+$(PKG)_VERSION  := 5.1
+$(PKG)_CHECKSUM := 55eb6aab5ee235550fa54a33eaf8bf1b4ec66c01453182b12f6a993d75698b03
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
-$(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.bz2
+$(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://ffmpeg.org/releases/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc bzip2 gnutls lame libass libbluray libbs2b libcaca \
-                   libvpx opencore-amr opus sdl2 speex theora vidstab \
+$(PKG)_DEPS     := cc bzip2 gnutls lame libass libbluray libbs2b \
+                   opencore-amr opus sdl2 speex theora vidstab \
                    vo-amrwbenc vorbis x264 xvidcore yasm zlib
 
 # DO NOT ADD fdk-aac OR openssl SUPPORT.
@@ -35,21 +35,17 @@ define $(PKG)_BUILD
         $(if $(BUILD_STATIC), \
             --enable-static --disable-shared , \
             --disable-static --enable-shared ) \
-        --yasmexe='$(TARGET)-yasm' \
         --disable-debug \
         --disable-pthreads \
         --enable-w32threads \
         --disable-doc \
-        --enable-avresample \
         --enable-gpl \
         --enable-version3 \
         --extra-libs='-mconsole' \
-        --enable-avisynth \
         --enable-gnutls \
         --enable-libass \
         --enable-libbluray \
         --enable-libbs2b \
-        --enable-libcaca \
         --enable-libmp3lame \
         --enable-libopencore-amrnb \
         --enable-libopencore-amrwb \
@@ -59,10 +55,9 @@ define $(PKG)_BUILD
         --enable-libvidstab \
         --enable-libvo-amrwbenc \
         --enable-libvorbis \
-        --enable-libvpx \
         --enable-libx264 \
         --enable-libxvid \
         $($(PKG)_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+    cd '$(BUILD_DIR)' && $(MAKE) -j '$(JOBS)'
+    cd '$(BUILD_DIR)' && $(MAKE) -j 1 install
 endef

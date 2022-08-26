@@ -1,0 +1,12 @@
+diff --color -Naur a/configure b/configure
+--- a/configure	2022-08-25 03:03:00.513080536 -0400
++++ b/configure	2022-08-25 03:03:12.817054635 -0400
+@@ -211,7 +211,7 @@
+         SHARED_EXT=".dll"
+         DEFNAME="${SHARED_NAME}.def"
+         IMPLIB="liblsmash.dll.a"
+-        SO_LDFLAGS="-shared -Wl,--output-def,$DEFNAME -Wl,--out-implib,$IMPLIB -Wl,--version-script,liblsmash.ver"
++        SO_LDFLAGS="-shared -Wl,--output-def,$DEFNAME -Wl,--out-implib,$IMPLIB"
+         CFLAGS="$CFLAGS -D__USE_MINGW_ANSI_STDIO=1"
+         LIBARCH=i386
+         if lib.exe --list > /dev/null 2>&1 ; then

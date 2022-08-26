@@ -28,6 +28,7 @@ define $(PKG)_BUILD
         --disable-assembly \
         --enable-cxx \
         --without-readline
+    $(SED) -i 's/-nostdlib/ /g' '$(1)/libtool'
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install
 
