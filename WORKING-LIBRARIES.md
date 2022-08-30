@@ -22,6 +22,7 @@ freetds \
 freetype \
 freetype-bootstrap \
 fribidi \
+jsoncpp \
 gdk-pixbuf \
 gegl \
 gettext \
