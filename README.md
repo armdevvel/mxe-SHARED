@@ -55,7 +55,7 @@ You should be good to go now! Go have fun with your heart's desires building wha
   * CMake:
     - use `armv7-w64-mingw32-cmake` provided by MXE
   * normal make:
-    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mignw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
+    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mingw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
   * MXE:
     - this stays the same, but instead of a host triplet being i686-w64-mingw32 or x86_64-w64-mingw32, you use armv7-w64-mingw32. basically, run `make MXE_TARGETS="armv7-w64-mingw32" package`
 
