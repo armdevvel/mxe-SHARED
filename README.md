@@ -28,7 +28,7 @@ This version of MXE is meant for specifically WoA32 porting only, but to just ad
 
 ## Setting up
 
-To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
 
 ![MXEs usr folder](images/mxeusr2.png?raw=true)
 
@@ -38,7 +38,7 @@ Once done, you can run a make command to build all known working WoA libraries. 
 
 (or if you want to just set it up in one command and already have the Linux dependencies installed, just run this long command (lol) --
 
--- `cd ~ && git clone https://github.com/armdevvel/mxe-UNSTABLE --depth=1 armmxe-unstable && cd armmxe && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe/usr/bin"':$PATH' >> ~/.bashrc` )
+-- `cd ~ && git clone https://github.com/armdevvel/mxe-UNSTABLE --depth=1 armmxe-unstable && cd armmxe-unstable && mkdir usr && cd usr && wget https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz && tar -xf armv7-only-llvm-mingw-linux-x86_64.tar.xz && cd .. && make libpng cmake sdl2 sdl tiff jpeg ccache lame libxml++ libxml2 libxslt libyaml libzip libwebp libusb1 sdl_image sdl_mixer sdl2_mixer zlib yasm dbus pcre boost icu4c && echo $'\n' >> ~/.bashrc && echo "export PATH=/home/$USER/armmxe-unstable/usr/bin"':$PATH' >> ~/.bashrc` )
 
 (or, if you would rather use a script, you can use the sh script included for Ubuntu! -- 
 
@@ -55,7 +55,7 @@ You should be good to go now! Go have fun with your heart's desires building wha
   * CMake:
     - use `armv7-w64-mingw32-cmake` provided by MXE
   * normal make:
-    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mignw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
+    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mingw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
   * MXE:
     - this stays the same, but instead of a host triplet being i686-w64-mingw32 or x86_64-w64-mingw32, you use armv7-w64-mingw32. basically, run `make MXE_TARGETS="armv7-w64-mingw32" package`
 
