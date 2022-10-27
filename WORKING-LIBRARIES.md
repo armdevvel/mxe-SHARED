@@ -2,6 +2,7 @@
 
 ------------------------------------------------------------------------------------------------------------
 
+angle \
 assimp \
 atk \
 atkmm \
@@ -37,11 +38,12 @@ gtk3 \
 gtkmm3 \
 harfbuzz \
 icu4c \
-jannson \
+jansson \
 jasper \
 jpeg \
 json-c \
 json-glib \
+jsoncpp \
 lame \
 lcms \
 libass \
@@ -95,10 +97,13 @@ pango \
 pangomm \
 pcre \
 pcre2 \
+pe-parse \
+pe-util \
 pixman \
 poppler \
 poppler-data \
 portaudio \
+pthreads \
 qt3d \
 qt5 \
 qtactiveqt \

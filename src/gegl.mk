@@ -13,6 +13,6 @@ $(PKG)_DEPS     := cc babl json-glib
 
 define $(PKG)_BUILD
     cd '$(SOURCE_DIR)' && cp '$(PREFIX)/../cross.txt' .
-    cd '$(SOURCE_DIR)' && meson --prefix '$(PREFIX)/$(TARGET)' --cross-file=cross.txt -Dpoppler=disabled build
+    cd '$(SOURCE_DIR)' && meson --prefix '$(PREFIX)/$(TARGET)' --cross-file=cross.txt -Dpoppler=disabled -Dlibav=disabled build
     cd '$(SOURCE_DIR)/build' && ninja -j '$(JOBS)' && meson install
 endef
