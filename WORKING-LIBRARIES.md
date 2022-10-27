@@ -1,4 +1,4 @@
-## THESE ARE THE LIBRARIES THAT CURRENTLY BUILD WITHOUT ANY SOURCE CODE EDITING ( in alphabetical order :) )
+## THESE ARE THE LIBRARIES THAT CURRENTLY BUILD AND WORK AS INTENDED WITHOUT ANY SOURCE CODE EDITING ( in alphabetical order :) )
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -29,7 +29,6 @@ freetype \
 freetype-bootstrap \
 fribidi \
 jsoncpp \
-gdk-pixbuf \
 gegl \
 gettext \
 gexiv2 \
