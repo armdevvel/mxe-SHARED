@@ -23,9 +23,9 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         --host='$(TARGET)' \
         --build="`config.guess`" \
-        --disable-shared \
         --prefix='$(PREFIX)/$(TARGET)' \
         MAKE=$(MAKE)
+    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
     $(MAKE) -C '$(1)' -j '$(JOBS)' bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
     $(MAKE) -C '$(1)' -j 1 install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= doc_install='# DISABLED: doc-install.pl'
 
@@ -36,5 +36,3 @@ define $(PKG)_BUILD
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtkmm2.exe' \
         `'$(TARGET)-pkg-config' gtkmm-2.4 --cflags --libs`
 endef
-
-$(PKG)_BUILD_SHARED =

@@ -41,6 +41,7 @@ gst-plugins-base \
 gstreamer \
 gtk2 \
 gtk3 \
+gtkmm2 \
 gtkmm3 \
 harfbuzz \
 icu4c \
