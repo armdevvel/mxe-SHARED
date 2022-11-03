@@ -11,7 +11,6 @@ $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/Mbed-TLS/$(PKG)/archive/refs/tags/v$($(PKG)_VERSION).tar.gz
 $(PKG)_DEPS     := cc
 
-# DESTDIR=$(PREFIX)/$(TARGET) 
 define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(TARGET)-cmake -v \
 		-DENABLE_TESTING=Off \
