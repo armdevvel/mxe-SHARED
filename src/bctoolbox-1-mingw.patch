@@ -1,0 +1,164 @@
+diff --git a/include/bctoolbox/port.h b/include/bctoolbox/port.h
+index 35431728..627ed104 100644
+--- a/include/bctoolbox/port.h
++++ b/include/bctoolbox/port.h
+@@ -128,8 +128,13 @@ unsigned long __bctbx_thread_self(void);
+ /* definitions for WIN32 flavour */
+ /*********************************/
+ 
++typedef  unsigned short uint16_t;
++typedef  unsigned int uint32_t;
++typedef  int int32_t;
++typedef  unsigned char uint8_t;
++
+ #include <stdio.h>
+ #define _CRT_RAND_S
+ #include <stdlib.h>
+ #include <stdarg.h>
+ #include <winsock2.h>
+@@ -269,14 +277,10 @@ unsigned long __bctbx_thread_self(void);
+ 
+ #define strtok_r strtok_s
+ 
+ typedef  unsigned __int64 uint64_t;
+ typedef  __int64 int64_t;
+-typedef  unsigned short uint16_t;
+-typedef  unsigned int uint32_t;
+-typedef  int int32_t;
+-typedef  unsigned char uint8_t;
+ typedef __int16 int16_t;
+-typedef long ssize_t;
++// typedef long ssize_t; // provided by mingw32
+ #else
+ #include <stdint.h> /*provided by mingw32*/
+ #include <io.h>
+
+diff --git a/src/utils/port.c b/src/utils/port.c
+index 592252f7..e0b8d16d 100644
+--- a/src/utils/port.c
++++ b/src/utils/port.c
+@@ -925,7 +925,7 @@ uint32_t bctbx_time_string_to_sec(const char *timeString) {
+ 	return ret;
+ }
+ 
+-#if defined(_WIN32) && !defined(_MSC_VER)
++#if defined(_WIN32) && !defined(_MSC_VER) && !defined(__MINGW32__)
+ char* strtok_r(char *str, const char *delim, char **nextp){
+ 	char *ret;
+ 
+@@ -1436,7 +1436,7 @@ void bctbx_sockaddr_remove_nat64_mapping(const struct sockaddr *v6, struct socka
+ 		struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)v6;
+ 
+ 		if (htonl(0x0064ff9b) ==
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) || defined(__MINGW32__)
+ 			((in6->sin6_addr.u.Word[0] << 16) & in6->sin6_addr.u.Word[1])
+ #elif __APPLE__
+ 			in6->sin6_addr.__u6_addr.__u6_addr32[0]
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index d2d807e5..1e41524d 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -103,7 +103,7 @@ if(ENABLE_STATIC)
+ 		target_link_libraries(bctoolbox-static INTERFACE ${ICONV_LIBRARIES})
+ 	endif()
+ 	if(WIN32)
+-		target_link_libraries(bctoolbox-static INTERFACE "Winmm" "Ws2_32")
++		target_link_libraries(bctoolbox-static INTERFACE "winmm" "ws2_32")
+ 	endif()
+ 	set_target_properties(bctoolbox-static PROPERTIES LINKER_LANGUAGE "CXX")
+ 	set_target_properties(bctoolbox-static PROPERTIES OUTPUT_NAME bctoolbox)
+@@ -150,9 +150,9 @@ if(ENABLE_SHARED)
+ 	if(WIN32)
+ 		set_target_properties(bctoolbox PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ 		if(NOT CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+-			target_link_libraries(bctoolbox PRIVATE "Winmm" "Ws2_32")
++			target_link_libraries(bctoolbox PRIVATE "winmm" "ws2_32")
+ 		endif()
+-		target_compile_definitions(bctoolbox PRIVATE "-DBCTBX_EXPORTS")
++		target_compile_definitions(bctoolbox PRIVATE "BCTBX_EXPORTS=1")
+ 		if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")#Fix error on 'vccorlib_lib_should_be_specified_before_msvcrt_lib_to_linker''
+ 			get_target_property(BC_LINK_FLAGS bctoolbox LINK_FLAGS)
+ 			if(NOT BC_LINK_FLAGS)
+@@ -195,7 +195,7 @@ if(ENABLE_SHARED)
+ 		set_target_properties(bctoolbox-tester PROPERTIES LINKER_LANGUAGE "CXX")
+ 		target_link_libraries(bctoolbox-tester PUBLIC bctoolbox PRIVATE ${BCUNIT_TARGETNAME})
+ 		if(WIN32)
+-			target_compile_definitions(bctoolbox-tester PRIVATE "-DBCTBX_EXPORTS")
++			target_compile_definitions(bctoolbox-tester PRIVATE "BCTBX_EXPORTS=1")
+ 		endif()
+ 		if(NOT ANDROID)
+ 			# Do not version shared library on Android
+
+diff --git a/src/param_string.c b/src/param_string.c
+index 8091895d..f3b19e23 100644
+--- a/src/param_string.c
++++ b/src/param_string.c
+@@ -52,7 +52,7 @@ static const char *find_last_param_occurence_of(const char *fmtp, const char *pa
+ 	return lastpos;
+ }
+ 
+-bool_t bctbx_param_string_get_value(const char *paramString, const char *param_name, char *result, size_t result_len){
++BCTBX_PUBLIC bool_t bctbx_param_string_get_value(const char *paramString, const char *param_name, char *result, size_t result_len){
+ 	const char *pos=find_last_param_occurence_of(paramString,param_name);
+ 	memset(result, '\0', result_len);
+ 	if (pos){
+@@ -71,7 +71,7 @@ bool_t bctbx_param_string_get_value(const char *paramString, const char *param_n
+ }
+ 
+ 
+-bool_t bctbx_param_string_get_bool_value(const char *paramString, const char *param_name)
++BCTBX_PUBLIC bool_t bctbx_param_string_get_bool_value(const char *paramString, const char *param_name)
+ {
+ 	size_t result_len = 5;
+ 	char *result = bctbx_malloc(result_len);
+diff --git a/src/utils/utils.cc b/src/utils/utils.cc
+index 50a46e94..8189d373 100644
+--- a/src/utils/utils.cc
++++ b/src/utils/utils.cc
+@@ -27,7 +27,7 @@ using namespace Windows::System;
+ using namespace Windows::Foundation;
+ #endif
+ 
+-vector<string> bctoolbox::Utils::split (const string &str, const string &delimiter) {
++BCTBX_PUBLIC vector<string> bctoolbox::Utils::split (const string &str, const string &delimiter) {
+ 	vector<string> out;
+ 
+ 	size_t pos = 0, oldPos = 0;
+@@ -38,7 +38,7 @@ vector<string> bctoolbox::Utils::split (const string &str, const string &delimit
+ 	return out;
+ }
+ 
+-string bctoolbox::Utils::fold (const string &str) {
++BCTBX_PUBLIC string bctoolbox::Utils::fold (const string &str) {
+ 	string output = str;
+ 	size_t crlf = 0;
+ 	size_t next_crlf = 0;
+@@ -59,7 +59,7 @@ string bctoolbox::Utils::fold (const string &str) {
+ 	return output;
+ }
+ 
+-string bctoolbox::Utils::unfold (const string &str) {
++BCTBX_PUBLIC string bctoolbox::Utils::unfold (const string &str) {
+ 	string output = str;
+ 	const char *endline = "\r\n";
+ 	size_t crlf = output.find(endline);
+@@ -82,7 +82,7 @@ string bctoolbox::Utils::unfold (const string &str) {
+ 	return output;
+ }
+ 
+-void bctoolbox::Utils::replace(string& source, const string& from, const string& to, const bool& recursive){
++BCTBX_PUBLIC void bctoolbox::Utils::replace(string& source, const string& from, const string& to, const bool& recursive){
+ 	size_t start_pos = 0;
+ 	while((start_pos = source.find(from, start_pos)) != string::npos) {
+ 		source.replace(start_pos, from.length(), to);
+@@ -91,7 +91,7 @@ void bctoolbox::Utils::replace(string& source, const string& from, const string&
+ 	}
+ }
+ 
+-std::string bctoolbox::Utils::getMemoryReportAsString() {
++BCTBX_PUBLIC std::string bctoolbox::Utils::getMemoryReportAsString() {
+ 	std::ostringstream ossReport;
+ #ifdef WIN32
+ 	// Use to convert bytes to MB
