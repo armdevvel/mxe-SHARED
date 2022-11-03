@@ -1,0 +1,13 @@
+diff --git a/BCUnit/Sources/Framework/Util.c b/BCUnit/Sources/Framework/Util.c
+index 122f84db..376ba238 100644
+--- a/BCUnit/Sources/Framework/Util.c
++++ b/BCUnit/Sources/Framework/Util.c
+@@ -128,7 +128,7 @@ void otherPrintf(FILE *file, const char *fmt, ...){
+ 
+ //  Windows
+ #ifdef _WIN32
+-  #include <Windows.h>
++  #include <windows.h>
+   double CU_get_wall_time(void){
+       LARGE_INTEGER time,freq;
+       if (!QueryPerformanceFrequency(&freq)) {
