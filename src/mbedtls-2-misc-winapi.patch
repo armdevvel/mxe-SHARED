@@ -1,0 +1,62 @@
+diff --git a/programs/test/benchmark.c b/programs/test/benchmark.c
+index a6d83e75..61274b28 100644
+--- a/programs/test/benchmark.c
++++ b/programs/test/benchmark.c
+@@ -394,6 +394,8 @@ static unsigned long mbedtls_timing_hardclock( void )
+ static int hardclock_init = 0;
+ static struct timeval tv_init;
+ 
++#define gettimeofday mingw_gettimeofday
++
+ static unsigned long mbedtls_timing_hardclock( void )
+ {
+     struct timeval tv_cur;
+
+diff --git a/library/net_sockets.c b/library/net_sockets.c
+index d1700f3b..6e4fd1c5 100644
+--- a/library/net_sockets.c
++++ b/library/net_sockets.c
+@@ -511,14 +511,14 @@ int mbedtls_net_poll( mbedtls_net_context *ctx, uint32_t rw, uint32_t timeout )
+     if( rw & MBEDTLS_NET_POLL_READ )
+     {
+         rw &= ~MBEDTLS_NET_POLL_READ;
+-        FD_SET( fd, &read_fds );
++        FD_SET( (SOCKET)fd, &read_fds );
+     }
+ 
+     FD_ZERO( &write_fds );
+     if( rw & MBEDTLS_NET_POLL_WRITE )
+     {
+         rw &= ~MBEDTLS_NET_POLL_WRITE;
+-        FD_SET( fd, &write_fds );
++        FD_SET( (SOCKET)fd, &write_fds );
+     }
+ 
+     if( rw != 0 )
+@@ -619,7 +619,7 @@ int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf,
+         return( ret );
+ 
+     FD_ZERO( &read_fds );
+-    FD_SET( fd, &read_fds );
++    FD_SET( (SOCKET)fd, &read_fds );
+ 
+     tv.tv_sec  = timeout / 1000;
+     tv.tv_usec = ( timeout % 1000 ) * 1000;
+
+diff --git a/programs/test/udp_proxy.c b/programs/test/udp_proxy.c
+index e3386d18..95237aeb 100644
+--- a/programs/test/udp_proxy.c
++++ b/programs/test/udp_proxy.c
+@@ -963,9 +963,9 @@ accept:
+ #endif /* MBEDTLS_TIMING_C */
+ 
+         FD_ZERO( &read_fds );
+-        FD_SET( server_fd.fd, &read_fds );
+-        FD_SET( client_fd.fd, &read_fds );
+-        FD_SET( listen_fd.fd, &read_fds );
++        FD_SET( (SOCKET)server_fd.fd, &read_fds );
++        FD_SET( (SOCKET)client_fd.fd, &read_fds );
++        FD_SET( (SOCKET)listen_fd.fd, &read_fds );
+ 
+         if( ( ret = select( nb_fds, &read_fds, NULL, NULL, tm_ptr ) ) < 0 )
+         {
