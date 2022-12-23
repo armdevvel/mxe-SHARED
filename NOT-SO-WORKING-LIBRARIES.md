@@ -2,12 +2,16 @@
 
 -------------------------------------------------------------------------------------------------------------------
 
-Boost - Issue: Stupid variables as declspec import and export do not define correctly - Fix: No clue. I hate b2 / Boost's build system. - Bad Fix: Use static (already being done).
+`Boost` - Issue: Stupid variables as declspec import and export do not define correctly - Fix: No clue. I hate b2 / Boost's build system. - Bad Fix: Use static (already being done).
 
-gdk-pixbuf - Issue: assertions fail and no images will load. Something about pixmap. - Fix: ???
+`gdk-pixbuf` - Issue: assertions fail and no images will load. Something about pixmap. - Fix: ???
 
-libvpx - Issue: Builds as static - Possible Fix: See if upgrading fixes.
+`libvpx` - Issue: Builds as static - Possible Fix: See if upgrading fixes.
 
-pdcurses - Issue: Builds as static - Fix: Enable DLL building, will do later.
+`pdcurses` - Issue: Builds as static - Fix: Enable DLL building, will do later.
 
-PostgreSQL - Issue: Unsure - Fix: Unsure.
+`PostgreSQL` - Issue: Unsure - Fix: Unsure.
+
+ # NEW - (23/12/2022)
+
+`libxml++` - Issue: Unsure, something to do with an undefined symbol called __chkstk - Fix: supposedly removing `-nostdlib` from libtool file might help, to be tested
