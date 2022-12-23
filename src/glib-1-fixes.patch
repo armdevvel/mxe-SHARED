@@ -1,0 +1,16 @@
+Date: Tue, 23 Dec 2022 17:22:15 +0100
+Subject: [PATCH 1/1] thread-win32: Fix conversion error from pointer to integer (BACKPORT FROM 2.74.1 - commit 4f72d3bc)
+
+diff --git a/glib/gthread-win32.c b/glib/gthread-win32.c
+index 1111111..2222222 100644
+--- a/glib/gthread-win32.c
++++ b/glib/gthread-win32.c
+@@ -354,7 +354,7 @@ g_private_get_impl (GPrivate *key)
+             }
+ 
+           /* Ditto, due to the unlocked access on the fast path */
+-          if (!g_atomic_pointer_compare_and_exchange (&key->p, NULL, impl))
++          if (!g_atomic_pointer_compare_and_exchange (&key->p, NULL, GUINT_TO_POINTER (impl)))
+             g_thread_abort (0, "g_private_get_impl(2)");
+         }
+       LeaveCriticalSection (&g_private_lock);
