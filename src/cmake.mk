@@ -9,7 +9,8 @@ $(PKG)_SUBDIR   := cmake-$($(PKG)_VERSION)
 $(PKG)_FILE     := cmake-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://www.cmake.org/files/v$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
 $(PKG)_TARGETS  := $(BUILD)
-$(PKG)_DEPS     :=
+$(PKG)_DEPS     := openssl
+$(PKG)_DEPS_$(BUILD) :=
 
 define $(PKG)_UPDATE
     echo 'NOTE: Please ensure all cmake packages build after updating with:' >&2;
@@ -25,7 +26,8 @@ define $(PKG)_BUILD_$(BUILD)
     cd '$(BUILD_DIR)' && $(SOURCE_DIR)/configure \
         --prefix='$(PREFIX)/$(TARGET)' \
         --parallel='$(JOBS)' \
-        $(PKG_CONFIGURE_OPTS)
+        $(PKG_CONFIGURE_OPTS) \
+        -- -DCMAKE_USE_OPENSSL=OFF
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
