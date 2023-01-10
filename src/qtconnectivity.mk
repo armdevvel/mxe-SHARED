@@ -5,7 +5,7 @@ $(PKG)_WEBSITE  := https://www.qt.io/
 $(PKG)_DESCR    := Qt
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION   = $(qtbase_VERSION)
-$(PKG)_CHECKSUM := 0380327871f76103e5b8c2a305988d76d352b6a982b3e7b3bc3cdc184c64bfa0
+$(PKG)_CHECKSUM := ccba61ca34ee00ecf51fd3ed9fb19617fd706d8a684068bb649cf973de7cd8c8
 $(PKG)_SUBDIR    = $(subst qtbase,qtconnectivity,$(qtbase_SUBDIR))
 $(PKG)_FILE      = $(subst qtbase,qtconnectivity,$(qtbase_FILE))
 $(PKG)_URL       = $(subst qtbase,qtconnectivity,$(qtbase_URL))
@@ -16,11 +16,6 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    # Need bthrpos.lib
-    ls '$(PREFIX)/$(TARGET)/lib/bthprops.lib' \
-        || $(INSTALL) -m 644 '$(PREFIX)/../resources/bthprops.lib' '$(PREFIX)/$(TARGET)/lib' \
-        || (echo "Please copy or symlink bthprops.lib from Windows 10 SDK into $(PREFIX)/$(TARGET)/lib" && false)
-
     cd '$(1)' && '$(PREFIX)/$(TARGET)/qt5/bin/qmake'
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install

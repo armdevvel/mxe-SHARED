@@ -24,12 +24,10 @@ define $(PKG)_BUILD
         '$(TOP_DIR)/src/$(PKG)-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' --libs pthreads`
 
-    $(if $(BUILD_NATIVE), \
-        '$(TARGET)-gcc' \
-            -W -Wall -Werror -ansi -pedantic \
-            '$(TOP_DIR)/src/$(PKG)-libgomp-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-libgomp.exe' \
-            -fopenmp \
-    )
+    '$(TARGET)-gcc' \
+        -W -Wall -Werror -ansi -pedantic \
+        '$(TOP_DIR)/src/$(PKG)-libgomp-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-libgomp.exe' \
+        -fopenmp
 
     # test cmake
     mkdir '$(1).test-cmake'

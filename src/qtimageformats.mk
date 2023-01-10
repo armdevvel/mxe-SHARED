@@ -5,11 +5,11 @@ $(PKG)_WEBSITE  := https://www.qt.io/
 $(PKG)_DESCR    := Qt
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION   = $(qtbase_VERSION)
-$(PKG)_CHECKSUM := bf8285c7ce04284527ab823ddc7cf48a1bb79131db3a7127342167f4814253d7
+$(PKG)_CHECKSUM := 61440ef3b0d06ef8cd6e7e297828097d885097139d9be26d9c0b16ce7ec2ce30
 $(PKG)_SUBDIR    = $(subst qtbase,qtimageformats,$(qtbase_SUBDIR))
 $(PKG)_FILE      = $(subst qtbase,qtimageformats,$(qtbase_FILE))
 $(PKG)_URL       = $(subst qtbase,qtimageformats,$(qtbase_URL))
-$(PKG)_DEPS     := cc jasper libmng libwebp qtbase tiff libjpeg-turbo
+$(PKG)_DEPS     := cc jasper libmng libwebp qtbase tiff
 
 define $(PKG)_UPDATE
     echo $(qtbase_VERSION)

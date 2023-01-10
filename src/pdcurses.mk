@@ -26,8 +26,7 @@ define $(PKG)_BUILD
         PDCURSES_SRCDIR='$(SOURCE_DIR)' \
         WIDE=Y \
         UTF8=Y
-    $(TARGET)-ranlib '$(BUILD_DIR)/pdcurses.a'
-    $(TARGET)-ranlib '$(BUILD_DIR)/panel.a'
+    $(TARGET)-ranlib '$(BUILD_DIR)/pdcurses.a' '$(BUILD_DIR)/panel.a'
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/include/'
     $(INSTALL) -m644 '$(SOURCE_DIR)/curses.h' '$(SOURCE_DIR)/panel.h' '$(SOURCE_DIR)/term.h' '$(PREFIX)/$(TARGET)/include/'
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/'

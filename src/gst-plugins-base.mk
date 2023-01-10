@@ -3,25 +3,29 @@
 PKG             := gst-plugins-base
 $(PKG)_WEBSITE  := https://gstreamer.freedesktop.org/modules/gst-plugins-base.html
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.20.2
-$(PKG)_CHECKSUM := ab0656f2ad4d38292a803e0cb4ca090943a9b43c8063f650b4d3e3606c317f17
+$(PKG)_VERSION  := 1.20.3
+$(PKG)_CHECKSUM := 7e30b3dd81a70380ff7554f998471d6996ff76bbe6fc5447096f851e24473c9f
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://gstreamer.freedesktop.org/src/$(PKG)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc glib gstreamer liboil libxml2 ogg pango theora vorbis
+$(PKG)_DEPS     := cc glib gstreamer ogg opus pango theora vorbis
 
-$(PKG)_UPDATE = $(subst gstreamer/refs,gst-plugins-base/refs,$(gstreamer_UPDATE))
+$(PKG)_UPDATE = $(gstreamer_UPDATE)
 
 define $(PKG)_BUILD
-    cd '$(SOURCE_DIR)' && cp '$(PREFIX)/../cross.txt' .
-    cd '$(SOURCE_DIR)' && meson --prefix '$(PREFIX)/$(TARGET)' --cross-file=cross.txt \
-    -Dexamples=disabled \
-    -Dtests=disabled \
-    build
-    $(SED) -i 's/LINK_ARGS = /LINK_ARGS = -lssp /g' '$(SOURCE_DIR)/build/build.ninja'
-    cd '$(SOURCE_DIR)/build' && ninja -j '$(JOBS)' && meson install
+    '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
+        -Dtests=disabled \
+        -Dexamples=disabled \
+        -Dintrospection=disabled \
+        -Ddoc=disabled \
+        $(PKG_MESON_OPTS) \
+        '$(BUILD_DIR)' '$(SOURCE_DIR)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
 
     # some .dlls are installed to lib - no obvious way to change
-    $(INSTALL) -d '$(PREFIX)/$(TARGET)/bin/gstreamer-1.0'
-    mv -vf '$(PREFIX)/$(TARGET)/lib/gstreamer-1.0/'*.dll '$(PREFIX)/$(TARGET)/bin/gstreamer-1.0/'
+    $(if $(BUILD_SHARED),
+        $(INSTALL) -d '$(PREFIX)/$(TARGET)/bin/gstreamer-1.0'
+        mv -vf '$(PREFIX)/$(TARGET)/lib/gstreamer-1.0/'*.dll '$(PREFIX)/$(TARGET)/bin/gstreamer-1.0/'
+    )
 endef

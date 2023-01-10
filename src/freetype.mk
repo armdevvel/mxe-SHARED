@@ -3,12 +3,19 @@
 PKG             := freetype
 $(PKG)_WEBSITE  := https://www.freetype.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.10.4
-$(PKG)_CHECKSUM := 7b5b2d4a0fd6c5dcb43a6e7592682e2658e763e4de9ce72605b46be1d07f521c
+$(PKG)_VERSION  := 2.12.1
+$(PKG)_CHECKSUM := 4766f20157cc4cf0cd292f80bf917f92d1c439b243ac3018debf6b9140c41a7f
 $(PKG)_SUBDIR   := freetype-$($(PKG)_VERSION)
-$(PKG)_FILE     := freetype-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := https://github.com/armdevvel/freetype/releases/download/v2.10.4/freetype-2.10.4.tar.gz
+$(PKG)_FILE     := freetype-$($(PKG)_VERSION).tar.xz
+$(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/freetype/freetype2/$(shell echo '$($(PKG)_VERSION)' | cut -d . -f 1,2,3)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc bzip2 harfbuzz libpng zlib
+
+define $(PKG)_UPDATE
+    $(WGET) -q -O- 'https://sourceforge.net/projects/freetype/files/freetype2/' | \
+    $(SED) -n 's,.*/projects/.*/\([0-9][^"]*\)/".*,\1,p' | \
+    $(SORT) -V | \
+    tail -1
+endef
 
 define $(PKG)_BUILD_COMMON
     cd '$(1)' && GNUMAKE=$(MAKE) ./configure --with-harfbuzz=yes \

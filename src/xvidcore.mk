@@ -20,7 +20,6 @@ define $(PKG)_BUILD
     $(SED) -i 's,yasm_prog="yasm",yasm_prog="$(TARGET)-yasm",' \
         '$(SOURCE_DIR)/build/generic/configure.in'
     cd '$(SOURCE_DIR)/build/generic' && autoreconf -fi
-    $(SED) -i 's/-Wl,--dll,--out-implib/-Wl,--out-implib/g' '$(SOURCE_DIR)/build/generic/configure'
     cd '$(SOURCE_DIR)/build/generic' && ./configure \
         $(MXE_CONFIGURE_OPTS)
     $(MAKE) -C '$(SOURCE_DIR)/build/generic' -j 1 BUILD_DIR='$(BUILD_DIR)' \

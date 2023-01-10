@@ -23,7 +23,6 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         CFLAGS=-Wno-error
-    $(SED) -i 's/-Wall -Werror/ /g' '$(1)/Makefile'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_REMOVE_CRUFT)
 
     '$(TARGET)-gcc' \

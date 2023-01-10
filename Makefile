@@ -8,11 +8,11 @@ EXT_DIR  := $(TOP_DIR)/ext
 # See docs/gmsl.html for further information
 include $(EXT_DIR)/gmsl
 
-MXE_TRIPLETS       := armv7-w64-mingw32
-MXE_LIB_TYPES      := shared
+MXE_TRIPLETS       := i686-w64-mingw32 x86_64-w64-mingw32
+MXE_LIB_TYPES      := static shared
 MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
-                          $(TRIPLET)))
-MXE_TARGETS        := armv7-w64-mingw32
+                          $(addprefix $(TRIPLET).,$(MXE_LIB_TYPES))))
+MXE_TARGETS        := i686-w64-mingw32.static
 .DEFAULT_GOAL      := all-filtered
 
 DEFAULT_MAX_JOBS   := 6
@@ -40,9 +40,11 @@ LIBTOOLIZE := $(shell glibtoolize --help >/dev/null 2>&1 && echo g)libtoolize
 OPENSSL    := openssl
 PATCH      := $(shell gpatch --help >/dev/null 2>&1 && echo g)patch
 PYTHON     := $(shell PATH="$(ORIG_PATH)" which python)
+PYTHON3    := $(shell PATH="$(ORIG_PATH)" which python3)
 PY_XY_VER  := $(shell $(PYTHON) -c "import sys; print('{0[0]}.{0[1]}'.format(sys.version_info))")
 SED        := $(shell gsed --help >/dev/null 2>&1 && echo g)sed
 SORT       := $(shell gsort --help >/dev/null 2>&1 && echo g)sort
+TOUCH      := $(shell gtouch --help >/dev/null 2>&1 && echo g)touch
 DEFAULT_UA := $(shell wget --version | $(SED) -n 's,GNU \(Wget\) \([0-9.]*\).*,\1/\2,p')
 WGET_TOOL   = wget
 WGET        = $(WGET_TOOL) --user-agent='$(or $($(1)_UA),$(DEFAULT_UA))' -t 2 --timeout=6
@@ -65,10 +67,12 @@ REQUIREMENTS := \
     $(LIBTOOLIZE) \
     lzip \
     $(MAKE) \
+    mako-render \
     $(OPENSSL) \
     $(PATCH) \
     perl \
     $(PYTHON) \
+    $(PYTHON3) \
     ruby \
     $(SED) \
     $(SORT) \
@@ -76,7 +80,8 @@ REQUIREMENTS := \
     wget \
     xz
 
-PREFIX     := $(PWD)/usr
+MXE_PREFIX := $(PWD)/usr
+PREFIX     := $(MXE_PREFIX)
 LOG_DIR    := $(PWD)/log
 GITS_DIR   := $(PWD)/gits
 GIT_HEAD   := $(shell git rev-parse HEAD)
@@ -95,6 +100,11 @@ STRIP_EXE       := $(true)
 MXE_USE_CCACHE      := mxe
 MXE_CCACHE_DIR      := $(PWD)/.ccache
 MXE_CCACHE_BASE_DIR := $(PWD)
+MXE_CCACHE_CACHE_DIR := $(MXE_CCACHE_DIR)/ccache
+
+# set to major.minor for LTS
+# MXE_QT6_ID := qt6.2
+MXE_QT6_ID := qt6
 
 # define some whitespace variables
 define newline
@@ -123,12 +133,33 @@ MXE_CONFIGURE_OPTS = \
     --host='$(TARGET)' \
     --build='$(BUILD)' \
     --prefix='$(PREFIX)/$(TARGET)' \
-    --disable-static --enable-shared \
+    $(if $(BUILD_STATIC), \
+        --enable-static --disable-shared , \
+        --disable-static --enable-shared ) \
     $(MXE_DISABLE_DOC_OPTS)
+
+MXE_MESON_WRAPPER = '$(PREFIX)/bin/$(TARGET)-meson'
+MXE_MESON_NATIVE_WRAPPER = '$(PREFIX)/bin/mxe-native-meson'
+MXE_NINJA = '$(PREFIX)/$(BUILD)/bin/ninja'
+
+# Please edit meson wrapper and/or target file instead of this,
+# unless your changes only apply to building MXE's packages
+MXE_MESON_OPTS = \
+    --buildtype=release \
+    $(if $(findstring mxe,$(MXE_USE_CCACHE)), \
+    --cross-file='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile-internal.meson')
+
+PKG_MESON_OPTS = \
+    $(_$(PKG)_MESON_OPTS) \
+    $($(PKG)_MESON_OPTS)
 
 PKG_CONFIGURE_OPTS = \
     $(_$(PKG)_CONFIGURE_OPTS) \
     $($(PKG)_CONFIGURE_OPTS)
+
+PKG_CMAKE_OPTS = \
+    $(_$(PKG)_CMAKE_OPTS) \
+    $($(PKG)_CMAKE_OPTS)
 
 # GCC threads and exceptions
 MXE_GCC_THREADS = \
@@ -405,10 +436,13 @@ LIST_NMAX   = $(shell echo '$(strip $(1))' | tr ' ' '\n' | sort -n | tail -1)
 LIST_NMIN   = $(shell echo '$(strip $(1))' | tr ' ' '\n' | sort -n | head -1)
 
 NPROCS := $(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
-JOBS   := $(call LIST_NMIN, $(DEFAULT_MAX_JOBS) $(NPROCS))
+JOBS   ?= $(call LIST_NMIN, $(DEFAULT_MAX_JOBS) $(NPROCS))
 
 # Core packages.
-override MXE_PLUGIN_DIRS := $(realpath $(TOP_DIR)/src) $(MXE_PLUGIN_DIRS)
+override MXE_PLUGIN_DIRS := \
+    $(realpath $(TOP_DIR)/src) \
+    $(realpath $(TOP_DIR)/src/qt/$(MXE_QT6_ID)) \
+    $(MXE_PLUGIN_DIRS)
 
 # Build native requirements for certain systems
 OS_SHORT_NAME   := $(call lc,$(shell lsb_release -sc 2>/dev/null || uname -s))
@@ -459,7 +493,7 @@ $(PREFIX)/installed/print-git-oneline-$(GIT_HEAD): | $(PREFIX)/installed/.gitkee
 
 # Common dependency lists for `make` prerequisites and `build-pkg`
 #   - `make` considers only explicit normal deps to trigger rebuilds
-#   - packages can add themselves to implicit MXE_REQS_PKGS in the case
+#   - packages can add themselves to implicit BOOTSTRAP_PKGS in the case
 #       of a tool like `patch` which may be outdated on some systems
 #   - downloads and `build-pkg` use both explicit and implicit deps
 #   - don't depend on `disabled` rules but do depend on virtual pkgs
@@ -468,11 +502,9 @@ $(PREFIX)/installed/print-git-oneline-$(GIT_HEAD): | $(PREFIX)/installed/.gitkee
 # in `cleanup-deps-style` rule below
 CROSS_COMPILER := cc
 
-# set reqs and bootstrap variables to recursive so pkgs can add themselves
-# CROSS_COMPILER depends (order-only) on MXE_REQS_PKGS
-# all depend (order-only) on BOOTSTRAP_PKGS
+# set bootstrap variable to recursive so pkgs can add themselves
+# all pkgs depend (order-only) on BOOTSTRAP_PKGS
 # BOOTSTRAP_PKGS may be prefixed with $(BUILD)~
-MXE_REQS_PKGS  =
 BOOTSTRAP_PKGS =
 
 # warning about switching from `gcc` to `cc`
@@ -587,7 +619,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := SHARED))
+    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring shared,$(TARGET)),SHARED,STATIC)))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
@@ -627,11 +659,22 @@ RTRIM            := $(SED) 's, \+$$$$,,'
 WRAP_MESSAGE      = $(\n)$(\n)$(call repeat,-,60)$(\n)$(1)$(and $(2),$(\n)$(\n)$(2))$(\n)$(call repeat,-,60)$(\n)
 
 define TARGET_RULE
+    $(if $(findstring i686-pc-mingw32,$(1)),\
+        $(error $(call WRAP_MESSAGE,\
+                Obsolete target specified: "$(1)",\
+                Please use i686-w64-mingw32.[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n)\
+                i686-pc-mingw32 removed 2014-10-14 (https://github.com/mxe/mxe/pull/529)\
+                )))\
     $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(BUILD) $(MXE_TRIPLETS)),$(1)),,\
         $(error $(call WRAP_MESSAGE,\
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
+                )))\
+    $(if $(findstring 1,$(words $(subst ., ,$(filter-out $(BUILD),$(1))))),\
+        $(warning $(call WRAP_MESSAGE,\
+                Warning: Deprecated target specified "$(1)",\
+                Please use $(1).[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n) \
                 )))
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
@@ -696,7 +739,7 @@ else
     NONET_LIB := $(PREFIX)/$(BUILD)/lib/nonetwork.dylib
     PRELOAD   := DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES='$(NONET_LIB)' \
                  http_proxy=$(DUMMY_PROXY) https_proxy=$(DUMMY_PROXY)
-    NONET_CFLAGS := -arch x86_64
+    NONET_CFLAGS := -arch $(shell uname -m)
 endif
 
 $(NONET_LIB): $(TOP_DIR)/tools/nonetwork.c | $(PREFIX)/$(BUILD)/lib/.gitkeep
@@ -781,14 +824,12 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 # https://www.gnu.org/software/make/manual/html_node/Target_002dspecific.html
 build-only-$(1)_$(3): PKG = $(1)
 build-only-$(1)_$(3): TARGET = $(3)
-build-only-$(1)_$(3): BUILD_SHARED = TRUE
+build-only-$(1)_$(3): BUILD_$(if $(findstring shared,$(3)),SHARED,STATIC) = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
 build-only-$(1)_$(3): $(if $(findstring win32,$(TARGET)),WIN32,POSIX)_THREADS = TRUE
-build-only-$(1)_$(3): LIB_SUFFIX = dll
-build-only-$(1)_$(3): BITS = $(if $(or $(findstring x86_64,$(3)),$(findstring aarch64,$(3))),64,32)
+build-only-$(1)_$(3): LIB_SUFFIX = $(if $(findstring shared,$(3)),dll,a)
+build-only-$(1)_$(3): BITS = $(if $(findstring x86_64,$(3)),64,32)
 build-only-$(1)_$(3): PROCESSOR = $(firstword $(call split,-,$(3)))
-build-only-$(1)_$(3): IS_X86 = $(or $(findstring x86_64,$(3)),$(findstring i686,$(3)))
-build-only-$(1)_$(3): IS_ARM = $(or $(findstring armv7,$(3)),$(findstring aarch64,$(3)))
 build-only-$(1)_$(3): BUILD_TYPE = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),debug,release)
 build-only-$(1)_$(3): BUILD_TYPE_SUFFIX = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),d)
 build-only-$(1)_$(3): INSTALL_STRIP_TOOLCHAIN = install$(if $(STRIP_TOOLCHAIN),-strip)
@@ -799,8 +840,8 @@ build-only-$(1)_$(3): TEST_FILE  = $($(1)_TEST_FILE)
 build-only-$(1)_$(3): CMAKE_RUNRESULT_FILE = $(PREFIX)/share/cmake/modules/TryRunResults.cmake
 build-only-$(1)_$(3): CMAKE_TOOLCHAIN_FILE = $(PREFIX)/$(3)/share/cmake/mxe-conf.cmake
 build-only-$(1)_$(3): CMAKE_TOOLCHAIN_DIR  = $(PREFIX)/$(3)/share/cmake/mxe-conf.d
-build-only-$(1)_$(3): CMAKE_STATIC_BOOL = OFF
-build-only-$(1)_$(3): CMAKE_SHARED_BOOL = ON
+build-only-$(1)_$(3): CMAKE_STATIC_BOOL = $(if $(findstring shared,$(3)),OFF,ON)
+build-only-$(1)_$(3): CMAKE_SHARED_BOOL = $(if $(findstring shared,$(3)),ON,OFF)
 build-only-$(1)_$(3):
 	$(if $(value $(call LOOKUP_PKG_RULE,$(1),BUILD,$(3))),
 	    uname -a

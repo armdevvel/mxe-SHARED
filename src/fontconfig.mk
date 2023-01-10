@@ -3,10 +3,10 @@
 PKG             := fontconfig
 $(PKG)_WEBSITE  := https://fontconfig.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.13.1
-$(PKG)_CHECKSUM := f655dd2a986d7aa97e052261b36aa67b0a64989496361eca8d604e6414006741
+$(PKG)_VERSION  := 2.14.1
+$(PKG)_CHECKSUM := 298e883f6e11d2c5e6d53c8a8394de58d563902cfab934e6be12fb5a5f361ef0
 $(PKG)_SUBDIR   := fontconfig-$($(PKG)_VERSION)
-$(PKG)_FILE     := fontconfig-$($(PKG)_VERSION).tar.bz2
+$(PKG)_FILE     := fontconfig-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://fontconfig.org/release/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc expat freetype-bootstrap gettext
 

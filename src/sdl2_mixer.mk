@@ -5,10 +5,8 @@ $(PKG)_WEBSITE  := https://www.libsdl.org/
 $(PKG)_DESCR    := SDL2_mixer
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 2.0.4
-$(PKG)_CHECKSUM := 6959aa6f17c16d3eb53d8c0dfe74fa2e205fc3e7e2bdc2c01d73da8e02aed353
-$(PKG)_SUBDIR   := SDL2_mixer-$($(PKG)_VERSION)
-$(PKG)_FILE     := SDL2_mixer-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://github.com/armdevvel/SDL2_mixer/releases/download/v2.0.4-fixed/SDL2_mixer-2.0.4.tar.xz
+$(PKG)_CHECKSUM := 5605b6f230717acf6d09549671f7fe03f006700c61a61b86042888f81792e2b3
+$(PKG)_GH_CONF  := libsdl-org/SDL_mixer/releases/tag,release-,,
 $(PKG)_DEPS     := cc libmodplug mpg123 ogg opusfile sdl2 smpeg2 vorbis
 
 define $(PKG)_BUILD
@@ -31,9 +29,6 @@ define $(PKG)_BUILD
         --disable-music-flac-shared \
         --enable-music-mp3 \
         --disable-smpegtest \
-        CFLAGS="-lssp" \
-        CXXFLAGS="-lssp" \
-        LDFLAGS="-lssp" \
         SMPEG_CONFIG='$(PREFIX)/$(TARGET)/bin/smpeg2-config' \
         WINDRES='$(TARGET)-windres' \
         LIBS="`$(TARGET)-pkg-config libmodplug libmpg123 opusfile vorbisfile --libs-only-l`"
@@ -42,5 +37,5 @@ define $(PKG)_BUILD
     '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \
         '$(TOP_DIR)/src/sdl_mixer-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-sdl2_mixer.exe' \
-        `'$(TARGET)-pkg-config' SDL2_mixer --cflags --libs` -lssp
+        `'$(TARGET)-pkg-config' SDL2_mixer --cflags --libs`
 endef

@@ -13,8 +13,7 @@ define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && '$(TARGET)-cmake' '$(SOURCE_DIR)' \
         -DBUILD_DOC=OFF \
         -DBUILD_EXAMPLES=OFF \
-        -DBUILD_TESTS=OFF \
-        -DCMAKE_CXX_FLAGS='-D_WIN32_WINNT=0x0601'
+        -DBUILD_TESTS=OFF
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 
@@ -22,6 +21,6 @@ define $(PKG)_BUILD
     '$(TARGET)-g++' \
         -W -Wall -Werror -std=c++0x -fopenmp \
         '$(SOURCE_DIR)/examples/cpp/count_primes.cpp' \
-        -o '$(PREFIX)/$(TARGET)/bin/test-fluidsynth.exe' \
+        -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' --cflags --libs $(PKG)`
 endef
