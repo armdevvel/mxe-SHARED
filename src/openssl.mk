@@ -11,9 +11,9 @@ $(PKG)_URL      := https://download.pahaze.net/ARM/mxe/OpenSSL/src/MSVC.tar.gz
 $(PKG)_DEPS     := cc zlib
 
 define $(PKG)_BUILD
-    cp $(PREFIX)/../resources/MSVC-OpenSSL/lib/* $(PREFIX)/$(TARGET)/lib
-	cp -r $(PREFIX)/../resources/MSVC-OpenSSL/include/* $(PREFIX)/$(TARGET)/include
-	cp $(PREFIX)/../resources/MSVC-OpenSSL/bin/* $(PREFIX)/$(TARGET)/bin
+    cp $(PWD)/resources/MSVC-OpenSSL/lib/* $(PREFIX)/$(TARGET)/lib
+	cp -r $(PWD)/resources/MSVC-OpenSSL/include/* $(PREFIX)/$(TARGET)/include
+	cp $(PWD)/resources/MSVC-OpenSSL/bin/* $(PREFIX)/$(TARGET)/bin
 
 	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
 		< '$(SOURCE_DIR)/libcrypto.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/libcrypto.pc'
