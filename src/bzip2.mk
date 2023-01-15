@@ -19,7 +19,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD_COMMON
-    $(MAKE) -C '$(1)' -j '$(JOBS)' libbz2.a \
+    $(MAKE) -C '$(1)' -j '$(JOBS)' libbz2.a bzip2 bzip2recover \
         PREFIX='$(PREFIX)/$(TARGET)' \
         CC='$(TARGET)-gcc' \
         AR='$(TARGET)-ar' \
@@ -27,6 +27,8 @@ define $(PKG)_BUILD_COMMON
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib'
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/include'
     $(INSTALL) -m644 '$(1)/bzlib.h' '$(PREFIX)/$(TARGET)/include/'
+    $(INSTALL) -m644 '$(1)/bzip2.exe' '$(PREFIX)/$(TARGET)/bin/'
+    $(INSTALL) -m644 '$(1)/bzip2recover.exe' '$(PREFIX)/$(TARGET)/bin/'
 endef
 
 define $(PKG)_BUILD
@@ -36,7 +38,7 @@ endef
 
 define $(PKG)_BUILD_SHARED
     $($(PKG)_BUILD_COMMON)
-    '$(TARGET)-gcc' '$(1)'/*.o -shared \
+    '$(TARGET)-gcc' '$(1)'/libbz2.a -shared \
         -o '$(PREFIX)/$(TARGET)/bin/libbz2.dll' -Xlinker \
         --out-implib -Xlinker '$(PREFIX)/$(TARGET)/lib/libbz2.dll.a'
 endef
