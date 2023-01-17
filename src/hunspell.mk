@@ -17,7 +17,10 @@ define $(PKG)_BUILD
         --with-warnings \
         --without-ui \
         --with-readline
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT)
+
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_uidivmod.S.obj udivmodsi4.S.obj chkstk.S.obj`' \
+        $(MXE_DISABLE_CRUFT)
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT)
 
     # Test
@@ -26,4 +29,8 @@ define $(PKG)_BUILD
         $(if $(BUILD_STATIC), -DHUNSPELL_STATIC) \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-hunspell.exe' \
         `'$(TARGET)-pkg-config' hunspell --cflags --libs`
+endef
+
+define $(PKG)_BUILD_$(BUILD)
+    # mere abundance of caution, since compiler-rt build tweaks are narrowly target-specific
 endef
