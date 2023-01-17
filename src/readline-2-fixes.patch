@@ -1,0 +1,13 @@
+diff --git a/support/shobj-conf b/support/shobj-conf
+index cd7634df..99048330 100644
+--- a/support/shobj-conf
++++ b/support/shobj-conf
+@@ -496,7 +496,7 @@ cygwin*)
+ 
+ mingw*)
+ 	SHOBJ_LD='$(CC)'
+-	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--export-all -Wl,--out-implib=$(@).a'
++	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,-export-all-symbols -Wl,--out-implib=$(@).a'
+ 	SHLIB_LIBSUFF='dll'
+ 	SHLIB_LIBVERSION='$(SHLIB_DLLVERSION).$(SHLIB_LIBSUFF)'
+ 	SHLIB_LIBS='$(TERMCAP_LIB)'
