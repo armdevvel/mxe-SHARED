@@ -8,11 +8,11 @@ EXT_DIR  := $(TOP_DIR)/ext
 # See docs/gmsl.html for further information
 include $(EXT_DIR)/gmsl
 
-MXE_TRIPLETS       := i686-w64-mingw32 x86_64-w64-mingw32
-MXE_LIB_TYPES      := static shared
+MXE_TRIPLETS       := armv7-w64-mingw32
+MXE_LIB_TYPES      := shared
 MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
-                          $(addprefix $(TRIPLET).,$(MXE_LIB_TYPES))))
-MXE_TARGETS        := i686-w64-mingw32.static
+                          $(TRIPLET)))
+MXE_TARGETS        := armv7-w64-mingw32
 .DEFAULT_GOAL      := all-filtered
 
 DEFAULT_MAX_JOBS   := 6
@@ -84,7 +84,6 @@ MXE_PREFIX := $(PWD)/usr
 PREFIX     := $(MXE_PREFIX)
 LOG_DIR    := $(PWD)/log
 GITS_DIR   := $(PWD)/gits
-GIT_HEAD   := $(shell git rev-parse HEAD)
 TIMESTAMP  := $(shell date +%Y%m%d_%H%M%S)
 PKG_DIR    := $(PWD)/pkg
 TMP_DIR     = $(MXE_TMP)/tmp-$(1)
@@ -484,13 +483,6 @@ $(PREFIX)/installed/check-requirements: $(MAKEFILE) | $(PREFIX)/installed/.gitke
 	fi
 	@touch '$@'
 
-.PHONY: print-git-oneline
-print-git-oneline: $(PREFIX)/installed/print-git-oneline-$(GIT_HEAD)
-$(PREFIX)/installed/print-git-oneline-$(GIT_HEAD): | $(PREFIX)/installed/.gitkeep
-	@git log --pretty=tformat:'[git-log]   %h %s' -1 | cat
-	@rm -f '$(PREFIX)/installed/print-git-oneline-'*
-	@touch '$@'
-
 # Common dependency lists for `make` prerequisites and `build-pkg`
 #   - `make` considers only explicit normal deps to trigger rebuilds
 #   - packages can add themselves to implicit BOOTSTRAP_PKGS in the case
@@ -670,11 +662,6 @@ define TARGET_RULE
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\
                 $(subst $(space),$(\n) ,$(MXE_TARGET_LIST))\
-                )))\
-    $(if $(findstring 1,$(words $(subst ., ,$(filter-out $(BUILD),$(1))))),\
-        $(warning $(call WRAP_MESSAGE,\
-                Warning: Deprecated target specified "$(1)",\
-                Please use $(1).[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n) \
                 )))
 endef
 $(foreach TARGET,$(MXE_TARGETS),$(call TARGET_RULE,$(TARGET)))
@@ -776,8 +763,7 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
                           $(addprefix $(PREFIX)/,$(PKG_OO_DEPS)) \
                           $(addprefix download-,$(PKG_ALL_DEPS)) \
                           $(NONET_LIB) \
-                          $(PREFIX)/$(3)/installed/.gitkeep \
-                          print-git-oneline
+                          $(PREFIX)/$(3)/installed/.gitkeep
 	$(if $(value $(call LOOKUP_PKG_RULE,$(1),MESSAGE,$(3))),
 	    @$(PRINTF_FMT) '[message]'  '$(1)' '$(3) $($(call LOOKUP_PKG_RULE,$(1),MESSAGE,$(3)))' \
 	    | $(RTRIM)
@@ -824,11 +810,11 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 # https://www.gnu.org/software/make/manual/html_node/Target_002dspecific.html
 build-only-$(1)_$(3): PKG = $(1)
 build-only-$(1)_$(3): TARGET = $(3)
-build-only-$(1)_$(3): BUILD_$(if $(findstring shared,$(3)),SHARED,STATIC) = TRUE
+build-only-$(1)_$(3): BUILD_SHARED = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
 build-only-$(1)_$(3): $(if $(findstring win32,$(TARGET)),WIN32,POSIX)_THREADS = TRUE
-build-only-$(1)_$(3): LIB_SUFFIX = $(if $(findstring shared,$(3)),dll,a)
-build-only-$(1)_$(3): BITS = $(if $(findstring x86_64,$(3)),64,32)
+build-only-$(1)_$(3): LIB_SUFFIX = dll
+build-only-$(1)_$(3): BITS = 32
 build-only-$(1)_$(3): PROCESSOR = $(firstword $(call split,-,$(3)))
 build-only-$(1)_$(3): BUILD_TYPE = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),debug,release)
 build-only-$(1)_$(3): BUILD_TYPE_SUFFIX = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),d)
@@ -840,8 +826,8 @@ build-only-$(1)_$(3): TEST_FILE  = $($(1)_TEST_FILE)
 build-only-$(1)_$(3): CMAKE_RUNRESULT_FILE = $(PREFIX)/share/cmake/modules/TryRunResults.cmake
 build-only-$(1)_$(3): CMAKE_TOOLCHAIN_FILE = $(PREFIX)/$(3)/share/cmake/mxe-conf.cmake
 build-only-$(1)_$(3): CMAKE_TOOLCHAIN_DIR  = $(PREFIX)/$(3)/share/cmake/mxe-conf.d
-build-only-$(1)_$(3): CMAKE_STATIC_BOOL = $(if $(findstring shared,$(3)),OFF,ON)
-build-only-$(1)_$(3): CMAKE_SHARED_BOOL = $(if $(findstring shared,$(3)),ON,OFF)
+build-only-$(1)_$(3): CMAKE_STATIC_BOOL = OFF
+build-only-$(1)_$(3): CMAKE_SHARED_BOOL = ON
 build-only-$(1)_$(3):
 	$(if $(value $(call LOOKUP_PKG_RULE,$(1),BUILD,$(3))),
 	    uname -a

@@ -20,13 +20,10 @@ define $(PKG)_BUILD
         -DLIBTYPE=$(if $(BUILD_SHARED),shared,static) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
+		-DSTRIP=$(if $(STRIP_LIB),true,false) \
         -DBUILD=$(BUILD) \
-        -DCPU_FAMILY=$(strip \
-             $(if $(findstring x86_64,$(TARGET)),x86_64,\
-             $(if $(findstring i686,$(TARGET)),x86))) \
-        -DCPU=$(strip \
-             $(if $(findstring x86_64,$(TARGET)),x86_64,\
-             $(if $(findstring i686,$(TARGET)),i686))) \
+        -DCPU_FAMILY=arm \
+        -DCPU=armv7 \
         -DINPUT='$(PWD)/src/meson-wrapper/conf/mxe-crossfile.meson.in' \
         -DOUTPUT='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile.meson'
 
@@ -40,10 +37,8 @@ define $(PKG)_BUILD
 
     # create the prefixed Meson wrapper script
     '$(PREFIX)/bin/cmake-configure-file' \
-        -DLIBTYPE=$(if $(BUILD_SHARED),shared,static) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
-        -DBUILD=$(BUILD) \
         -DMESON_EXECUTABLE=$(PREFIX)/$(BUILD)/bin/meson \
         -DMESON_CROSS_FILE='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile.meson' \
         -DINPUT='$(PWD)/src/meson-wrapper/conf/target-meson.in' \
