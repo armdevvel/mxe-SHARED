@@ -1,11 +1,6 @@
-# MXE (M cross environment)
+# MXE (M cross environment) - for ARM32 Windows development
 
-[![License][license-badge]][license-page]
-
-[license-page]: LICENSE.md
-[license-badge]: https://img.shields.io/badge/License-MIT-brightgreen.svg
-
-[![Async Chat (Trial))](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://mxe.zulipchat.com/)
+This is a modified version of MXE that comes with fixed scripts and sources that way Windows on ARM32 can have proper development for it. Despite the name, it's more stable than the normal `mxe` repo on the organization.
 
 MXE (M cross environment) is a GNU Makefile that compiles a cross
 compiler and cross compiles many free libraries such as SDL and
@@ -22,58 +17,67 @@ various target platforms, which:
   * allows inter-package and intra-package parallel builds whenever possible
   * bundles [ccache](https://ccache.samba.org) to speed up repeated builds
   * integrates well with autotools, cmake, qmake, and hand-written makefiles.
-  * has been in continuous development since 2007 and is used by several projects
-
+  
 ## Supported Toolchains
 
-  * Runtime: MinGW-w64
+  * Runtime: LLVM (Clang)
   * Host Triplets:
-    - `i686-w64-mingw32`
-    - `x86_64-w64-mingw32`
-  * Packages:
-    - static
-    - shared
-  * GCC Threading Libraries (`winpthreads` is always available):
-    - [posix](https://github.com/mxe/mxe/pull/958) [(default)](https://github.com/mxe/mxe/issues/2258)
-    - win32 (supported by limited amount packages)
-  * GCC Exception Handling:
-    - Default
-      - i686: sjlj
-      - x86_64: seh
-    - [Alternatives (experimental)](https://github.com/mxe/mxe/pull/1664)
-      - i686: dw2
-      - x86_64: sjlj
+    - `armv7-w64-mingw32`
+    
+This version of MXE is meant for specifically Windows on ARM32 porting only, but to just add on to it, ports can be unstable, so some packages may not build properly. For Aarch64 development, check [the Aarch64 development repos](https://github.com/aarch64devel/mxe) once they're updated again.
 
-Please see [mxe.cc](https://mxe.cc/) for further information and package support matrix.
+## Setting up
 
-## Build Dependencies
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases)). CD to the MXE folder. Make a directory in the MXE directory called "usr". If you're new to this stuff, /usr is not related to /home/user/youruser/mxe, so don't worry about Linux confusing these. Extract LLVM-MinGW to the usr folder of MXE. Make sure you see armv7-w64-mingw32, bin, lib, and include in the MXE "usr" folder. You should see something like this.
 
-For some packages additional dependencies are required to be installed in order to build:
+![MXEs usr folder](images/mxeusr2.png?raw=true)
 
-* Python 3
+Once done, you can run a make command to build all known working WoA libraries. CD back to the root dir of MXE and run the following.
 
-## Usage
+`make meson-wrapper`
 
-You can use the `make` command to start the build.  
+You should be good to go now! Go have fun with your heart's desires building what you can/please. If there's issues, never be afraid to ask for help by opening an issue.
 
-Below *an example* of cross-compiling the GTK3 project to one statically linked Windows 64-bit library:
+## Building (configuring) with each build system
 
-```sh
-make gtk3 -j 8 MXE_TARGETS='x86_64-w64-mingw32.static'
-```
+  * autoconfigure:
+    - use `./configure --host=armv7-w64-mingw32 --prefix=/home/youruser/armmxe-unstable/usr/armv7-w64-mingw32`
+  * meson: 
+    - use included cross.txt and use as so - `meson --cross-file=/home/youruser/armmxe-unstable/cross.txt --prefix /home/youruser/armmxe-unstable/usr/armv7-w64-mingw32/ builddir`
+  * CMake:
+    - use `armv7-w64-mingw32-cmake` provided by MXE
+  * normal make:
+    - for projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mingw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
+  * MXE:
+    - this stays the same, but instead of a host triplet being i686-w64-mingw32 or x86_64-w64-mingw32, you use armv7-w64-mingw32. basically, run `make MXE_TARGETS="armv7-w64-mingw32" package`
 
-Please see [mxe.cc](https://mxe.cc/) for more information about how-to build the MXE project.
+## Things you should probably know
 
-## Packages
+When you build applications and run them on Windows on ARM (32 or 64), you'll need the UCRT files. It may be included, but some OSes (such as RT8.1) do not have it. For the ARM32 UCRT DLLs, you can snatch them [here](resources/WinUCRT.tar.xz).
+	
+## FAQ
 
-Within the [MXE makefiles](src) we either define `$(PKG)_GH_CONF` or `$(PKG)_URL`, which will be used to download the package.  
-Next the checksum will be validated of the downloaded archive file (sha256 checksum).
+Q: Will this work on WSL?  \
+A: Yes! I would *recommend* using Ubuntu 20.04 for this repo if you're using WSL.
 
-Updating a package or updating checksum is all possible using the make commands, see [usage for more info](https://mxe.cc/#usage).
+Q: Do I need to have a specific distro? \
+A: Nope! This is meant for any distro just like the normal MXE, this repo just comes with patches and extras for ARM development.
 
-## Shared Library Notes
-There are several approaches to recursively finding DLL dependencies (alphabetical list):
-  * [go script](https://github.com/desertbit/gml/blob/master/cmd/gml-copy-dlls/main.go)
-  * [pe-util](https://github.com/gsauthof/pe-util) packaged with [mxe](https://github.com/mxe/mxe/blob/master/src/pe-util.mk)
-  * [python script](https://github.com/mxe/mxe/blob/master/tools/copydlldeps.py)
-  * [shell script](https://github.com/mxe/mxe/blob/master/tools/copydlldeps.md)
+Q: What if I have trouble with a package while building for ARM32? \
+A: You can open an issue here, or try to fix it yourself if you wanted to. We may be busy, but we will get to your issue as soon as we possibly can!
+
+Q: What if I have more questions?? \
+A: As said, don't be afraid to open an issue for help. If the question is a good one, we will put it here that way more people do not have to dig through issues for help.
+
+Q: So what libraries don't work? (ARM question) \
+A: Check NOT-SO-WORKING-LIBRARIES once it's updated again.
+
+Q: So what libraries DO work? (ARM question) \
+A: Check WORKING-LIBRARIES once it's updated again.
+
+Q: So... are we getting an RT browser? \
+A: Yes..! To an extent. -ish. The quickest way to explain is that Windows RT (8/8.1) only runs things in THUMB2 mode, meaning it cannot run things such as ARM32 JIT, which makes browsing the web painfully slow. However, the leaked Windows 10 on ARM32 image has no limitations on the CPU (doesn't run in THUMB2 mode) and can run normal ARM32 code. We can build WebKit without JIT, but it is MUCH slower. The best bet is to just upgrade to Windows 10 on ARM32. It's faster, and it allows for much more opportunity, but we know not all people can or want to, so therefore we will maintain a JIT-less QtWebKit. We've got you covered, RT8.1 users! (Users wondering about just writing a JIT in THUMB2, go check [issue 1 on the other MXE repo](https://github.com/armdevvel/mxe/issues/1). It's a discussion, should give a little insight as to thoughts from us.)
+	
+# Original README
+
+[Check here](OGREADME.md)
