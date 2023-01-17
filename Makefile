@@ -137,6 +137,20 @@ MXE_CONFIGURE_OPTS = \
         --disable-static --enable-shared ) \
     $(MXE_DISABLE_DOC_OPTS)
 
+# CLang runtime library. Used to selectively extract missing intrinsic implementations
+# without polluting the rest of the root namespace and potentially conflicting with the
+# default libc; see ./mxe.intrinsic.sh for details.
+# Since we only target one platform, we don't need to be flexible.
+# If needed, however, we can branch with $(if) or split $(TARGET).
+MXE_COMPILER_RT='$(PREFIX)/lib/clang/14.0.0/lib/windows/libclang_rt.builtins-arm.a'
+
+MXE_INTRINSIC_SH = \
+    cd $(BUILD_DIR) && \
+        BUILD_DIR=$(BUILD_DIR) \
+        ARCHIVE=$(MXE_COMPILER_RT) \
+        TARGET=$(TARGET) \
+        $(SHELL) $(PWD)/mxe.intrinsic.sh
+
 MXE_MESON_WRAPPER = '$(PREFIX)/bin/$(TARGET)-meson'
 MXE_MESON_NATIVE_WRAPPER = '$(PREFIX)/bin/mxe-native-meson'
 MXE_NINJA = '$(PREFIX)/$(BUILD)/bin/ninja'
