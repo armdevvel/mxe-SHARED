@@ -11,4 +11,6 @@ $(PKG)_URL      := https://github.com/armdevvel/llvm-mingw/releases/download/14.
 
 define $(PKG)_BUILD
 	cp -r '$(1)'* '$(PREFIX)'
+	mkdir -p '$(PREFIX)/lib/pkgconfig'
+	mkdir -p '$(PREFIX)/$(TARGET)/lib/pkgconfig'
 endef
