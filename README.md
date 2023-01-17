@@ -1,6 +1,6 @@
 # MXE (M cross environment) - for ARM32 Windows development
 
-This is a modified version of MXE that comes with fixed scripts and sources that way Windows on ARM32 can have proper development for it. Despite the name, it's more stable than the normal `mxe` repo on the organization.
+This is a modified version of MXE that comes with fixed scripts and sources that way Windows on ARM32 can have proper development for it.
 
 MXE (M cross environment) is a GNU Makefile that compiles a cross
 compiler and cross compiles many free libraries such as SDL and
