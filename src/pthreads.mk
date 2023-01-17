@@ -7,7 +7,7 @@ PKG             := pthreads
 $(PKG)_WEBSITE  := https://en.wikipedia.org/wiki/POSIX_Threads
 $(PKG)_DESCR    := POSIX Threads
 $(PKG)_VERSION  := POSIX 1003.1-2001
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc cmake-conf
 
 define $(PKG)_BUILD
     # install and test pkg-config
@@ -24,11 +24,11 @@ define $(PKG)_BUILD
         '$(TOP_DIR)/src/$(PKG)-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' --libs pthreads`
 
-+    $(if $(BUILD_NATIVE), \
+    $(if $(BUILD_NATIVE), \
         '$(TARGET)-gcc' \
             -W -Wall -Werror -std=c99 -pedantic \
             '$(TOP_DIR)/src/$(PKG)-libgomp-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-libgomp.exe' \
-            -fopenmp
+            -fopenmp \
     )
 
     # test cmake
