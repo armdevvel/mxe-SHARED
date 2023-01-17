@@ -16,7 +16,6 @@ define $(PKG)_BUILD
     cd '$(SOURCE_DIR)' && ./configure \
         --prefix='$(PREFIX)/$(TARGET)' \
         --cross-prefix=$(TARGET)- \
-        --target-os=$(TARGET) \
         $(if $(BUILD_SHARED), --enable-shared --disable-static)
     $(MAKE) -C '$(SOURCE_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(SOURCE_DIR)' -j 1 install

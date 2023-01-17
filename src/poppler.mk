@@ -3,12 +3,12 @@
 PKG             := poppler
 $(PKG)_WEBSITE  := https://poppler.freedesktop.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 20.11.0
-$(PKG)_CHECKSUM := 021557074516492375c2bb4226a413aad431159e9177f9f14dff4159d2723b14
+$(PKG)_VERSION  := 23.01.0
+$(PKG)_CHECKSUM := fae9b88d3d5033117d38477b79220cfd0d8e252c278ec870ab1832501741fd94
 $(PKG)_SUBDIR   := poppler-$($(PKG)_VERSION)
 $(PKG)_FILE     := poppler-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://poppler.freedesktop.org/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc cairo curl freetype glib jpeg lcms libpng libwebp openjpeg qtbase tiff zlib
+$(PKG)_DEPS     := cc boost cairo curl freetype glib jpeg lcms libpng libwebp openjpeg qt6-qtbase qtbase tiff zlib
 
 define $(PKG)_UPDATE
     $(call GET_LATEST_VERSION, https://poppler.freedesktop.org/releases.html, poppler-)
@@ -17,18 +17,21 @@ endef
 define $(PKG)_BUILD
     # build and install the library
     cd '$(BUILD_DIR)' && $(TARGET)-cmake \
+        -DPOPPLER_REQUIRES="lcms2 freetype2 libjpeg libpng libopenjp2 libtiff-4" \
         -DENABLE_UNSTABLE_API_ABI_HEADERS=ON \
-        -DENABLE_TESTS=OFF \
         -DBUILD_GTK_TESTS=OFF \
         -DBUILD_QT5_TESTS=OFF \
+        -DBUILD_QT6_TESTS=OFF \
         -DBUILD_CPP_TESTS=OFF \
+        -DBUILD_MANUAL_TESTS=OFF \
         -DENABLE_SPLASH=ON \
         -DENABLE_UTILS=OFF \
         -DENABLE_CPP=ON \
         -DENABLE_GLIB=ON \
         -DENABLE_GOBJECT_INTROSPECTION=OFF \
-        -ENABLE_GTK_DOC=OFF \
+        -DENABLE_GTK_DOC=OFF \
         -DENABLE_QT5=ON \
+        -DENABLE_QT6=ON \
         -DENABLE_LIBOPENJPEG=openjpeg2 \
         -DENABLE_CMS=lcms2 \
         -DENABLE_DCTDECODER=libjpeg \
@@ -50,5 +53,5 @@ define $(PKG)_BUILD
     '$(TARGET)-g++' \
         -W -Wall -Werror -ansi -pedantic -std=c++11 \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
-        `'$(TARGET)-pkg-config' poppler-cpp --cflags --libs`
+        `'$(TARGET)-pkg-config' poppler-cpp freetype2 libjpeg libtiff-4 libpng libopenjp2 --cflags --libs` -liconv
 endef

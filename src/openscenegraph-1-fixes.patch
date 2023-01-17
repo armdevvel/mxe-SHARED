@@ -3,44 +3,9 @@ This file is part of MXE. See LICENSE.md for licensing information.
 Contains ad hoc patches for cross building.
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Boris Nagaev <bnagaev@gmail.com>
-Date: Fri, 9 Oct 2015 11:13:12 +0200
-Subject: [PATCH 1/6] fix case in headers windows.h, winsock2.h
-
-
-diff --git a/examples/osghangglide/hat.cpp b/examples/osghangglide/hat.cpp
-index 1111111..2222222 100644
---- a/examples/osghangglide/hat.cpp
-+++ b/examples/osghangglide/hat.cpp
-@@ -17,7 +17,7 @@
- */
- 
- #ifdef _MSC_VER
--#include <Windows.h>
-+#include <windows.h>
- #pragma warning( disable : 4244 )
- #endif
- 
-diff --git a/src/osgPlugins/ply/typedefs.h b/src/osgPlugins/ply/typedefs.h
-index 1111111..2222222 100644
---- a/src/osgPlugins/ply/typedefs.h
-+++ b/src/osgPlugins/ply/typedefs.h
-@@ -13,8 +13,8 @@
- #define MESH_TYPEDEFS_H
- 
- #   if defined(_MSC_VER)
--#      include <Winsock2.h>
--#      include <Windows.h>
-+#      include <winsock2.h>
-+#      include <windows.h>
- #   endif
- 
- #   include <osg/Notify>
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Rashad Kanavath <rashad.kanavath@c-s.fr>
 Date: Sun, 10 Jan 2016 14:04:18 +1100
-Subject: [PATCH 2/6] openscenegraph: use previously built openthreads
+Subject: [PATCH 1/5] openscenegraph: use previously built openthreads
 
 
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
@@ -49,7 +14,7 @@ index 1111111..2222222 100644
 +++ b/src/CMakeLists.txt
 @@ -8,7 +8,6 @@ ENDIF()
  
- #the old construct SUBDIRS( was substituded by ADD_SUBDIRECTORY that is to be preferred according on CMake docs.
+ #the old construct SUBDIRS( was substituted by ADD_SUBDIRECTORY that is to be preferred according on CMake docs.
  FOREACH( mylibfolder
 -        OpenThreads
          osg
@@ -59,7 +24,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Boris Nagaev <bnagaev@gmail.com>
 Date: Mon, 22 Feb 2016 03:35:28 +0300
-Subject: [PATCH 3/6] disable ffmpeg
+Subject: [PATCH 2/5] disable ffmpeg
 
 OpenSceneGraph is using removed features of ffmpeg, which have
 been deprecated for 3+ years.
@@ -68,10 +33,10 @@ See https://github.com/mxe/mxe/issues/1230#issuecomment-186936198
 Source of patch: http://forum.openscenegraph.org/viewtopic.php?t=10485
 
 diff --git a/src/osgPlugins/CMakeLists.txt b/src/osgPlugins/CMakeLists.txt
-index 77d66f8..1c8398e 100644
+index 1111111..2222222 100644
 --- a/src/osgPlugins/CMakeLists.txt
 +++ b/src/osgPlugins/CMakeLists.txt
-@@ -213,10 +213,6 @@ IF(OSG_CPP_EXCEPTIONS_AVAILABLE)
+@@ -209,10 +209,6 @@ IF(OSG_CPP_EXCEPTIONS_AVAILABLE)
      ADD_PLUGIN_DIRECTORY(txp)
  ENDIF()
  
@@ -85,48 +50,15 @@ index 77d66f8..1c8398e 100644
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Boris Pek <tehnick-8@yandex.ru>
-Date: Thu, 14 Dec 2017 15:29:38 +0300
-Subject: [PATCH 4/6] fix case in library ws2_32
-
-
-diff --git a/src/osgPlugins/ZeroConfDevice/CMakeLists.txt b/src/osgPlugins/ZeroConfDevice/CMakeLists.txt
-index 1111111..2222222 100644
---- a/src/osgPlugins/ZeroConfDevice/CMakeLists.txt
-+++ b/src/osgPlugins/ZeroConfDevice/CMakeLists.txt
-@@ -19,7 +19,7 @@ IF(WIN32)
-         mdns_win/dns_sd.h
-         mdns_win/dns-sd.c
-     )
--    SET(TARGET_EXTERNAL_LIBRARIES "${TARGET_EXTERNAL_LIBRARIES};Ws2_32.lib;winmm")
-+    SET(TARGET_EXTERNAL_LIBRARIES "${TARGET_EXTERNAL_LIBRARIES};ws2_32.lib;winmm")
-     SET(TARGET_LIBRARIES_VARS ZEROCONF_LIBRARY)
-     ADD_DEFINITIONS(-DNOT_HAVE_GETOPT)
-     ADD_DEFINITIONS(-DNOT_HAVE_SETLINEBUF)
-diff --git a/src/osgPlugins/vrml/CMakeLists.txt b/src/osgPlugins/vrml/CMakeLists.txt
-index 1111111..2222222 100644
---- a/src/osgPlugins/vrml/CMakeLists.txt
-+++ b/src/osgPlugins/vrml/CMakeLists.txt
-@@ -27,7 +27,7 @@ IF (WIN32)
-         PNG_LIBRARY
-         ZLIB_LIBRARY)
-     SET(TARGET_EXTERNAL_LIBRARIES
--        Ws2_32.lib)
-+        ws2_32.lib)
- ELSE()
-     SET(TARGET_LIBRARIES_VARS
-         OPENVRML_LIBRARY)
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Boris Pek <tehnick-8@yandex.ru>
 Date: Wed, 10 Oct 2018 00:56:37 +0300
-Subject: [PATCH 5/6] fix build with GCC < 6.x
+Subject: [PATCH 3/5] fix build with GCC < 6.x
 
 
 diff --git a/src/osgViewer/GraphicsWindowWin32.cpp b/src/osgViewer/GraphicsWindowWin32.cpp
-index 91e6c8f..d11347e 100644
+index 1111111..2222222 100644
 --- a/src/osgViewer/GraphicsWindowWin32.cpp
 +++ b/src/osgViewer/GraphicsWindowWin32.cpp
-@@ -799,7 +799,7 @@ Win32WindowingSystem::Win32WindowingSystem()
+@@ -809,7 +809,7 @@ Win32WindowingSystem::Win32WindowingSystem()
  	if (hModuleShore) {
  		setProcessDpiAwareness = (SetProcessDpiAwarenessFunc *) GetProcAddress(hModuleShore, "SetProcessDpiAwareness");
  		if (setProcessDpiAwareness) {
@@ -139,12 +71,12 @@ index 91e6c8f..d11347e 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Boris Pek <tehnick-8@yandex.ru>
 Date: Wed, 10 Oct 2018 01:48:22 +0300
-Subject: [PATCH 6/6] fix build of gta plugin when pkg-config is used
- + update related variable for build without pkg-config.
+Subject: [PATCH 4/5] fix build of gta plugin when pkg-config is used + update
+ related variable for build without pkg-config.
 
 
 diff --git a/CMakeModules/FindGTA.cmake b/CMakeModules/FindGTA.cmake
-index 086069c..e483ad3 100644
+index 1111111..2222222 100644
 --- a/CMakeModules/FindGTA.cmake
 +++ b/CMakeModules/FindGTA.cmake
 @@ -33,7 +33,7 @@ IF(NOT GTA_FOUND)
@@ -168,8 +100,32 @@ index 086069c..e483ad3 100644
  
  ENDIF(NOT GTA_FOUND)
 \ No newline at end of file
+diff --git a/src/osg/DisplaySettings.cpp b/src/osg/DisplaySettings.cpp
+index 1111111..2222222 100644
+--- a/src/osg/DisplaySettings.cpp
++++ b/src/osg/DisplaySettings.cpp
+@@ -22,9 +22,6 @@
+ #include <algorithm>
+ #include <string.h>
+ 
+-using namespace osg;
+-using namespace std;
+-
+ #if defined(WIN32) && !defined(__CYGWIN__)
+ #include<windows.h>
+ extern "C" { OSG_EXPORT DWORD NvOptimusEnablement=0x00000001; }
+@@ -32,6 +29,9 @@ extern "C" { OSG_EXPORT DWORD NvOptimusEnablement=0x00000001; }
+ extern "C" { int NvOptimusEnablement=0x00000001; }
+ #endif
+ 
++using namespace osg;
++using namespace std;
++
+ void DisplaySettings::setNvOptimusEnablement(int value)
+ {
+     NvOptimusEnablement = value;
 diff --git a/src/osgPlugins/gta/CMakeLists.txt b/src/osgPlugins/gta/CMakeLists.txt
-index 2b910a6..16466fe 100644
+index 1111111..2222222 100644
 --- a/src/osgPlugins/gta/CMakeLists.txt
 +++ b/src/osgPlugins/gta/CMakeLists.txt
 @@ -2,7 +2,7 @@ INCLUDE_DIRECTORIES( ${GTA_INCLUDE_DIRS} )
@@ -181,3 +137,22 @@ index 2b910a6..16466fe 100644
  
  #### end var setup  ###
  SETUP_PLUGIN(gta)
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: brodieG <brodieG@users.noreply.github.com>
+Date: Thu, 10 Nov 2022 01:29:08 +0000
+Subject: [PATCH 5/5] add tiff lib dependency
+
+
+diff --git a/src/osgPlugins/tiff/CMakeLists.txt b/src/osgPlugins/tiff/CMakeLists.txt
+index 1111111..2222222 100644
+--- a/src/osgPlugins/tiff/CMakeLists.txt
++++ b/src/osgPlugins/tiff/CMakeLists.txt
+@@ -4,5 +4,7 @@ SET(TARGET_SRC ReaderWriterTIFF.cpp )
+ 
+ SET(TARGET_LIBRARIES_VARS TIFF_LIBRARY)
+ 
++SET(TARGET_EXTERNAL_LIBRARIES tiff)
++
+ #### end var setup  ###
+ SETUP_PLUGIN(tiff)

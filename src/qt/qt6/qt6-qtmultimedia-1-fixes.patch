@@ -1,0 +1,183 @@
+This file is part of MXE. See LICENSE.md for licensing information.
+
+Contains ad hoc patches for cross building.
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Moritz Bunkus <mo@bunkus.online>
+Date: Fri, 8 Apr 2022 21:22:34 +0200
+Subject: [PATCH 1/1] fix file name wrt. case
+
+
+diff --git a/cmake/FindWMF.cmake b/cmake/FindWMF.cmake
+index 1111111..2222222 100644
+--- a/cmake/FindWMF.cmake
++++ b/cmake/FindWMF.cmake
+@@ -22,11 +22,11 @@ find_library(WMF_UUID_LIBRARY uuid HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+ find_library(WMF_MSDMO_LIBRARY msdmo HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+ find_library(WMF_OLE32_LIBRARY ole32 HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+ find_library(WMF_OLEAUT32_LIBRARY oleaut32 HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+-find_library(WMF_MF_LIBRARY Mf HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+-find_library(WMF_MFUUID_LIBRARY Mfuuid HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+-find_library(WMF_MFPLAT_LIBRARY Mfplat HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+-find_library(WMF_MFCORE_LIBRARY Mfcore HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+-find_library(WMF_PROPSYS_LIBRARY Propsys HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
++find_library(WMF_MF_LIBRARY mf HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
++find_library(WMF_MFUUID_LIBRARY mfuuid HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
++find_library(WMF_MFPLAT_LIBRARY mfplat HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
++find_library(WMF_MFCORE_LIBRARY mfcore HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
++find_library(WMF_PROPSYS_LIBRARY propsys HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+ 
+ 
+ set(WMF_LIBRARIES ${WMF_STRMIIDS_LIBRARY} ${WMF_AMSTRMID_LIBRARY} ${WMF_DMOGUIDS_LIBRARY} ${WMF_UUID_LIBRARY}
+diff --git a/src/multimedia/windows/qwindowsmediadevices.cpp b/src/multimedia/windows/qwindowsmediadevices.cpp
+index 1111111..2222222 100644
+--- a/src/multimedia/windows/qwindowsmediadevices.cpp
++++ b/src/multimedia/windows/qwindowsmediadevices.cpp
+@@ -13,7 +13,7 @@
+ #include <mmddk.h>
+ #include <mfobjects.h>
+ #include <mfidl.h>
+-#include <Mferror.h>
++#include <mferror.h>
+ #include <mmdeviceapi.h>
+ #include <qwindowsmfdefs_p.h>
+ 
+diff --git a/src/multimedia/windows/qwindowsresampler.cpp b/src/multimedia/windows/qwindowsresampler.cpp
+index 1111111..2222222 100644
+--- a/src/multimedia/windows/qwindowsresampler.cpp
++++ b/src/multimedia/windows/qwindowsresampler.cpp
+@@ -7,7 +7,7 @@
+ #include <qloggingcategory.h>
+ #include <QUuid>
+ 
+-#include <Wmcodecdsp.h>
++#include <wmcodecdsp.h>
+ #include <mftransform.h>
+ #include <mferror.h>
+ 
+diff --git a/src/plugins/multimedia/ffmpeg/qwindowscamera.cpp b/src/plugins/multimedia/ffmpeg/qwindowscamera.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/ffmpeg/qwindowscamera.cpp
++++ b/src/plugins/multimedia/ffmpeg/qwindowscamera.cpp
+@@ -11,8 +11,8 @@
+ 
+ #include <mfapi.h>
+ #include <mfidl.h>
+-#include <Mferror.h>
+-#include <Mfreadwrite.h>
++#include <mferror.h>
++#include <mfreadwrite.h>
+ 
+ #include <system_error>
+ 
+diff --git a/src/plugins/multimedia/windows/common/mfmetadata_p.h b/src/plugins/multimedia/windows/common/mfmetadata_p.h
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/common/mfmetadata_p.h
++++ b/src/plugins/multimedia/windows/common/mfmetadata_p.h
+@@ -16,7 +16,7 @@
+ //
+ 
+ #include <qmediametadata.h>
+-#include "Mfidl.h"
++#include "mfidl.h"
+ 
+ QT_USE_NAMESPACE
+ 
+diff --git a/src/plugins/multimedia/windows/decoder/mfaudiodecodercontrol.cpp b/src/plugins/multimedia/windows/decoder/mfaudiodecodercontrol.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/decoder/mfaudiodecodercontrol.cpp
++++ b/src/plugins/multimedia/windows/decoder/mfaudiodecodercontrol.cpp
+@@ -4,7 +4,7 @@
+ #include <system_error>
+ #include <mferror.h>
+ #include <qglobal.h>
+-#include "Wmcodecdsp.h"
++#include "wmcodecdsp.h"
+ #include "mfaudiodecodercontrol_p.h"
+ #include <private/qwindowsaudioutils_p.h>
+ 
+diff --git a/src/plugins/multimedia/windows/mediacapture/qwindowsmediadevicereader_p.h b/src/plugins/multimedia/windows/mediacapture/qwindowsmediadevicereader_p.h
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/mediacapture/qwindowsmediadevicereader_p.h
++++ b/src/plugins/multimedia/windows/mediacapture/qwindowsmediadevicereader_p.h
+@@ -17,8 +17,8 @@
+ 
+ #include <mfapi.h>
+ #include <mfidl.h>
+-#include <Mferror.h>
+-#include <Mfreadwrite.h>
++#include <mferror.h>
++#include <mfreadwrite.h>
+ 
+ #include <QtCore/qobject.h>
+ #include <QtCore/qmutex.h>
+diff --git a/src/plugins/multimedia/windows/mediacapture/qwindowsmediaencoder.cpp b/src/plugins/multimedia/windows/mediacapture/qwindowsmediaencoder.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/mediacapture/qwindowsmediaencoder.cpp
++++ b/src/plugins/multimedia/windows/mediacapture/qwindowsmediaencoder.cpp
+@@ -8,7 +8,7 @@
+ #include "mfmetadata_p.h"
+ #include <QtCore/QUrl>
+ #include <QtCore/QMimeType>
+-#include <Mferror.h>
++#include <mferror.h>
+ #include <shobjidl.h>
+ #include <private/qmediastoragelocation_p.h>
+ #include <private/qmediarecorder_p.h>
+diff --git a/src/plugins/multimedia/windows/player/mfplayercontrol_p.h b/src/plugins/multimedia/windows/player/mfplayercontrol_p.h
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/player/mfplayercontrol_p.h
++++ b/src/plugins/multimedia/windows/player/mfplayercontrol_p.h
+@@ -15,7 +15,7 @@
+ // We mean it.
+ //
+ 
+-#include "QUrl.h"
++#include <QtCore/qurl.h>
+ #include "private/qplatformmediaplayer_p.h"
+ 
+ #include <QtCore/qcoreevent.h>
+diff --git a/src/plugins/multimedia/windows/player/mfplayersession.cpp b/src/plugins/multimedia/windows/player/mfplayersession.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/player/mfplayersession.cpp
++++ b/src/plugins/multimedia/windows/player/mfplayersession.cpp
+@@ -32,7 +32,7 @@
+ 
+ #include <mmdeviceapi.h>
+ #include <propvarutil.h>
+-#include <Functiondiscoverykeys_devpkey.h>
++#include <functiondiscoverykeys_devpkey.h>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
+diff --git a/src/plugins/multimedia/windows/player/mftvideo.cpp b/src/plugins/multimedia/windows/player/mftvideo.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/player/mftvideo.cpp
++++ b/src/plugins/multimedia/windows/player/mftvideo.cpp
+@@ -7,7 +7,7 @@
+ #include <mferror.h>
+ #include <strmif.h>
+ #include <uuids.h>
+-#include <InitGuid.h>
++#include <initguid.h>
+ #include <d3d9.h>
+ #include <qdebug.h>
+ 
+diff --git a/src/plugins/multimedia/windows/qwindowsvideodevices.cpp b/src/plugins/multimedia/windows/qwindowsvideodevices.cpp
+index 1111111..2222222 100644
+--- a/src/plugins/multimedia/windows/qwindowsvideodevices.cpp
++++ b/src/plugins/multimedia/windows/qwindowsvideodevices.cpp
+@@ -8,11 +8,11 @@
+ #include <private/qwindowsmultimediautils_p.h>
+ #include <private/qwindowsiupointer_p.h>
+ 
+-#include <Dbt.h>
++#include <dbt.h>
+ 
+ #include <mfapi.h>
+ #include <mfreadwrite.h>
+-#include <Mferror.h>
++#include <mferror.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 

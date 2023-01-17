@@ -3,22 +3,46 @@
 PKG             := openssl
 $(PKG)_WEBSITE  := https://www.openssl.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.1.1k
-$(PKG)_CHECKSUM := c94dcec69a0462eb6e0362f2adfb0e4ce721ea520605dfad31266b2aa22548cc
+$(PKG)_VERSION  := 3.0.7
+$(PKG)_CHECKSUM := 83049d042a260e696f62406ac5c08bf706fd84383f945cf21bd61e9ed95c396e
 $(PKG)_SUBDIR   := openssl-$($(PKG)_VERSION)
-$(PKG)_FILE     := openssl-src.tar.gz
-$(PKG)_URL      := https://download.pahaze.net/ARM/mxe/OpenSSL/src/MSVC.tar.gz
+$(PKG)_FILE     := openssl-$($(PKG)_VERSION).tar.gz
+$(PKG)_URL      := https://www.openssl.org/source/$($(PKG)_FILE)
+$(PKG)_URL_2    := https://www.openssl.org/source/old/$(call tr,$([a-z]),,$($(PKG)_VERSION))/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc zlib
 
-define $(PKG)_BUILD
-    cp $(PWD)/resources/MSVC-OpenSSL/lib/* $(PREFIX)/$(TARGET)/lib
-	cp -r $(PWD)/resources/MSVC-OpenSSL/include/* $(PREFIX)/$(TARGET)/include
-	cp $(PWD)/resources/MSVC-OpenSSL/bin/* $(PREFIX)/$(TARGET)/bin
-
-	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
-		< '$(SOURCE_DIR)/libcrypto.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/libcrypto.pc'
-	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
-		< '$(SOURCE_DIR)/libssl.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/libssl.pc'
-	sed 's,%PREFIX%,$(PREFIX)/$(TARGET),' \
-		< '$(SOURCE_DIR)/openssl.pc' > '$(PREFIX)/$(TARGET)/lib/pkgconfig/openssl.pc'
+define $(PKG)_UPDATE
+    $(WGET) -q -O- 'https://www.openssl.org/source/' | \
+    $(SED) -n 's,.*openssl-\([0-9][0-9a-z.]*\)\.tar.*,\1,p' | \
+    $(SORT) -V | \
+    tail -1
 endef
+
+$(PKG)_MAKE = $(MAKE) -C '$(1)' -j '$(JOBS)'\
+        CC='$(TARGET)-gcc' \
+        RANLIB='$(TARGET)-ranlib' \
+        AR='$(TARGET)-ar' \
+        RC='$(TARGET)-windres' \
+        CROSS_COMPILE='$(TARGET)-' \
+        $(if $(BUILD_SHARED), ENGINESDIR='$(PREFIX)/$(TARGET)/bin/engines')
+
+define $(PKG)_BUILD
+    # remove previous install
+    rm -rfv '$(PREFIX)/$(TARGET)/include/openssl'
+    rm -rfv '$(PREFIX)/$(TARGET)/bin/engines'
+    rm -fv '$(PREFIX)/$(TARGET)/'*/{libcrypto*,libssl*}
+    rm -fv '$(PREFIX)/$(TARGET)/lib/pkgconfig/'{libcrypto*,libssl*,openssl*}
+
+    cd '$(1)' && CC='$(TARGET)-gcc' RC='$(TARGET)-windres' ./Configure \
+        @openssl-target@ \
+        zlib \
+        $(if $(BUILD_STATIC),no-module no-,)shared \
+        no-capieng \
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --libdir='$(PREFIX)/$(TARGET)/lib'
+    $($(PKG)_MAKE) build_sw
+    $($(PKG)_MAKE) install_sw
+endef
+
+$(PKG)_BUILD_i686-w64-mingw32   = $(subst @openssl-target@,mingw,$($(PKG)_BUILD))
+$(PKG)_BUILD_x86_64-w64-mingw32 = $(subst @openssl-target@,mingw64,$($(PKG)_BUILD))

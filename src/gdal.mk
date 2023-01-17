@@ -20,6 +20,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    touch '$(1)/config.rpath'
     cd '$(1)' && autoreconf -fi -I ./m4
     # The option '--with-threads=no' means native win32 threading without pthread.
     # mysql uses threading from Vista onwards - '-D_WIN32_WINNT=0x0600'
@@ -74,8 +75,9 @@ define $(PKG)_BUILD
         --with-xerces=no \
         --with-xml2='$(PREFIX)/$(TARGET)/bin/xml2-config' \
         --with-pg='$(PREFIX)/$(TARGET)/bin/pg_config' \
-        CXXFLAGS='-D_WIN32_WINNT=0x0600' \
-        LIBS="-ljpeg -lsecur32 -lportablexdr `'$(TARGET)-pkg-config' --libs openssl libtiff-4 spatialite freexl armadillo`"
+        LIBS="-ljpeg -lsecur32 -lportablexdr `'$(TARGET)-pkg-config' --libs openssl libtiff-4 spatialite freexl armadillo`" \
+        CXXFLAGS="-Wno-deprecated-copy -Wno-class-memaccess $(if $(BUILD_STATIC),-DOPJ_STATIC,)" \
+        $(PKG_CONFIGURE_OPTS)
 
     $(MAKE) -C '$(1)'       -j '$(JOBS)' lib-target
     # gdal doesn't have an install-strip target

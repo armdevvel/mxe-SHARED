@@ -1,20 +1,22 @@
+# This file is part of MXE. See LICENSE.md for licensing information.
+
 PKG             := harfbuzz
 $(PKG)_WEBSITE  := https://wiki.freedesktop.org/www/Software/HarfBuzz/
+$(PKG)_DESCR    := HarfBuzz
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.7.2
-$(PKG)_CHECKSUM := e7e4041996a354f7772ee865e2658b4d008947f5d8464dbac310592a28666a98
-$(PKG)_SUBDIR   := harfbuzz-$($(PKG)_VERSION)
-$(PKG)_FILE     := harfbuzz-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := https://github.com/armdevvel/harfbuzz/releases/download/v2.7.2/harfbuzz-2.7.2.tar.gz
-$(PKG)_DEPS     := cc cairo freetype-bootstrap glib icu4c pthreads
+$(PKG)_VERSION  := 6.0.0
+$(PKG)_CHECKSUM := 1d1010a1751d076d5291e433c138502a794d679a7498d1268ee21e2d4a140eb4
+$(PKG)_GH_CONF  := harfbuzz/harfbuzz/releases,,,,,.tar.xz
+$(PKG)_DEPS     := cc meson-wrapper cairo freetype-bootstrap glib icu4c
 
 define $(PKG)_BUILD
+    '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
+        -Dtests=disabled \
+        -Ddocs=disabled \
+        -Dintrospection=disabled \
+        '$(BUILD_DIR)' '$(SOURCE_DIR)'
     # mman-win32 is only a partial implementation
-    cd '$(1)' && ./autogen.sh && ./configure \
-        $(MXE_CONFIGURE_OPTS) \
-        ac_cv_header_sys_mman_h=no \
-        CXXFLAGS='-pthread -pthreads' \
-        LDFLAGS='-pthread -pthreads -lpthread'
-    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install
+    $(SED) -i '/HAVE_SYS_MMAN_H/d' '$(BUILD_DIR)/config.h'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
 endef

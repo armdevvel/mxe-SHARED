@@ -2,26 +2,29 @@
 
 PKG             := libsoup
 $(PKG)_WEBSITE  := https://wiki.gnome.org/Projects/libsoup
-$(PKG)_DESCR    := An HTTP client/server library for GNOME
+$(PKG)_DESCR    := HTTP client/server library for GNOME
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.0.6
-$(PKG)_CHECKSUM := b45d59f840b9acf9bb45fd45854e3ef672f57e3ab957401c3ad8d7502ac23da6
-$(PKG)_SUBDIR   := libsoup-$($(PKG)_VERSION)
-$(PKG)_FILE     := libsoup-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://download.gnome.org/sources/libsoup/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc glib libidn2 libiconv libnghttp2 libpsl sqlite
+$(PKG)_VERSION  := 2.74.2
+$(PKG)_APIVER   := 2.4
+$(PKG)_CHECKSUM := c9dc5d6499377598b5189acb787dd37c14484f8a50e399d94451c13b4af88b0f
+$(PKG)_GH_CONF  := GNOME/libsoup/tags,,,pre\|SOUP\|base
+$(PKG)_DEPS     := cc meson-wrapper glib libpsl libxml2 sqlite
 
 define $(PKG)_BUILD
-    cp '$(SOURCE_DIR)/../../cross.txt' '$(SOURCE_DIR)'
-    cd '$(SOURCE_DIR)' && meson \
-    --cross-file=cross.txt \
-    --prefix '$(PREFIX)/armv7-w64-mingw32' \
-    -Dtls_check=false \
-    -Dtests=false \
-    -Dintrospection="disabled" \
-    build
-    # Packages never add what's really required for their libs... (Also have to temporarily hardcode armv7's pkg config)
-    $(SED) -i 's/-lpsl/`armv7-w64-mingw32-pkg-config --libs libpsl libidn2`/g' '$(SOURCE_DIR)/build/build.ninja'
+    '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
+        -Dintrospection=disabled \
+        -Dtests=false \
+        -Dinstalled_tests=false \
+        -Dvapi=disabled \
+        -Dgssapi=disabled \
+        -Dsysprof=disabled \
+        -Dtls_check=false \
+        '$(BUILD_DIR)' '$(SOURCE_DIR)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
 
-    cd '$(SOURCE_DIR)/build' && ninja -j '$(JOBS)' && meson install
+    $(TARGET)-gcc \
+        -W -Wall -Werror -ansi \
+        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
+        `$(TARGET)-pkg-config $(PKG)-$($(PKG)_APIVER) --cflags --libs`
 endef

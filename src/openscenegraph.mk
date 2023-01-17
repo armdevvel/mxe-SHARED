@@ -4,8 +4,8 @@ PKG             := openscenegraph
 $(PKG)_WEBSITE  := http://www.openscenegraph.org/
 $(PKG)_DESCR    := OpenSceneGraph
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.6.3
-$(PKG)_CHECKSUM := 51bbc79aa73ca602cd1518e4e25bd71d41a10abd296e18093a8acfebd3c62696
+$(PKG)_VERSION  := 3.6.5
+$(PKG)_CHECKSUM := aea196550f02974d6d09291c5d83b51ca6a03b3767e234a8c0e21322927d1e12
 $(PKG)_GH_CONF  := openscenegraph/OpenSceneGraph/tags, OpenSceneGraph-
 $(PKG)_DEPS     := cc boost curl dcmtk freetype gdal giflib gstreamer \
                    gta jasper jpeg libpng openal openexr openthreads poppler \
@@ -27,7 +27,8 @@ define $(PKG)_BUILD
         -DDYNAMIC_OPENTHREADS=$(CMAKE_SHARED_BOOL) \
         -DDYNAMIC_OPENSCENEGRAPH=$(CMAKE_SHARED_BOOL) \
         -DBUILD_OSG_APPLICATIONS=OFF \
-        -DOPENTHREADS_ATOMIC_USE_MUTEX=ON
+        -DOPENTHREADS_ATOMIC_USE_MUTEX=ON \
+        $(PKG_CMAKE_OPTS)
 
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1

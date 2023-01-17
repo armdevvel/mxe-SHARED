@@ -4,23 +4,20 @@ PKG             := gtk2
 $(PKG)_WEBSITE  := https://gtk.org/
 $(PKG)_DESCR    := GTK+
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.24.33
-$(PKG)_CHECKSUM := ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da
+$(PKG)_VERSION  := 2.24.29
+$(PKG)_CHECKSUM := 0741c59600d3d810a223866453dc2bbb18ce4723828681ba24aa6519c37631b8
 $(PKG)_SUBDIR   := gtk+-$($(PKG)_VERSION)
 $(PKG)_FILE     := gtk+-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/gtk+/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc atk cairo gdk-pixbuf gettext glib jasper jpeg libpng pango tiff
 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- 'https://gitlab.gnome.org/GNOME/gtk+/tags' | \
+    $(WGET) -q -O- 'https://gitlab.gnome.org/GNOME/gtk+/-/tags?sort=updated_desc&search=^2.' | \
     $(SED) -n "s,.*<a [^>]\+>v\?\([0-9]\+\.[0-9.]\+\)<.*,\1,p" | \
-    grep -v '^2\.9' | \
-    grep '^2\.' | \
     head -1
 endef
 
 define $(PKG)_BUILD
-    # Why was disable-visibility not even here before? Windows doesn't use ELF
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --enable-explicit-deps \
@@ -30,10 +27,8 @@ define $(PKG)_BUILD
         --disable-test-print-backend \
         --disable-gtk-doc \
         --disable-man \
-        --disable-visibility \
         --with-included-immodules \
         --without-x
-    echo "testpixbuf.c: test-inline-pixbufs.h" >> '$(BUILD_DIR)/demos/Makefile'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT) EXTRA_DIST=
 
@@ -41,7 +36,10 @@ define $(PKG)_BUILD
     # and *.def files aren't really relevant for MXE
     rm -f '$(PREFIX)/$(TARGET)/lib/gailutil.def'
 
-    '$(TARGET)-gcc' -ansi \
+    '$(TARGET)-gcc' \
+        -W -Wall -Werror -Wno-error=deprecated-declarations -ansi \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk2.exe' \
         `'$(TARGET)-pkg-config' gtk+-2.0 gmodule-2.0 --cflags --libs`
 endef
+
+$(PKG)_BUILD_SHARED =

@@ -3,20 +3,23 @@
 PKG             := gst-libav
 $(PKG)_WEBSITE  := https://gstreamer.freedesktop.org/modules/gst-libav.html
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.16.2
-$(PKG)_CHECKSUM := c724f612700c15a933c7356fbeabb0bb9571fb5538f8b1b54d4d2d94188deef2
+$(PKG)_VERSION  := 1.20.3
+$(PKG)_CHECKSUM := 3fedd10560fcdfaa1b6462cbf79a38c4e7b57d7f390359393fc0cef6dbf27dfe
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://gstreamer.freedesktop.org/src/$(PKG)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc gst-plugins-base gstreamer $(BUILD)~nasm
+$(PKG)_DEPS     := cc ffmpeg gst-plugins-base gstreamer $(BUILD)~nasm
 
-$(PKG)_UPDATE = $(subst gstreamer/refs,gst-libav/refs,$(gstreamer_UPDATE))
+$(PKG)_UPDATE = $(gstreamer_UPDATE)
 
 define $(PKG)_BUILD
-    cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
-        $(MXE_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j $(JOBS) LIBS=-lbcrypt
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+    '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
+        -Dtests=disabled \
+        -Ddoc=disabled \
+        $(PKG_MESON_OPTS) \
+        '$(BUILD_DIR)' '$(SOURCE_DIR)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
+    '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
 
     # some .dlls are installed to lib - no obvious way to change
     $(if $(BUILD_SHARED),

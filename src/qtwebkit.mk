@@ -4,15 +4,15 @@ PKG             := qtwebkit
 $(PKG)_WEBSITE  := https://github.com/annulen/webkit
 $(PKG)_DESCR    := QtWebKit
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 5.13.1
-$(PKG)_CHECKSUM := f688e039e2bdc06e2e46680f3ef57715e1b7d6ea69fd76899107605a8f371ea3
-$(PKG)_SUBDIR   := qtwebkit-everywhere-src-$($(PKG)_VERSION)
-$(PKG)_FILE     := qtwebkit-everywhere-src-$($(PKG)_VERSION).tar.xz
+$(PKG)_VERSION  := 5.212
+$(PKG)_CHECKSUM := 10cbdaba60aac79d27016aa05bae9ab3ec7b0aed4df163debfbf8fddd66adc14
+$(PKG)_SUBDIR   := qtwebkit-opensource-src-$($(PKG)_VERSION)
+$(PKG)_FILE     := qtwebkit-opensource-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/snapshots/ci/qtwebkit/5.212/latest/src/submodules/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc libxml2 libxslt libwebp qtbase qtmultimedia qtquickcontrols \
+$(PKG)_DEPS     := cc icu4c libxml2 libxslt libwebp qtbase qtmultimedia qtquickcontrols \
                    qtsensors qtwebchannel sqlite
 
-define $(PKG)_BUILD
+define $(PKG)_BUILD_SHARED
     cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
         -DCMAKE_INSTALL_PREFIX=$(PREFIX)/$(TARGET)/qt5 \
         -DCMAKE_CXX_FLAGS='-fpermissive' \
@@ -24,14 +24,9 @@ define $(PKG)_BUILD
         -DENABLE_WEB_AUDIO=ON \
         -DUSE_GSTREAMER=OFF \
         -DUSE_MEDIA_FOUNDATION=OFF \
-        -DUSE_QT_MULTIMEDIA=ON \
-        -DENABLE_JIT=OFF \
-        -DENABLE_API_TESTS=OFF \
-        -G Ninja
-    $(SED) -i 's/-fno-keep-inline-dllexport/-liconv -lws2_32 -licuin -licuuc -licudt -llzma -lpthread -pthread -pthreads -lEGL -lGLESv2/g' '$(BUILD_DIR)/build.ninja'
-    $(SED) -i 's/-ladvapi32/-ladvapi32 -lEGL -lGLESv2/g' '$(BUILD_DIR)/build.ninja'
-    ninja -C '$(BUILD_DIR)' -j '$(JOBS)' || ninja -C '$(BUILD_DIR)' -j '$(JOBS)'
-    ninja -C '$(BUILD_DIR)' install
+        -DUSE_QT_MULTIMEDIA=ON
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 || $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
+    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 
     # build test manually
     # add $(BUILD_TYPE_SUFFIX) for debug builds - see qtbase.mk

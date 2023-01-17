@@ -4,8 +4,8 @@ PKG             := lzma
 $(PKG)_WEBSITE  := https://www.7-zip.org/sdk.html
 $(PKG)_DESCR    := LZMA SDK
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1900
-$(PKG)_CHECKSUM := 00f569e624b3d9ed89cf8d40136662c4c5207eaceb92a70b1044c77f84234bad
+$(PKG)_VERSION  := 2201
+$(PKG)_CHECKSUM := 35b1689169efbc7c3c147387e5495130f371b4bad8ec24f049d28e126d52d9fe
 $(PKG)_SUBDIR   := .
 $(PKG)_FILE     := lzma$(subst .,,$($(PKG)_VERSION)).7z
 $(PKG)_URL      := https://www.7-zip.org/a/$($(PKG)_FILE)
@@ -29,7 +29,11 @@ define $(PKG)_BUILD
         'CXX=$(TARGET)-g++' \
         'LD=$(TARGET)-ld' \
         'AR=$(TARGET)-ar' \
-        'PKG_CONFIG=$(TARGET)-pkg-config'
+        'WINDRES=$(TARGET)-windres' \
+        'PKG_CONFIG=$(TARGET)-pkg-config' \
+        'LDFLAGS=-Wl,--allow-multiple-definition -L$(TARGET)/lib'
+    cp '$(1)/C/Util/Lzma/_o/lzma.exe' \
+        '$(PREFIX)/$(TARGET)/bin/lzma.exe'
     $(MAKE) all -C '$(1)/CPP/7zip/Bundles/LzmaCon' \
         -f makefile.gcc -j '$(JOBS)' \
         'IS_MINGW=1' \
@@ -39,10 +43,10 @@ define $(PKG)_BUILD
         'CC=$(TARGET)-gcc' \
         'LD=$(TARGET)-ld' \
         'AR=$(TARGET)-ar' \
-        'PKG_CONFIG=$(TARGET)-pkg-config'
-    cp '$(1)/C/Util/Lzma/lzma.exe' \
-        '$(PREFIX)/$(TARGET)/bin/lzma.exe'
-    cp '$(1)/CPP/7zip/Bundles/LzmaCon/lzma.exe' \
+        'WINDRES=$(TARGET)-windres' \
+        'PKG_CONFIG=$(TARGET)-pkg-config' \
+        'LDFLAGS=-Wl,--allow-multiple-definition -L$(TARGET)/lib'
+    cp '$(1)/CPP/7zip/Bundles/LzmaCon/_o/lzma.exe.exe' \
         '$(PREFIX)/$(TARGET)/bin/lzma-cxx.exe'
 endef
 

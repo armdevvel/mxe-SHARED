@@ -340,11 +340,71 @@ exit</pre>
     <h3 id="tutorial-3b">Step 3b: Install MXE from the binary distribution</h3>
 
     <p>
-    Instead of building MXE packages from source, you can
-    download precompiled packages. There are two options:
-    tar archives and Debian packages.
-    See <a href="https://pkg.mxe.cc/">pkg.mxe.cc</a>.
+    Instead of building MXE packages from source, you can install
+    packages from our APT repository for the following distros:
     </p>
+    <ul>
+    <li>Debian (stable and old stable)</li>
+    <li>Ubuntu LTS (at least two releases supported)</li>
+    </ul>
+    <p>
+    See the
+    <a href="https://pkg.mxe.cc/repos/apt/dists/">distro list</a>
+    for current codenames and last build dates.
+    </p>
+    <p>
+    Ensure required tools are available (usually installed by default):
+    </p>
+    <pre>sudo apt-get install \
+    software-properties-common \
+    lsb-release</pre>
+    <p>
+    Add and refresh MXE repository:
+    </p>
+    <pre>sudo apt-key adv \
+    --keyserver keyserver.ubuntu.com \
+    --recv-keys 86B72ED9 && \
+sudo add-apt-repository \
+    "deb [arch=amd64] https://pkg.mxe.cc/repos/apt `lsb_release -sc` main" && \
+sudo apt-get update</pre>
+    <p>
+    Note that all package and target names have underscores replaced with
+    dashes. For example:
+    </p>
+    <pre>apt-cache search 'mxe.*sdl_net'</pre>
+    <p>
+    outputs:
+    </p>
+    <pre>mxe-i686-w64-mingw32.shared-sdl-net - MXE package sdl_net for i686-w64-mingw32.shared
+mxe-i686-w64-mingw32.static-sdl-net - MXE package sdl_net for i686-w64-mingw32.static
+mxe-x86-64-w64-mingw32.shared-sdl-net - MXE package sdl_net for x86_64-w64-mingw32.shared
+mxe-x86-64-w64-mingw32.static-sdl-net - MXE package sdl_net for x86_64-w64-mingw32.static</pre>
+    <p>
+    Install the basic cross-compiler:
+    </p>
+    <pre>sudo apt-get install \
+    mxe-{i686,x86-64}-w64-mingw32.{static,shared}-cc</pre>
+    <p>
+    Confirm installation (note standard MXE target naming for tools):
+    </p>
+    <pre>PATH=/usr/lib/mxe/usr/bin:$PATH \
+    x86_64-w64-mingw32.static-gcc --version</pre>
+    <p>
+    outputs:
+    </p>
+    <pre>x86_64-w64-mingw32.static-gcc (GCC) 5.5.0
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
+    <p>
+    See the Lightspark project for examples of:
+    </p>
+    <ul>
+    <li><a href="https://github.com/lightspark/lightspark/blob/86275b12218b7aeaabdeece6d8f8d0c17e2ba843/.travis.yml#L34">
+    integration with CI system</a></li>
+    <li><a href="https://github.com/lightspark/lightspark/blob/86275b12218b7aeaabdeece6d8f8d0c17e2ba843/.travis.yml#L61">
+    adding modified source build to pre-built installation</a></li>
+    </ul>
 
     <h3 id="tutorial-4">Step 4: Environment Variables</h3>
 
@@ -562,6 +622,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     </p>
 
     <ul class="compact-list">
+        <li><a href="#requirements-alpine">Alpine</a></li>
         <li><a href="#requirements-debian">Debian/Ubuntu</a></li>
         <li><a href="#requirements-fedora">Fedora/Red Hat/CentOS</a></li>
         <li><a href="#requirements-freebsd">FreeBSD</a></li>
@@ -651,6 +712,10 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
         <td></td>
     </tr>
     <tr>
+        <td><a href="https://www.makotemplates.org/">Mako Templates</a></td>
+        <td></td>
+    </tr>
+    <tr>
         <td><a href="https://www.openssl.org/">OpenSSL</a>-dev</td>
         <td>≥ 1.01</td>
     </tr>
@@ -671,7 +736,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
         <td></td>
     </tr>
     <tr>
-        <td><a href="https://www.python.org/">Python</a></td>
+        <td><a href="https://www.python.org/">Python3</a></td>
         <td></td>
     </tr>
     <tr>
@@ -696,6 +761,40 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     </tr>
     </table>
 
+    <h3 id="requirements-alpine">Alpine</h3>
+
+    <!-- https://pkgs.alpinelinux.org/packages -->
+    <pre>apk add \
+    autoconf \
+    automake \
+    bash \
+    binutils \
+    bison \
+    bzip2 \
+    flex \
+    g++ \
+    gdk-pixbuf \
+    gettext \
+    git \
+    gperf \
+    intltool \
+    libtool \
+    linux-headers \
+    lzip \
+    make \
+    openssl \
+    openssl-dev \
+    p7zip \
+    patch \
+    perl \
+    python3 \
+    py3-mako \
+    ruby \
+    unzip \
+    wget \
+    xz \
+    zlib</pre>
+
     <h3 id="requirements-debian">Debian and derivatives</h3>
 
     <!-- https://www.debian.org/distrib/packages#search_packages -->
@@ -716,6 +815,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     libc6-dev-i386 \
     libgdk-pixbuf2.0-dev \
     libltdl-dev \
+    libgl-dev \
     libssl-dev \
     libtool-bin \
     libxml-parser-perl \
@@ -725,7 +825,9 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     p7zip-full \
     patch \
     perl \
-    python \
+    python3 \
+    python3-mako \
+    python3-pkg-resources \
     ruby \
     sed \
     unzip \
@@ -734,10 +836,12 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
 
     <p>
     On 32-bit installs,
+    </p>
     <pre>
     g++-multilib
     libc6-dev-i386
     </pre>
+    <p>
     are not required, however there are potential issues with
     <a href="#issue-32-bit-systems">32-bit systems</a>.
     </p>
@@ -747,8 +851,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     </p>
 
     <p>
-    You can install a precompiled MXE via Debian packages.
-    See <a href="https://pkg.mxe.cc/">pkg.mxe.cc</a>.
+    You can <a href="#tutorial-3b">install binary MXE packages from our APT repository</a>.
     </p>
 
     <h3 id="requirements-fedora">Fedora/Red Hat/Centos</h3>
@@ -761,7 +864,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
 
     <pre>yum install epel-release</pre>
 
-    <!-- https://apps.fedoraproject.org/packages/ -->
+    <!-- https://packages.fedoraproject.org -->
     <pre>yum install \
     autoconf \
     automake \
@@ -778,15 +881,19 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     libtool \
     lzip \
     make \
+    mesa-libGL-devel \
+    openssl \
     openssl-devel \
     p7zip \
     patch \
     perl \
-    python \
+    python3 \
+    python3-mako \
     ruby \
     sed \
     unzip \
     wget \
+    which \
     xz</pre>
 
     <p>
@@ -819,7 +926,8 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     p7zip \
     patch \
     perl5 \
-    python \
+    python3 \
+    textproc/py-mako \
     ruby \
     unzip \
     wget</pre>
@@ -888,7 +996,8 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     patch \
     perl \
     perl-xml-parser \
-    python \
+    python3 \
+    python3-mako \
     ruby \
     sed \
     unzip \
@@ -916,6 +1025,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     dev-lang/ruby \
     dev-libs/openssl \
     dev-perl/XML-Parser \
+    dev-python/mako \
     dev-util/gperf \
     dev-util/intltool \
     dev-vcs/git \
@@ -952,6 +1062,8 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     intltool \
     lzip \
     p7zip \
+    pkgconfig \
+    py-mako \
     wget \
     xz</pre>
 
@@ -978,9 +1090,13 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     intltool \
     libtool \
     lzip \
+    pkg-config \
+    python3 \
     p7zip \
     wget \
     xz</pre>
+    <pre>python3 -m pip install mako</pre>
+
     <p>
     You will see messages about
     <a href="https://github.com/Homebrew/brew/blob/master/docs/FAQ.md#what-does-keg-only-mean"><code>keg-only</code></a>
@@ -1032,7 +1148,8 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     patch \
     perl \
     perl-XML-Parser \
-    python \
+    python3 \
+    python3-Mako \
     ruby \
     sed \
     unzip \
@@ -1041,6 +1158,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
 
     <p>
     On 32-bit installs,
+    </p>
     <pre>
     gcc-32bit
     glibc-devel-32bit
@@ -1048,6 +1166,7 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     libgomp46-32bit
     libstdc++46-devel-32bit
     </pre>
+    <p>
     are not required, however there are potential issues with
     <a href="#issue-32-bit-systems">32-bit systems</a>.
     </p>
@@ -1073,7 +1192,9 @@ USE_OSGPLUGIN(&lt;plugin2&gt;)
     p7zip \
     patch \
     perl-XML-Parser \
-    python \
+    pkgconf \
+    python3 \
+    python3-Mako \
     ruby \
     unzip \
     wget \
@@ -3103,6 +3224,9 @@ endef</pre>
         <a href="https://krita.org/">Krita</a>
     </li>
     <li>
+        <a href="https://www.retroarch.com/">Libretro/RetroArch</a>
+    </li>
+    <li>
         <a href="https://lightspark.github.io/">Lightspark</a>
     </li>
     <li>
@@ -3137,6 +3261,9 @@ endef</pre>
     </li>
     <li>
         <a href="https://qtads.sourceforge.io/">QTads</a>
+    </li>
+    <li>
+        <a href="https://www.r-project.org/">R</a>
     </li>
     <li>
         <a href="https://github.com/scummvm/scummvm">ScummVM</a>

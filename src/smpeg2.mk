@@ -29,7 +29,6 @@ define $(PKG)_BUILD
         --disable-gtk-player \
         --disable-opengl-player \
         CFLAGS='-ffriend-injection -Wno-narrowing'
-    $(SED) -i 's/-nostdlib/ /g' '$(SOURCE_DIR)/libtool'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_CRUFT)
 
     '$(TARGET)-gcc' \

@@ -3,8 +3,8 @@
 PKG             := mpfr
 $(PKG)_WEBSITE  := https://www.mpfr.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 4.0.2
-$(PKG)_CHECKSUM := 1d3be708604eae0e42d578ba93b390c2a145f17743a744d8f3f8c2ad5855a38a
+$(PKG)_VERSION  := 4.1.0
+$(PKG)_CHECKSUM := 0c98a3f1732ff6ca4ea690552079da9c597872d30e96ec28414ee23c95558a7f
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://ftp.gnu.org/gnu/$(PKG)/$($(PKG)_FILE)
@@ -16,8 +16,9 @@ $(PKG)_DEPS_$(BUILD) := gmp
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://www.mpfr.org/mpfr-current/#download' | \
-    grep 'mpfr-' | \
-    $(SED) -n 's,.*mpfr-\([0-9][^<]*\)/.*,\1,p' | \
+    grep -a 'mpfr-' | \
+    LC_ALL=C $(SED) 's/[\d128-\d255]//g' | \
+    $(SED) 's/^.*mpfr-\([0-9\.]*\)\..*/\1/p' | \
     head -1
 endef
 

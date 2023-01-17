@@ -4,19 +4,13 @@ PKG             := pcre2
 $(PKG)_WEBSITE  := https://www.pcre.org/
 $(PKG)_DESCR    := PCRE2
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 10.35
-$(PKG)_CHECKSUM := 9ccba8e02b0ce78046cdfb52e5c177f0f445e421059e43becca4359c669d4613
-$(PKG)_SUBDIR   := pcre2-$($(PKG)_VERSION)
-$(PKG)_FILE     := pcre2-$($(PKG)_VERSION).tar.bz2
-$(PKG)_URL      := https://ftp.pcre.org/pub/pcre/$($(PKG)_FILE)
-$(PKG)_URL_2    := https://$(SOURCEFORGE_MIRROR)/project/pcre/pcre2/$($(PKG)_VERSION)/$($(PKG)_FILE)
+$(PKG)_VERSION  := 10.42
+$(PKG)_CHECKSUM := 8d36cd8cb6ea2a4c2bb358ff6411b0c788633a2a45dabbf1aeb4b701d1b5e840
+$(PKG)_GH_CONF  := PCRE2Project/pcre2/releases,pcre2-
+$(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
+$(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.bz2
+$(PKG)_URL      := https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc
-
-define $(PKG)_UPDATE
-    $(WGET) -q -O- 'https://ftp.pcre.org/pub/pcre/' | \
-    $(SED) -n 's,.*pcre2-\([0-9]\+\)\(\.[0-9]\+\)*\.zip.*,\1\2,p' | \
-    tail -1
-endef
 
 define $(PKG)_BUILD_SHARED
     cd '$(1)' && ./configure \
