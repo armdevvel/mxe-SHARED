@@ -249,11 +249,12 @@ MXE_DISABLE_DOCS = \
 
 MXE_DISABLE_CRUFT = $(MXE_DISABLE_PROGRAMS) $(MXE_DISABLE_DOCS)
 
+# NOTE the branching on BUILD_CROSS can be removed when the native toolchain resides within the prefix. Better sooner than later!
 MAKE_SHARED_FROM_STATIC = \
 	'$(TOP_DIR)/tools/make-shared-from-static' \
 	$(if $(findstring mingw,$(TARGET)),--windowsdll) \
-	--ar '$(TARGET)-ar' \
-	--ld '$(TARGET)-gcc' \
+	--ar $(if $(BUILD_CROSS), '$(TARGET)-ar', ar) \
+	--ld $(if $(BUILD_CROSS), '$(TARGET)-gcc', gcc) \
 	--install '$(INSTALL)' \
 	--libdir '$(PREFIX)/$(TARGET)/lib' \
 	--bindir '$(PREFIX)/$(TARGET)/bin'
