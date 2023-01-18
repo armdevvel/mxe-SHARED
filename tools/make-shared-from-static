@@ -23,7 +23,7 @@ libsuffix=
 LIBS=
 
 topdir=$(pwd)
-tmpdir=$topdir/make-shared-from-static.$$
+tmpdir=$topdir/tmp-make-shared-from-static.$$
 
 #trap "cd $topdir; rm -rf $tmpdir" 1 2 15
 
