@@ -18,9 +18,16 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # NOTE there is a CMake build, wondering if we might prefer it
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-inline
+
+    # NOTE use a single component to inject CLang builtin objects
+    $(MAKE) -C '$(1)/src/util' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}{i,l}divmod.S.obj {,u}divmodsi4.S.obj {,u}divmoddi4.c.obj {fix{,uns}dfdi,floatdidf}.c.obj chkstk.S.obj`' \
+        $(MXE_DISABLE_PROGRAMS)
+
     $(MAKE) -C '$(1)' -j '$(JOBS)' $(MXE_DISABLE_PROGRAMS)
     $(MAKE) -C '$(1)' -j 1 $(INSTALL_STRIP_LIB)
 
