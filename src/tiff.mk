@@ -21,5 +21,5 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --without-x
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_CRUFT)
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`' install $(MXE_DISABLE_CRUFT)
 endef
