@@ -21,12 +21,13 @@ define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(SOURCE_DIR)/configure \
         $(MXE_CONFIGURE_OPTS)
     $(MAKE) -C '$(BUILD_DIR)/libdjvu' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}{i,l}divmod.S.obj {,u}divmodsi4.S.obj {,u}divmoddi4.c.obj chkstk.S.obj`' \
         EXTRA_CPPFLAGS=$(if $(BUILD_STATIC),'-DDDJVUAPI= -DMINILISPAPI=')
     $(MAKE) -C '$(BUILD_DIR)/libdjvu' -j 1 install-strip \
         $(MXE_DISABLE_CRUFT) dist_bin_SCRIPTS= \
         EXTRA_CPPFLAGS=$(if $(BUILD_STATIC),'-DDDJVUAPI= -DMINILISPAPI=')
 
-    '$(TARGET)-g++' \
+    '$(TARGET)-gcc' \
         -W -Wall -Werror -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' ddjvuapi --cflags --libs`
