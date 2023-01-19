@@ -25,7 +25,12 @@ define $(PKG)_BUILD
         --without-debug \
         --without-python \
         --without-threads
-    $(MAKE) -C '$(1)' -j '$(JOBS)' bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
+
+    # CLang replacement for the GCC version script: an undecorated list of newline-delimited symbols
+    $(GREP) -vp '^#' '$(SOURCE_DIR)/libxml2.syms' | $(GREP) ';' | tr -d ' ;' > $(BUILD_DIR)/libxml2.clang.syms
+
+    $(MAKE) -C '$(1)' -j '$(JOBS)' bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= \
+        LIBXML2_VERSION_SCRIPT='-Wl -exported_symbols_list $(BUILD_DIR)/libxml2.clang.syms'
     $(MAKE) -C '$(1)' -j 1 install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
     ln -sf '$(PREFIX)/$(TARGET)/bin/xml2-config' '$(PREFIX)/bin/$(TARGET)-xml2-config'
 endef
