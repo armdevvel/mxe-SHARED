@@ -1,0 +1,403 @@
+diff --git a/mpn/arm/lshift.asm b/mpn/arm/lshift.asm
+index 1d5ce0a0..fcc48e50 100644
+--- a/mpn/arm/lshift.asm
++++ b/mpn/arm/lshift.asm
+@@ -49,7 +49,7 @@ define(`tnc', `r12')
+ ASM_START()
+ PROLOGUE(mpn_lshift)
+ 	add	up, up, n, lsl #2
+-	push	{r4, r6, r7, r8}
++	push	{r4, r5, r6, r7, r8}
+ 	ldr	r4, [up, #-4]!
+ 	add	rp, rp, n, lsl #2
+ 	rsb	tnc, cnt, #32
+@@ -68,21 +68,24 @@ L(evn):	ldr	r6, [up, #-4]!
+ 	beq	L(end)
+ 
+ L(top):	ldr	r8, [up, #-4]!
+-	orr	r7, r7, r6, lsr tnc
++	lsr	r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mov	r7, r6, lsl cnt
+ L(mid):	ldr	r6, [up, #-4]!
+-	orr	r7, r7, r8, lsr tnc
++	lsr r5, r8, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mov	r7, r8, lsl cnt
+ 	subs	n, n, #2
+ 	bgt	L(top)
+ 
+-L(end):	orr	r7, r7, r6, lsr tnc
++L(end):	lsr r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mov	r7, r6, lsl cnt
+ L(1):	str	r7, [rp, #-4]
+ 	mov	r0, r4, lsr tnc
+-	pop	{r4, r6, r7, r8}
++	pop	{r4, r5, r6, r7, r8}
+ 	return	r14
+ EPILOGUE()
+diff --git a/mpn/arm/rshift.asm b/mpn/arm/rshift.asm
+index 9ddbc2ee..cac39648 100644
+--- a/mpn/arm/rshift.asm
++++ b/mpn/arm/rshift.asm
+@@ -48,7 +48,7 @@ define(`tnc', `r12')
+ 
+ ASM_START()
+ PROLOGUE(mpn_rshift)
+-	push	{r4, r6, r7, r8}
++	push	{r4, r5, r6, r7, r8}
+ 	ldr	r4, [up]
+ 	rsb	tnc, cnt, #32
+ 
+@@ -66,21 +66,24 @@ L(evn):	ldr	r6, [up, #4]!
+ 	beq	L(end)
+ 
+ L(top):	ldr	r8, [up, #4]!
+-	orr	r7, r7, r6, lsl tnc
++	lsl r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp], #4
+ 	mov	r7, r6, lsr cnt
+ L(mid):	ldr	r6, [up, #4]!
+-	orr	r7, r7, r8, lsl tnc
++	lsl	r5, r8, tnc
++	orr	r7, r5
+ 	str	r7, [rp], #4
+ 	mov	r7, r8, lsr cnt
+ 	subs	n, n, #2
+ 	bgt	L(top)
+ 
+-L(end):	orr	r7, r7, r6, lsl tnc
++L(end):	lsl	r5, r6, tnc
++	orr r7, r5
+ 	str	r7, [rp], #4
+ 	mov	r7, r6, lsr cnt
+ L(1):	str	r7, [rp]
+ 	mov	r0, r4, lsl tnc
+-	pop	{r4, r6, r7, r8}
++	pop	{r4, r5, r6, r7, r8}
+ 	return	r14
+ EPILOGUE()
+diff --git a/mpn/arm/lshiftc.asm b/mpn/arm/lshiftc.asm
+index e5b52dfa..8813cbf9 100644
+--- a/mpn/arm/lshiftc.asm
++++ b/mpn/arm/lshiftc.asm
+@@ -49,7 +49,7 @@ define(`tnc', `r12')
+ ASM_START()
+ PROLOGUE(mpn_lshiftc)
+ 	add	up, up, n, lsl #2
+-	push	{r4, r6, r7, r8}
++	push	{r4, r5, r6, r7, r8}
+ 	ldr	r4, [up, #-4]!
+ 	add	rp, rp, n, lsl #2
+ 	rsb	tnc, cnt, #32
+@@ -71,25 +71,29 @@ L(evn):	ldr	r6, [up, #-4]!
+ 	beq	L(end)
+ 
+ L(top):	ldr	r8, [up, #-4]!
+-	orr	r7, r7, r6, lsr tnc
++	lsr	r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mvn	r8, r8
+ 	mov	r7, r6, lsl cnt
+ L(mid):	ldr	r6, [up, #-4]!
+-	orr	r7, r7, r8, lsr tnc
++	lsr r5, r8, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mvn	r6, r6
+ 	mov	r7, r8, lsl cnt
+ 	subs	n, n, #2
+ 	bgt	L(top)
+ 
+-L(end):	orr	r7, r7, r6, lsr tnc
++L(end):	lsr r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]!
+ 	mov	r7, r6, lsl cnt
+ L(1):	mvn	r6, #0
+-	orr	r7, r7, r6, lsr tnc
++	lsr	r5, r6, tnc
++	orr	r7, r5
+ 	str	r7, [rp, #-4]
+ 	mov	r0, r4, lsr tnc
+-	pop	{r4, r6, r7, r8}
++	pop	{r4, r5, r6, r7, r8}
+ 	return	r14
+ EPILOGUE()
+diff --git a/mpn/arm/v6/dive_1.asm b/mpn/arm/v6/dive_1.asm
+index 92de8147..8e36c66c 100644
+--- a/mpn/arm/v6/dive_1.asm
++++ b/mpn/arm/v6/dive_1.asm
+@@ -73,7 +73,8 @@ PROLOGUE(mpn_divexact_1)
+ C binvert limb
+ 	LEA(	r4, binvert_limb_table)
+ 	and	r12, d, #254
+-	ldrb	r4, [r4, r12, lsr #1]
++	add	r4, r12, lsr #1
++	ldrb	r4, [r4]
+ 	mul	r12, r4, r4
+ 	mul	r12, d, r12
+ 	rsb	r12, r12, r4, lsl #1
+@@ -113,7 +114,8 @@ L(unnorm):
+ 	beq	L(edx)
+ 
+ 	ldr	r12, [up], #4
+-	orr	r9, r11, r12, lsl tnc
++	lsl r9, r12, tnc
++	orr	r9, r11
+ 	mov	r11, r12, lsr cnt
+ 	mul	r5, r9, r4
+ 	subs	n, n, #1
+@@ -121,7 +123,8 @@ L(unnorm):
+ 
+ 	ALIGN(16)
+ L(tpu):	ldr	r12, [up], #4
+-	orr	r9, r11, r12, lsl tnc
++	lsl r9, r12, tnc
++	orr	r9, r11
+ 	mov	r11, r12, lsr cnt
+ 	mov	r12, #0
+ 	str	r5, [rp], #4
+diff --git a/mpn/arm/v6t2/divrem_1.asm b/mpn/arm/v6t2/divrem_1.asm
+index be24615a..daee1495 100644
+--- a/mpn/arm/v6t2/divrem_1.asm
++++ b/mpn/arm/v6t2/divrem_1.asm
+@@ -105,7 +105,8 @@ L(uent):
+ 	beq	L(uend)
+ 
+ 	ldr	r3, [up, #-4]!
+-	orr	r2, r11, r3, lsr tnc
++	lsr	r2, r3, tnc
++	orr	r2, r11
+ 	b	L(mid)
+ 
+ L(utop):
+@@ -113,9 +114,11 @@ L(utop):
+ 	mov	r11, r3, lsl cnt
+ 	ldr	r3, [up, #-4]!
+ 	cmp	r1, r2
++	itt hi
+ 	addhi	r1, r1, d
+ 	subhi	r8, r8, #1
+-	orr	r2, r11, r3, lsr tnc
++	lsr	r2, r3, tnc
++	orr	r2, r11
+ 	cmp	r1, d
+ 	bcs	L(ufx)
+ L(uok):	str	r8, [qp], #-4
+@@ -128,9 +131,11 @@ L(mid):	add	r8, r1, #1
+ 	mls	r1, d, r8, r11
+ 	mov	r11, r3, lsl cnt
+ 	cmp	r1, r2
++	itt hi
+ 	addhi	r1, r1, d
+ 	subhi	r8, r8, #1
+ 	cmp	r1, d
++	itt cs
+ 	rsbcs	r1, d, r1
+ 	addcs	r8, r8, #1
+ 	str	r8, [qp], #-4
+@@ -140,9 +145,11 @@ L(uend):add	r8, r1, #1
+ 	umlal	r2, r8, r1, dinv
+ 	mls	r1, d, r8, r11
+ 	cmp	r1, r2
++	itt hi
+ 	addhi	r1, r1, d
+ 	subhi	r8, r8, #1
+ 	cmp	r1, d
++	itt cs
+ 	rsbcs	r1, d, r1
+ 	addcs	r8, r8, #1
+ 	str	r8, [qp], #-4
+@@ -157,6 +164,7 @@ L(ftop):mov	r6, #0
+ 	mov	r8, #0
+ 	mls	r1, d, r3, r8
+ 	cmp	r1, r6
++	itt hi
+ 	addhi	r1, r1, d
+ 	subhi	r3, r3, #1
+ 	subs	r2, r2, #1
+@@ -177,6 +185,7 @@ L(nent):
+ 
+ 	ldr	r11, [up, #0]
+ 	cmp	r11, d
++	itee lo
+ 	movlo	r2, #0			C hi q limb
+ 	movhs	r2, #1			C hi q limb
+ 	subhs	r11, r11, d
+@@ -191,6 +200,7 @@ L(ntop):ldr	r1, [up, #-4]!
+ 	ldr	r3, [up, #0]
+ 	mls	r11, d, r12, r3
+ 	cmp	r11, r1
++	itt hi
+ 	addhi	r11, r11, d
+ 	subhi	r12, r12, #1
+ 	cmp	d, r11
+diff --git a/mpn/arm/mod_34lsub1.asm b/mpn/arm/mod_34lsub1.asm
+index 596cd3c7..a9272d19 100644
+--- a/mpn/arm/mod_34lsub1.asm
++++ b/mpn/arm/mod_34lsub1.asm
+@@ -80,11 +80,14 @@ L(mid):	ldmia	ap!, { r4, r5, r6 }
+ 	adcs	r2, r2, r4
+ 	adcs	r3, r3, r5
+ 	adcs	r12, r12, r6
++	it	cs
+ 	movcs	r7, #1			C r7 <= 1
+ 
+ L(sum):	cmn	n, #2
++	ite	lo
+ 	movlo	r4, #0
+ 	ldrhs	r4, [ap], #4
++	ite	ls
+ 	movls	r5, #0
+ 	ldrhi	r5, [ap], #4
+ 
+diff --git a/mpn/arm/v5/mod_1_1.asm b/mpn/arm/v5/mod_1_1.asm
+index 3cf0cd77..a89b6a37 100644
+--- a/mpn/arm/v5/mod_1_1.asm
++++ b/mpn/arm/v5/mod_1_1.asm
+@@ -64,9 +64,11 @@ L(top):	adds	r12, r6, r7
+ 	adcs	r10, r4, r5
+ 	sub	r1, r1, #1
+ 	mov	r6, #0
++	it cs
+ 	movcs	r6, r8
+ 	umull	r7, r5, r10, r8
+ 	adds	r4, r12, r6
++	it cs
+ 	subcs	r4, r4, r2
+ L(mid):	ldr	r6, [r0, #-4]!
+ 	teq	r1, #0
+@@ -74,6 +76,7 @@ L(mid):	ldr	r6, [r0, #-4]!
+ 
+ 	adds	r12, r6, r7
+ 	adcs	r5, r4, r5
++	it cs
+ 	subcs	r5, r5, r2
+ L(4):	ldr	r1, [r3, #4]
+ 	cmp	r1, #0
+@@ -81,13 +84,16 @@ L(4):	ldr	r1, [r3, #4]
+ 	ldr	r4, [r3, #8]
+ 	umull	r0, r6, r5, r4
+ 	adds	r12, r0, r12
++	it cs
+ 	addcs	r6, r6, #1
+ 	rsb	r0, r1, #32
+ 	mov	r0, r12, lsr r0
+-	orr	r5, r0, r6, asl r1
++	mov	r5, r6, asl r1
++	orr	r5, r0
+ 	mov	r12, r12, asl r1
+ 	b	L(8)
+ L(7):	cmp	r5, r2
++	it cs
+ 	subcs	r5, r5, r2
+ L(8):	ldr	r0, [r3, #0]
+ 	umull	r4, r3, r5, r0
+@@ -97,8 +103,10 @@ L(8):	ldr	r0, [r3, #0]
+ 	mul	r5, r2, r5
+ 	sub	r12, r12, r5
+ 	cmp	r12, r0
++	it hi
+ 	addhi	r12, r12, r2
+ 	cmp	r2, r12
++	it ls
+ 	subls	r12, r12, r2
+ 	mov	r0, r12, lsr r1
+ 	pop	{r4-r10}
+@@ -119,7 +127,8 @@ PROLOGUE(mpn_mod_1_1p_cps)
+ 	rsb	r1, r4, #32
+ 	mov	r3, #1
+ 	mov	r3, r3, asl r4
+-	orr	r3, r3, r0, lsr r1
++	lsr r2, r0, r1
++	orr	r3, r2
+ 	mul	r3, r6, r3
+ 	mov	r4, r3, lsr r4
+ 	str	r4, [r5, #8]
+diff --git a/mpn/arm/v6/mode1o.asm b/mpn/arm/v6/mode1o.asm
+index a2f77a6b..291e6471 100644
+--- a/mpn/arm/v6/mode1o.asm
++++ b/mpn/arm/v6/mode1o.asm
+@@ -53,7 +53,6 @@ define(`n',  `r1')
+ define(`d',  `r2')
+ define(`cy', `r3')
+ 
+-	.protected	binvert_limb_table
+ ASM_START()
+ PROLOGUE(mpn_modexact_1c_odd)
+ 	stmfd	sp!, {r4, r5, r6, r7}
+@@ -63,7 +62,8 @@ PROLOGUE(mpn_modexact_1c_odd)
+ 	ldr	r6, [up], #4		C up[0]
+ 
+ 	and	r12, d, #254
+-	ldrb	r4, [r4, r12, lsr #1]
++	lsr	r4, r12, #1
++	ldrb	r4, [r4]
+ 	smulbb	r12, r4, r4
+ 	mul	r12, d, r12
+ 	rsb	r12, r12, r4, asl #1
+diff --git a/mpn/arm/v5/mod_1_2.asm b/mpn/arm/v5/mod_1_2.asm
+index aa26ecb2..e548ef03 100644
+--- a/mpn/arm/v5/mod_1_2.asm
++++ b/mpn/arm/v5/mod_1_2.asm
+@@ -88,13 +88,15 @@ L(mid):	subs	n, n, #4
+ 	umlal	r5, r9, r10, r12	C B3
+ 	mov	r4, r5
+ 
+-L(end):	movge	   r9, r10		C executed iff coming via xit
++L(end):	it ge
++	movge	   r9, r10		C executed iff coming via xit
+ 	ldr	r6, [r3, #4]		C cps[1] = cnt
+ 	mov	r5, #0
+ 	umlal	r4, r5, r9, r7
+ 	mov	r7, r5, lsl r6
+ L(x):	rsb	r1, r6, #32
+-	orr	r8, r7, r4, lsr r1
++	lsr r8, r4, r1
++	orr	r8, r7
+ 	mov	r9, r4, lsl r6
+ 	ldr	r5, [r3, #0]
+ 	add	r0, r8, #1
+@@ -104,8 +106,10 @@ L(x):	rsb	r1, r6, #32
+ 	mul	r5, r2, r1
+ 	sub	r9, r9, r5
+ 	cmp	r9, r4
++	it hi
+ 	addhi	r9, r9, r2
+ 	cmp	r2, r9
++	it ls
+ 	subls	r9, r9, r2
+ 	mov	r0, r9, lsr r6
+ 	pop	{r4-r10}
+@@ -133,7 +137,8 @@ PROLOGUE(mpn_mod_1s_2p_cps)
+ 	rsb	r3, r4, #32
+ 	mov	r3, r0, lsr r3
+ 	mov	r2, #1
+-	orr	r3, r3, r2, lsl r4
++	lsl r2, r4
++	orr	r3, r2
+ 	rsb	r1, r5, #0
+ 	mul	r2, r1, r3
+ 	umull	r3, r12, r2, r0
+@@ -141,12 +146,14 @@ PROLOGUE(mpn_mod_1s_2p_cps)
+ 	mvn	r12, r12
+ 	mul	r1, r5, r12
+ 	cmp	r1, r3
++	it hi
+ 	addhi	r1, r1, r5
+ 	umull	r12, r7, r1, r0
+ 	add	r7, r1, r7
+ 	mvn	r7, r7
+ 	mul	r3, r5, r7
+ 	cmp	r3, r12
++	it hi
+ 	addhi	r3, r3, r5
+ 	mov	r5, r2, lsr r4
+ 	mov	r7, r1, lsr r4
