@@ -18,7 +18,11 @@ define $(PKG)_BUILD
         --disable-examples \
         CXXFLAGS='-std=gnu++11 $(if $(BUILD_SHARED),-DLIBRAW_BUILDLIB,-DLIBRAW_NODLL)' \
         LDFLAGS='-lws2_32'
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' install
+
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}{i,l}divmod.S.obj {,u}divmod{si4.S,di4.c}.obj fixunssfdi.c.obj`' \
+        install
+
     # add missing entries to pkg-config files
     (echo ''; \
      echo 'Libs.private: -lws2_32 -ljasper'; \
