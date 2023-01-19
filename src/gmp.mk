@@ -22,16 +22,23 @@ define $(PKG)_UPDATE
     tail -1
 endef
 
+# NOTE /0 to reenable assembly:
+# NOTE /1 see comments here: https://stackoverflow.com/questions/22754077/building-a-c-library-gmp-for-arm64-ios;
+# NOTE /2 make sure full 32-bit word (-marm) instruction set is enabled, or patch for Thumb (component/gmp/thumb)
+# NOTE /2.1 see (unfinished but illustrative) Thumb patch in component/gmp/thumb
+
 define $(PKG)_BUILD
     cd '$(1)' && CC_FOR_BUILD=$(BUILD_CC) ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --enable-cxx \
+        --disable-assembly \
         --without-readline
-    $(MAKE) -C '$(1)' -j '$(JOBS)'
+
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`'
     $(MAKE) -C '$(1)' -j 1 install
 
     # build runtime tests to verify toolchain components
-    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k
+    -$(MAKE) -C '$(1)' -j '$(JOBS)' TESTS= check -k
     rm -rf '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     cp -R '$(1)/tests' '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     (printf 'date /t >  all-tests-$(PKG)-$($(PKG)_VERSION).txt\r\n'; \
