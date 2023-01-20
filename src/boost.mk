@@ -23,6 +23,52 @@ define $(PKG)_UPDATE
     head -1
 endef
 
+# From Boost documentation:
+# ================================================================
+# The only Boost libraries that must be built separately are:
+#
+# Boost.Chrono
+# Boost.Context
+# Boost.Filesystem
+# Boost.GraphParallel
+# Boost.IOStreams
+# Boost.Locale
+# Boost.Log (see build documentation)
+# Boost.MPI
+# Boost.ProgramOptions
+# Boost.Python (see the Boost.Python build documentation before building and installing it)
+# Boost.Regex
+# Boost.Serialization
+# Boost.Thread
+# Boost.Timer
+# Boost.Wave
+#
+# A few libraries have optional separately-compiled binaries:
+
+# Boost.Graph also has a binary component that is only needed if you intend to parse GraphViz files.
+# Boost.Math has binary components for the TR1 and C99 cmath functions.
+# Boost.Random has a binary component which is only needed if you're using random_device.
+# Boost.Test can be used in “header-only” or “separately compiled” mode, although separate compilation is recommended for serious use.
+# Boost.Exception provides non-intrusive implementation of exception_ptr for 32-bit _MSC_VER==1310 and _MSC_VER==1400 which requires a separately-compiled binary. This is enabled by #define BOOST_ENABLE_NON_INTRUSIVE_EXCEPTION_PTR.
+# Boost.System is header-only since Boost 1.69. A stub library is still built for compatibility, but linking to it is no longer necessary.
+#
+# Source: https://www.boost.org/doc/libs/1_80_0/more/getting_started/windows.html
+# ================================================================
+
+# NOTE we exclude coroutine and fiber as highly architecture specific
+# NOTE serialization is included (as its absence causes build issues)
+# NOTE we include thread (but not context), filesystem, iostreams, locale, regex,
+# NOTE program_options and log as mostly harmless
+
+$(PKG)_LIBRARIES := \
+    chrono context graph_parallel mpi python timer wave \
+    coroutine fiber exception
+
+# NOTE upstream MXE already excludes mpi and python by default
+$(PKG)_WITHOUT_LIBRARIES := $(foreach lib,$($(PKG)_LIBRARIES),'--without-$(lib)')
+
+$(PKG)_WITH_LIBRARIES := $($(PKG)_WITHOUT_LIBRARIES)
+
 # cross-build, see b2 options at:
 # https://www.boost.org/build/doc/html/bbv2/overview/invocation.html
 define $(PKG)_B2_CROSS_BUILD
@@ -31,7 +77,7 @@ define $(PKG)_B2_CROSS_BUILD
         --user-config=user-config.jam \
         abi=ms \
         address-model=$(BITS) \
-        architecture=x86 \
+        architecture=arm \
         binary-format=pe \
         link=$(if $(BUILD_STATIC),static,shared) \
         target-os=windows \
@@ -41,8 +87,7 @@ define $(PKG)_B2_CROSS_BUILD
         toolset=gcc-mxe \
         --layout=tagged \
         --disable-icu \
-        --without-mpi \
-        --without-python \
+        $($(PKG)_WITH_LIBRARIES) \
         --prefix='$(PREFIX)/$(TARGET)' \
         --exec-prefix='$(PREFIX)/$(TARGET)/bin' \
         --libdir='$(PREFIX)/$(TARGET)/lib' \
@@ -51,6 +96,10 @@ define $(PKG)_B2_CROSS_BUILD
         -sEXPAT_LIBPATH='$(PREFIX)/$(TARGET)/lib' \
         install
 endef
+
+# TODO build $($(PKG)_LIBRARIES) as separate packages
+# TODO reenable test-boost.exe and move into a separate package ("boosttest")
+# TODO add "<address-model>32 <architecture>arm <binary-format>pe <threading>multi <toolset>msvc"
 
 define $(PKG)_BUILD
     # old version appears to interfere
@@ -63,9 +112,8 @@ define $(PKG)_BUILD
     # compile boost build (b2)
     cd '$(SOURCE_DIR)/tools/build/' && ./bootstrap.sh
 
-    # retry if parallel build fails
-    $($(PKG)_B2_CROSS_BUILD) -a -j '$(JOBS)' \
-    || $($(PKG)_B2_CROSS_BUILD) -j '1'
+    # retry if parallel build fails - NOTE: disabled; fail fast, don't waste time
+    $($(PKG)_B2_CROSS_BUILD) -a -j '$(JOBS)' # || $($(PKG)_B2_CROSS_BUILD) -j '1'
 
     $(if $(BUILD_SHARED), \
         mv -fv '$(PREFIX)/$(TARGET)/lib/'libboost_*.dll '$(PREFIX)/$(TARGET)/bin/')
@@ -73,23 +121,23 @@ define $(PKG)_BUILD
     # setup cmake toolchain
     echo 'set(Boost_THREADAPI "win32")' > '$(CMAKE_TOOLCHAIN_DIR)/$(PKG).cmake'
 
-    '$(TARGET)-g++' \
-        -W -Wall -Werror -ansi -pedantic -std=c++11 \
-        '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-boost.exe' \
-        -DBOOST_THREAD_USE_LIB \
-        -lboost_serialization$($(PKG)_SUFFIX) \
-        -lboost_thread$($(PKG)_SUFFIX) \
-        -lboost_system$($(PKG)_SUFFIX) \
-        -lboost_chrono$($(PKG)_SUFFIX) \
-        -lboost_context$($(PKG)_SUFFIX)
+    # '$(TARGET)-g++' \
+    #     -W -Wall -Werror -ansi -pedantic -std=c++11 \
+    #     '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-boost.exe' \
+    #     -DBOOST_THREAD_USE_LIB \
+    #     -lboost_serialization$($(PKG)_SUFFIX) \
+    #     -lboost_thread$($(PKG)_SUFFIX) \
+    #     -lboost_system$($(PKG)_SUFFIX) \
+    #     -lboost_chrono$($(PKG)_SUFFIX) \
+    #     -lboost_context$($(PKG)_SUFFIX)
 
-    # test cmake
-    mkdir '$(BUILD_DIR).test-cmake'
-    cd '$(BUILD_DIR).test-cmake' && '$(TARGET)-cmake' \
-        -DPKG=$(PKG) \
-        -DPKG_VERSION=$($(PKG)_VERSION) \
-        '$(PWD)/src/cmake/test'
-    $(MAKE) -C '$(BUILD_DIR).test-cmake' -j 1 install
+    # # test cmake
+    # mkdir '$(BUILD_DIR).test-cmake'
+    # cd '$(BUILD_DIR).test-cmake' && '$(TARGET)-cmake' \
+    #     -DPKG=$(PKG) \
+    #     -DPKG_VERSION=$($(PKG)_VERSION) \
+    #     '$(PWD)/src/cmake/test'
+    # $(MAKE) -C '$(BUILD_DIR).test-cmake' -j 1 install
 endef
 
 define $(PKG)_BUILD_$(BUILD)
