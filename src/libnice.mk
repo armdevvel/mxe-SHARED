@@ -23,6 +23,7 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         PKG_CONFIG='$(TARGET)-pkg-config' \
         GLIB_COMPILE_SCHEMAS='$(PREFIX)/$(TARGET)/bin/glib-compile-schemas' \
+        LDFLAGS='-lssp' \
         MAKE=$(MAKE)
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_PROGRAMS)
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_PROGRAMS)
