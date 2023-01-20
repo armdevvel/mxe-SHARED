@@ -13,7 +13,8 @@ define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && \
         '$(SOURCE_DIR)'/configure \
         $(MXE_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}{i,l}divmod.S.obj {,u}divmodsi4.S.obj {,u}divmoddi4.c.obj chkstk.S.obj` -lws2_32 -ltinyxml'
     $(MAKE) -C '$(BUILD_DIR)/include' -j '$(JOBS)' install
     $(MAKE) -C '$(BUILD_DIR)/lib' -j '$(JOBS)' install
 
