@@ -18,6 +18,8 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD_STATIC
+    # insert space
+    $(SED) -i 's,v"DCRAW_VERSION,v" DCRAW_VERSION,' '$(SOURCE_DIR)/Source/LibRawLite/internal/dcraw_common.cpp'
     $(MAKE) -C '$(1)' -j '$(JOBS)' -f Makefile.mingw \
         CXX='$(TARGET)-g++' \
         CC='$(TARGET)-gcc' \
@@ -67,6 +69,8 @@ define $(PKG)_BUILD_STATIC
 endef
 
 define $(PKG)_BUILD_SHARED
+    # insert space
+    $(SED) -i 's,v"DCRAW_VERSION,v" DCRAW_VERSION,' '$(SOURCE_DIR)/Source/LibRawLite/internal/dcraw_common.cpp'
     $(SED) -i 's,-shared -static,-shared,' '$(1)/Makefile.mingw'
     $(MAKE) -C '$(1)' -j '$(JOBS)' -f Makefile.mingw \
         CXX='$(TARGET)-g++' \
