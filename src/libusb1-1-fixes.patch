@@ -1,0 +1,22 @@
+diff --git a/configure.ac b/configure.ac
+index d4f12510..2a7ad0c2 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -123,7 +123,7 @@ case $host in
+ 	backend=windows
+ 	platform=windows
+ 	test "x$enable_shared" = xyes && create_import_lib=yes
+-	EXTRA_CFLAGS="-mwin32 -fno-omit-frame-pointer"
++	EXTRA_CFLAGS="-fno-omit-frame-pointer"
+ 	EXTRA_LDFLAGS="-static-libgcc"
+ 	;;
+ *)
+@@ -199,7 +199,7 @@ sunos)
+ windows)
+ 	AC_CHECK_TYPES([struct timespec], [], [], [[#include <time.h>]])
+ 	AC_DEFINE([_WIN32_WINNT], [_WIN32_WINNT_VISTA], [Define to the oldest supported Windows version.])
+-	LT_LDFLAGS="${LT_LDFLAGS} -avoid-version -Wl,--add-stdcall-alias"
++	LT_LDFLAGS="${LT_LDFLAGS} -avoid-version"
+ 	;;
+ *)
+ 	dnl no special handling required
