@@ -49,7 +49,7 @@ define $(PKG)_BUILD
     $(INSTALL) -m644 '$(1)/include/'thr_* '$(1)/include/'my_thr* '$(PREFIX)/$(TARGET)/include'
 
     # build test with mysql_config
-    '$(TARGET)-g++' \
+    '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(PREFIX)/$(TARGET)/bin/mysql_config' --cflags --libs`
