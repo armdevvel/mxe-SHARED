@@ -24,6 +24,7 @@ define $(PKG)_BUILD
     $(SED) -i 's,LD=`which ld`,LD=$(TARGET)-ld,' '$(1)/configure'
     $(SED) -i 's,AR=`which ar`,AR=$(TARGET)-ar,' '$(1)/configure'
     cd '$(1)' && CC='$(PREFIX)/bin/$(TARGET)-gcc' ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --prefix='$(PREFIX)/$(TARGET)' \
         --enable-lzo \

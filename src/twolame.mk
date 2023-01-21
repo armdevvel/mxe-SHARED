@@ -19,6 +19,7 @@ endef
 
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --enable-static \
         --disable-shared \

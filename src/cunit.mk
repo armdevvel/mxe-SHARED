@@ -19,6 +19,7 @@ endef
 define $(PKG)_BUILD
     cd '$(1)' && autoreconf -fi
     cd '$(1)' && ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --disable-shared \
         --prefix='$(PREFIX)/$(TARGET)'

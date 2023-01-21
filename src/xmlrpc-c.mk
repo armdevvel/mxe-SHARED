@@ -29,6 +29,7 @@ define $(PKG)_BUILD_COMMON
     $(SED) -i 's,curl-config,$(TARGET)-curl-config,g' '$(1)/advanced/lib/curl_transport/Makefile'
     $(SED) -i 's,curl-config,$(TARGET)-curl-config,g' '$(1)/advanced/src/Makefile'
     cd '$(1)/advanced' && ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --prefix='$(PREFIX)/$(TARGET)' \
         --enable-abyss-server=no \

@@ -29,6 +29,7 @@ define $(PKG)_BUILD
     $(SED) -i 's,#include <Ntddndis.h>,#include <ntddndis.h>,' '$(1)/src/eth-win32.c'
     $(SED) -i 's,-mno-cygwin,,' '$(1)/configure'
     cd '$(1)' && ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --disable-shared \
         --prefix='$(PREFIX)/$(TARGET)'

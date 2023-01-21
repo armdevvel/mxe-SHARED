@@ -14,6 +14,7 @@ $(PKG)_DEPS     := cc
 define $(PKG)_BUILD
     # custom makefile so build in source
     cd '$(SOURCE_DIR)' && ./configure \
+        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --prefix='$(PREFIX)/$(TARGET)'
     $(MAKE) -C '$(SOURCE_DIR)' -f Makefile.mxe -j '$(JOBS)' \
