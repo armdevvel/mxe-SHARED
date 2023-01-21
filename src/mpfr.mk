@@ -32,7 +32,7 @@ define $(PKG)_BUILD
     $(MAKE) -C '$(1)' -j '$(JOBS)' install
 
     # build runtime tests to verify toolchain components
-    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k
+    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k TESTS=
     rm -rf '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     cp -R '$(1)/tests' '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     (printf 'date /t >  all-tests-$(PKG)-$($(PKG)_VERSION).txt\r\n'; \
