@@ -1,0 +1,20 @@
+diff --git a/Magick++/lib/Magick++/Color.h b/Magick++/lib/Magick++/Color.h
+index fbbede97..95074614 100644
+--- a/Magick++/lib/Magick++/Color.h
++++ b/Magick++/lib/Magick++/Color.h
+@@ -309,6 +309,8 @@ namespace Magick
+ // Inlines
+ //
+ 
++#ifdef MAGICK_IMPLEMENTATION
++
+ //
+ // Color
+ //
+@@ -459,4 +461,6 @@ inline Magick::ColorYUV::ColorYUV ( Magick::PixelPacket* rep_,
+ {
+ }
+ 
++#endif // MAGICK_IMPLEMENTATION
++
+ #endif // Magick_Color_header

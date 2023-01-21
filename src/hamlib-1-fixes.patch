@@ -1,0 +1,24 @@
+diff --git a/configure.ac b/configure.ac
+index 4b2b0e31..1ede6924 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -281,10 +281,18 @@ AS_CASE(["$host_os"],
+         OSXLDFLAGS="-Wl,-headerpad_max_install_names"
+         AC_SUBST([OSXLDFLAGS])],
+ 
+-    [mingw* | pw32* | cygwin*], [
++    [cygwin*], [
+         WINLDFLAGS="-Wl,--output-def,libhamlib.def -Wl,--add-stdcall-alias"
+         AC_SUBST([WINLDFLAGS])
+ 
++        # Enable ld's "auto import" for executables
++        WINEXELDFLAGS="-Wl,--enable-auto-import"
++        AC_SUBST([WINEXELDFLAGS])],
++
++    [mingw* | pw32*], [
++        WINLDFLAGS="-Wl,--output-def,libhamlib.def"
++        AC_SUBST([WINLDFLAGS])
++
+         # Enable ld's "auto import" for executables
+         WINEXELDFLAGS="-Wl,--enable-auto-import"
+         AC_SUBST([WINEXELDFLAGS])

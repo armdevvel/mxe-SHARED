@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := 25b75951f8f38fd58a403389566a0aae2f83b39d4225bc3acf5f2d68895ab
 $(PKG)_SUBDIR   := libgda-$($(PKG)_VERSION)
 $(PKG)_FILE     := libgda-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/libgda/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc glib libxml2 mdbtools
+$(PKG)_DEPS     := cc glib libxml2 mdbtools libmysqlclient postgresql
 
 define $(PKG)_UPDATE
     echo 'TODO: Updates for package libgda need to be fixed.' >&2;
@@ -27,9 +27,9 @@ define $(PKG)_BUILD
         --disable-gtk-doc \
         --without-bdb \
         --with-mdb \
-        --without-postgres \
+        --with-postgres \
         --without-oracle \
-        --without-mysql \
+        --with-mysql \
         --without-firebird \
         --without-java \
         --enable-binreloc \

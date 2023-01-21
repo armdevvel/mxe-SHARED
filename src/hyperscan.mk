@@ -3,21 +3,26 @@
 PKG             := hyperscan
 $(PKG)_WEBSITE  := https://01.org/hyperscan
 $(PKG)_DESCR    := Hyperscan
-$(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 5.4.0
-$(PKG)_CHECKSUM := e51aba39af47e3901062852e5004d127fa7763b5dbbc16bcca4265243ffa106f
-$(PKG)_GH_CONF  := 01org/hyperscan/tags, v
+$(PKG)_IGNORE   := 
+$(PKG)_VERSION  := 5.2.0-porting
+$(PKG)_CHECKSUM := 62206d5ed8eff73e9c0e8b0ce49cec9b3a43878f655d7a46366c0a1aa9610871
+$(PKG)_SUBDIR   := $(PKG)-rakko-2023
+$(PKG)_FILE     := $($(PKG)_PROJECT_SUBDIR).tar.gz
+$(PKG)_URL      := https://github.com/treeswift/$(PKG)/archive/refs/tags/rakko/2023.tar.gz
 $(PKG)_DEPS     := cc boost $(BUILD)~ragel
 
-# Add the following options to run on (virtual) machine without AVX2 or
-# build on machine where native detection of SSSE3 may fail
-# -DCMAKE_C_FLAGS="-march=core2" -DCMAKE_CXX_FLAGS="-march=core2"
+# ARM support (discussion):
+# https://github.com/intel/hyperscan/issues/197
+#
+# ARMv7 port (forked and tagged above):
+# https://github.com/zzqcn/hyperscan
+# 
+# Aarch64 ports:
+# https://github.com/kunpengcompute/hyperscan
+# https://github.com/MarvellEmbeddedProcessors/hyperscan
 
-$(PKG)_ARCH_FLAGS = \
-    $(TARGET)-gcc -xc /dev/null -o- -S -fverbose-asm \
-        -march=native | \
-        grep mssse3 >/dev/null 2>&1 || \
-        echo -march=core2
+# WindowsRT => ARM in Thumb mode
+$(PKG)_ARCH_FLAGS = -march=thumb
 
 define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(TARGET)-cmake \

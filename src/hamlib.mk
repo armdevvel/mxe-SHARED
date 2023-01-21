@@ -12,11 +12,16 @@ $(PKG)_GH_CONF  := hamlib/hamlib/releases/latest
 $(PKG)_DEPS     := cc libusb1 libxml2 pthreads
 
 define $(PKG)_BUILD
+    cd '$(SOURCE_DIR)' && autoreconf -fi -I'$(PREFIX)/$(BUILD)/share/aclocal'
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         LIBS='-lusb-1.0' \
         --disable-winradio
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' || $(MAKE) -C '$(BUILD_DIR)' -j 1
+    $(MAKE) -C '$(BUILD_DIR)/adat' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)/lib' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)/src' -j '$(JOBS)' \
+        LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`'
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT)
 
     '$(TARGET)-gcc' \

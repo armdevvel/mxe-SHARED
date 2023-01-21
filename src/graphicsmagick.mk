@@ -38,14 +38,14 @@ define $(PKG)_BUILD
         --with-tiff \
         --without-trio \
         --with-ttf='$(PREFIX)/$(TARGET)' \
-        --without-wmf \
+        --with-wmf \
         --with-xml \
         --with-zlib \
         --without-x \
         ac_cv_path_xml2_config='$(PREFIX)/$(TARGET)/bin/xml2-config' \
         LIBS="`'$(TARGET)-pkg-config' libtiff-4 --libs | $(SED) s/-ltiff//`" \
         $(PKG_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' bin_PROGRAMS=
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' bin_PROGRAMS= LDFLAGS='`$(MXE_INTRINSIC_SH) {{aeabi_u{i,l}divmod,udivmodsi4}.S,udivmoddi4.c}.obj`'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install bin_PROGRAMS=
 
     '$(TARGET)-g++' \

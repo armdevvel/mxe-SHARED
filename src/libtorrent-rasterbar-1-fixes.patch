@@ -19,6 +19,15 @@ diff --git a/include/libtorrent/config.hpp b/include/libtorrent/config.hpp
 index 1111111..2222222 100644
 --- a/include/libtorrent/config.hpp
 +++ b/include/libtorrent/config.hpp
+@@ -50,7 +50,7 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include <boost/config.hpp>
+ #include <boost/asio/detail/config.hpp>
+ #include <boost/version.hpp>
+-#include <boost/detail/endian.hpp>
++#include <boost/endian.hpp>
+ #include <stdio.h> // for snprintf
+ #include <limits.h> // for IOV_MAX
+ 
 @@ -64,10 +64,6 @@ POSSIBILITY OF SUCH DAMAGE.
  #error TORRENT_DEBUG_BUFFERS only works if you also disable pool allocators with TORRENT_DISABLE_POOL_ALLOCATOR
  #endif
@@ -30,3 +39,101 @@ index 1111111..2222222 100644
  #ifndef _MSC_VER
  #ifndef __STDC_FORMAT_MACROS
  #define __STDC_FORMAT_MACROS 1
+diff --git a/src/sha1.cpp b/src/sha1.cpp
+index 8085731b..0d6f3300 100644
+--- a/src/sha1.cpp
++++ b/src/sha1.cpp
+@@ -15,7 +15,7 @@ changelog at the end of the file.
+ 
+ #include "libtorrent/sha1.hpp"
+ 
+-#include <boost/detail/endian.hpp> // for BIG_ENDIAN and LITTLE_ENDIAN macros
++#include <boost/endian.hpp> // for BIG_ENDIAN and LITTLE_ENDIAN macros
+ 
+ typedef boost::uint32_t u32;
+ typedef boost::uint8_t u8;
+diff --git a/src/torrent_peer.cpp b/src/torrent_peer.cpp
+index 338d2871..6cff3f0f 100644
+--- a/src/torrent_peer.cpp
++++ b/src/torrent_peer.cpp
+@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include "libtorrent/crc32c.hpp"
+ #include "libtorrent/ip_voter.hpp"
+ 
+-#include <boost/detail/endian.hpp> // for BIG_ENDIAN and LITTLE_ENDIAN macros
++#include <boost/endian.hpp> // for BIG_ENDIAN and LITTLE_ENDIAN macros
+ 
+ namespace libtorrent
+ {
+diff --git a/include/libtorrent/disk_io_job.hpp b/include/libtorrent/disk_io_job.hpp
+index 8baa8930..1d106606 100644
+--- a/include/libtorrent/disk_io_job.hpp
++++ b/include/libtorrent/disk_io_job.hpp
+@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include <string>
+ #include <boost/function/function1.hpp>
+ #include <boost/shared_ptr.hpp>
+-#include <boost/shared_ptr.hpp>
++#include <boost/noncopyable.hpp>
+ 
+ #include "libtorrent/aux_/disable_warnings_pop.hpp"
+ 
+diff --git a/include/libtorrent/udp_socket.hpp b/include/libtorrent/udp_socket.hpp
+index edf9bea3..25d3854f 100644
+--- a/include/libtorrent/udp_socket.hpp
++++ b/include/libtorrent/udp_socket.hpp
+@@ -80,7 +80,7 @@ namespace libtorrent
+ 		};
+ 
+ 		bool is_open() const { return m_abort == false; }
+-		io_service& get_io_service() { return m_ipv4_sock.get_io_service(); }
++		io_service& get_io_service() { return (boost::asio::io_context&)(m_ipv4_sock).get_executor().context(); }
+ 
+ 		void subscribe(udp_socket_observer* o);
+ 		void unsubscribe(udp_socket_observer* o);
+diff --git a/include/libtorrent/tracker_manager.hpp b/include/libtorrent/tracker_manager.hpp
+index 27060018..66bf9d29 100644
+--- a/include/libtorrent/tracker_manager.hpp
++++ b/include/libtorrent/tracker_manager.hpp
+@@ -283,7 +283,7 @@ namespace libtorrent
+ 		virtual void on_timeout(error_code const& ec) = 0;
+ 		virtual ~timeout_handler() {}
+ 
+-		io_service& get_io_service() { return m_timeout.get_io_service(); }
++		io_service& get_io_service() { return (boost::asio::io_context&)(m_timeout).get_executor().context(); }
+ 
+ 	private:
+ 
+diff --git a/include/libtorrent/proxy_base.hpp b/include/libtorrent/proxy_base.hpp
+index 7e8ab329..c8a02c7a 100644
+--- a/include/libtorrent/proxy_base.hpp
++++ b/include/libtorrent/proxy_base.hpp
+@@ -42,6 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include "libtorrent/aux_/disable_warnings_push.hpp"
+ #include <boost/function/function1.hpp>
+ #include <boost/shared_ptr.hpp>
++#include <boost/noncopyable.hpp>
+ #include "libtorrent/aux_/disable_warnings_pop.hpp"
+ 
+ namespace libtorrent {
+@@ -249,7 +250,7 @@ public:
+ 
+ 	io_service& get_io_service()
+ 	{
+-		return m_sock.get_io_service();
++		return (boost::asio::io_context&)(m_sock).get_executor().context();
+ 	}
+ 
+ 	lowest_layer_type& lowest_layer()
+diff --git a/include/libtorrent/ip_filter.hpp b/include/libtorrent/ip_filter.hpp
+index dac1cab6..40a11b09 100644
+--- a/include/libtorrent/ip_filter.hpp
++++ b/include/libtorrent/ip_filter.hpp
+@@ -44,6 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include <boost/utility.hpp>
+ #include <boost/cstdint.hpp>
+ #include <boost/tuple/tuple.hpp>
++#include <boost/next_prior.hpp>
+ 
+ #include "libtorrent/aux_/disable_warnings_pop.hpp"
+ 
