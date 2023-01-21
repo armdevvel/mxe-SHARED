@@ -27,6 +27,7 @@ define $(PKG)_BUILD
         --disable-test-print-backend \
         --disable-gtk-doc \
         --disable-man \
+		--disable-visibility \
         --with-included-immodules \
         --without-x
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
