@@ -81,3 +81,7 @@ A: Yes..! To an extent. -ish. The quickest way to explain is that Windows RT (8/
 # Original README
 
 [Check here](OGREADME.md)
+
+# Credits
+
+A lot of this wouldn't have been possible without the help of some patches from [libvips](https://github.com/libvips/build-win64-mxe). Thank you, libvips developers.
