@@ -36,7 +36,8 @@ define $(PKG)_BUILD
         ./configure \
             -opensource \
             -confirm-license \
-            -xplatform win32-g++ \
+            # Fixes Clang from erroring out due to "-fno-keep-inline-dllexport"
+            -xplatform win32-clang-g++ \
             -device-option CROSS_COMPILE=${TARGET}- \
             -device-option PKG_CONFIG='${TARGET}-pkg-config' \
             -pkg-config \
@@ -46,7 +47,8 @@ define $(PKG)_BUILD
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
-            -opengl dynamic \
+            # We'll bring back GL soon
+            -no-opengl \
             -no-glib \
             -accessibility \
             -nomake examples \

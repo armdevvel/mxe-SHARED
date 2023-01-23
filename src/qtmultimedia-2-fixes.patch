@@ -1,0 +1,12 @@
+diff --color -Naur a/src/multimedia/configure.json b/src/multimedia/configure.json
+--- a/src/multimedia/configure.json	2023-01-22 19:05:45.887208612 -0500
++++ b/src/multimedia/configure.json	2023-01-22 19:06:23.843251808 -0500
+@@ -144,7 +144,7 @@
+             "label": "WMF",
+             "test": "wmf",
+             "sources": [
+-                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lMf -lMfuuid -lMfplat -lPropsys" }
++                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lmf -lmfuuid2 -lmfplat -lpropsys2" }
+             ]
+         }
+     },
