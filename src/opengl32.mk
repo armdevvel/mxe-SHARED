@@ -15,4 +15,6 @@ define $(PKG)_BUILD
 		> '$(BUILD_DIR)/opengl32.def'
 	'$(TARGET)-dlltool' -d '$(BUILD_DIR)/opengl32.def' -l '$(BUILD_DIR)/libopengl32.a'
 	$(INSTALL) -m644 '$(BUILD_DIR)/libopengl32.a' '$(PREFIX)/$(TARGET)/lib/'
+
+	# TODO add pkgconfig!
 endef
