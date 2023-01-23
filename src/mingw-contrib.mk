@@ -7,7 +7,7 @@ $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 1.2
 $(PKG)_CHECKSUM := 3eeb0e7b169c49359a7caed81cba8b3f89704fe713a49b87c5784a707a8a34d7
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := https://download.pahaze.net/ARM/mxe/mingw-contrib/src/$($(PKG)_FILE)
+$(PKG)_URL      := https://github.com/armdevvel/mingw-contrib/releases/download/$($(PKG)_VERSION)/mingw-contrib-$($(PKG)_VERSION).tar.gz
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
