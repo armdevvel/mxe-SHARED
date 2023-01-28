@@ -12,6 +12,10 @@ $(PKG)_DEPS     := cc libiconv libsamplerate
 define $(PKG)_BUILD
     cd '$(1)' && aclocal -I acinclude && autoconf && $(SHELL) ./configure \
         $(MXE_CONFIGURE_OPTS) \
+        --disable-video-opengl \
+        --disable-video-opengles \
+        --disable-video-opengles2 \
+        --disable-video-vulkan \
         --enable-threads \
         --enable-directx \
         --enable-libsamplerate \
