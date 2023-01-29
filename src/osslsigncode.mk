@@ -1,12 +1,12 @@
 PKG             := osslsigncode
-$(PKG)_WEBSITE  := https://github.com/mtrojnar/$(PKG)
+$(PKG)_WEBSITE  := https://github.com/treeswift/$(PKG)
 $(PKG)_DESCR    := OpenSSL based Authenticode signing for PE/MSI/Java CAB files.
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.5
-$(PKG)_CHECKSUM := 815a0e6dcc1cb327da0cbd22589269aae1191d278e3570cd6e4a7c12d9fabe92
+$(PKG)_VERSION  := 2.5-cmd
+$(PKG)_CHECKSUM := eeb9d2651fda72b88dabccc3f1291a335c45584de3ae7303710ccc7ff4d228dc
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := $($(PKG)_WEBSITE)/releases/download/$($(PKG)_VERSION)/$($(PKG)_FILE)
+$(PKG)_URL      := $($(PKG)_WEBSITE)/archive/refs/tags/$($(PKG)_VERSION).tar.gz
 $(PKG)_DEPS     := openssl curl
 $(PKG)_DEPS_$(BUILD) := openssl faketime popen2
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
@@ -19,6 +19,4 @@ define $(PKG)_BUILD_$(BUILD)
         -S $(SOURCE_DIR) \
     && make -C '$(BUILD_DIR)' \
         install
-
-    # -time 978307200 equivalent to 20010101000000Z
 endef
