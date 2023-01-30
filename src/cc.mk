@@ -7,5 +7,5 @@ $(PKG)_VERSION  := 1
 $(PKG)_DEPS     := gcc llvm-mingw
 $(PKG)_OO_DEPS   = pkgconf
 $(PKG)_TYPE     := meta
-$(PKG)_DEPS_$(BUILD) :=
+$(PKG)_DEPS_$(BUILD) := snakeoil
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
