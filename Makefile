@@ -657,6 +657,9 @@ _LOOKUP_PKG_RULE = $(strip \
     $(else),\
         $(PKG)_$(RULE)_$(3)))
 
+# define sentinel file name to mark build timestamp
+MXE_CUTOFF_FILE := $(PREFIX)/.last-build-start
+
 # set column widths for build status messages
 PKG_COL_WIDTH    := $(call plus,2,$(call LIST_NMAX, $(sort $(call map, strlen, $(PKGS)))))
 MAX_TARGET_WIDTH := $(call LIST_NMAX, $(sort $(call map, strlen, $(MXE_TARGETS))))
@@ -791,6 +794,8 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	        @touch '$(PREFIX)/$(3)/installed/$(1)'
 	    $(else),
 	        @$(PRINTF_FMT) '[build]'    '$(1)' '$(3)' | $(RTRIM)
+	        @touch '$(MXE_CUTOFF_FILE)'
+	        @( sleep 0.2 || sleep 1 )
 	        @[ -d '$(LOG_DIR)/$(TIMESTAMP)' ] || mkdir -p '$(LOG_DIR)/$(TIMESTAMP)'
 	        @touch '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'
 	        @ln -sf '$(TIMESTAMP)/$(1)_$(3)' '$(LOG_DIR)/$(1)_$(3)'
@@ -798,6 +803,10 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	               $(MAKE) -f '$(MAKEFILE)' \
 	                   'build-only-$(1)_$(3)' \
 	                   WGET=false \
+	                && CUTOFF='$(MXE_CUTOFF_FILE)' \
+	                    PREFIX='$(PREFIX)' \
+	                    BUILD='$(BUILD)' \
+	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
 	            echo 'Failed to build package $(1) for target $(3)!'; \

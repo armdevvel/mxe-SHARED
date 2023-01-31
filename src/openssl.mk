@@ -10,6 +10,7 @@ $(PKG)_FILE     := openssl-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://www.openssl.org/source/$($(PKG)_FILE)
 $(PKG)_URL_2    := https://www.openssl.org/source/old/$(call tr,$([a-z]),,$($(PKG)_VERSION))/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc zlib
+$(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://www.openssl.org/source/' | \
@@ -44,4 +45,14 @@ define $(PKG)_BUILD
         --libdir='$(PREFIX)/$(TARGET)/lib'
     $($(PKG)_MAKE) build_sw
     $($(PKG)_MAKE) install_sw
+endef
+
+define $(PKG)_BUILD_$(BUILD)
+    cd '$(1)' && ./Configure \
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --libdir='$(PREFIX)/$(TARGET)/lib' \
+        no-module no-shared \
+    && make -j 1 \
+        $(if $(BUILD_SHARED), ENGINESDIR='$(PREFIX)/$(TARGET)/bin/engines') \
+        install_sw
 endef
