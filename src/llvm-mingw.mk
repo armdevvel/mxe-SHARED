@@ -8,6 +8,7 @@ $(PKG)_CHECKSUM := d294d5435555150414fe6bc403d8b807a00611fbed5622d236719be241012
 $(PKG)_SUBDIR   :=
 $(PKG)_FILE     := armv7-only-llvm-mingw-linux-x86_64.tar.xz
 $(PKG)_URL      := https://github.com/armdevvel/llvm-mingw/releases/download/14.0/armv7-only-llvm-mingw-linux-x86_64.tar.xz
+$(PKG)_DEPS		:= $(BUILD)~snakeoil
 
 define $(PKG)_BUILD
 	cp -r '$(1)'* '$(PREFIX)'

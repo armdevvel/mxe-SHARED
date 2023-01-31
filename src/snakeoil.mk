@@ -8,7 +8,7 @@ $(PKG)_SUBDIR   := snakeoil-$($(PKG)_VERSION)
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/treeswift/$(PKG)/archive/refs/tags/$($(PKG)_VERSION).tar.gz
-$(PKG)_DEPS_$(BUILD) := osslsigncode openssl
+$(PKG)_DEPS_$(BUILD) := $(BUILD)~osslsigncode $(BUILD)~openssl
 $(PKG)_TARGETS  := $(BUILD)
 
 $(PKG)_INSTALL := $(PREFIX)/local/ssl
