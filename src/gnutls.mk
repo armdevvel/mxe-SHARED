@@ -27,6 +27,7 @@ define $(PKG)_BUILD
         --disable-doc \
         --disable-tests \
         --enable-local-libopts \
+        --enable-ssl3-support \
         --without-p11-kit \
         --disable-silent-rules
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
