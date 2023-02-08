@@ -7,7 +7,7 @@ $(PKG)_CHECKSUM := 164b86fc3ba1cd08d8162b8ace15154f9388583aae3d52d2bd5e78134607e
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/treeswift/$(PKG)/archive/refs/tags/$($(PKG)_VERSION).tar.gz
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc libwusers
 
 # Notes:
 # - user list expansion is not (sup)ported as of 1.0.1 - once ported, define HAS_PWD_H;
@@ -26,6 +26,7 @@ define $(PKG)_BUILD
         '-Du_int=unsigned int' \
         '-Dlstat=stat' \
         '-DS_ISLNK(m)=0' \
+        '-DHAS_PWD_H' \
         '-Dstrlcpy=strncpy' \
         -o '$(BUILD_DIR)/glob.o'
     $(INSTALL) -m 644 '$(SOURCE_DIR)/charclass.h' \
