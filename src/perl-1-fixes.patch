@@ -28,7 +28,16 @@ diff --git a/win32/win32.h b/win32/win32.h
 index fea567f7..0ab69bd0 100644
 --- a/win32/win32.h
 +++ b/win32/win32.h
-@@ -333,9 +333,9 @@ typedef struct
+@@ -171,6 +171,8 @@ typedef struct
+ #include <io.h>
+ #include <process.h>
+ #include <stdio.h>
++#include <pwd.h>
++#include <grp.h>
+ #include <direct.h>
+ #include <stdlib.h>
+ #include <stddef.h>
+@@ -333,9 +335,9 @@ typedef struct
  /* Note: PERLIO_FILE_ptr/base/cnt are not actually used for GCC or <VS2015
   * since FILE_ptr/base/cnt do the same thing anyway but it doesn't hurt to
   * define them all here for completeness. */
@@ -41,6 +50,15 @@ index fea567f7..0ab69bd0 100644
  #define PERLIO_FILE_ptr(f)  ((f)->_ptr)
  #define PERLIO_FILE_base(f) ((f)->_base)
  #define PERLIO_FILE_cnt(f)  ((f)->_cnt)
+@@ -346,8 +348,6 @@ typedef struct
+ 
+ #ifdef __MINGW32__		/* Minimal Gnu-Win32 */
+ 
+-typedef long		uid_t;
+-typedef long		gid_t;
+ #ifndef _environ
+ #define _environ	environ
+ #endif
 @@ -666,7 +666,7 @@ EXTERN_C _CRTIMP ioinfo* __pioinfo[];
  #endif
  

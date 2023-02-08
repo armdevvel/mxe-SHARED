@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := e26085af8ac396f62add8a533c3a0ea8c8497d836f0689347ac5abd7b7a4e
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $($(PKG)_SUBDIR).tar.gz
 $(PKG)_URL      := https://www.cpan.org/src/5.0/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc pthreads perl-cross
+$(PKG)_DEPS     := cc pthreads perl-cross libwusers
 
 $(PKG)_TARGET_EXTRAS = win32.c win32thread.c win32sck.c fcrypt.c
 $(PKG)_VERSED_FOLDER = perl5/$($(PKG)_VERSION)
@@ -104,11 +104,11 @@ define $(PKG)_BUILD
             '$(PREFIX)/$(TARGET)/lib/$($(PKG)_VERSED_FOLDER)'
 
     ln -sf '$($(PKG)_VERSED_FOLDER)/libperl.a' \
-            '$(PREFIX)/$(TARGET)/bin'
+            '$(PREFIX)/$(TARGET)/lib'
     ln -sf '$($(PKG)_VERSED_FOLDER)/perl.dll' \
             '$(PREFIX)/$(TARGET)/bin'
     ln -sf '$($(PKG)_VERSED_FOLDER)/perl$($(PKG)_VERSION).exe' \
-            '$(PREFIX)/$(TARGET)/bin'
+            '$(PREFIX)/$(TARGET)/bin/perl.exe'
     ln -sf '$($(PKG)_VERSED_FOLDER)/perl.exe' \
             '$(PREFIX)/$(TARGET)/bin'
 
