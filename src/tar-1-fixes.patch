@@ -1,0 +1,40 @@
+diff --git a/configure.ac b/configure.ac
+index 1b9d34e1..677f4294 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -90,7 +90,9 @@ fi
+ AC_TYPE_MODE_T
+ AC_TYPE_PID_T
+ AC_TYPE_OFF_T
+-AC_TYPE_UID_T
++AC_CHECK_TYPES([uid_t, gid_t], [], [], [[#include <sys/types.h>]
++ [#include <pwd.h>]
++ [#include <grp.h>]])
+ AC_CHECK_TYPE(major_t, , AC_DEFINE(major_t, int,
+ 				   [Type of major device numbers.]))
+ AC_CHECK_TYPE(minor_t, , AC_DEFINE(minor_t, int,
+diff --git a/gnu/unistd.in.h b/gnu/unistd.in.h
+index 5e9b47d9..de44d7ff 100644
+--- a/gnu/unistd.in.h
++++ b/gnu/unistd.in.h
+@@ -138,6 +138,7 @@
+    May also define off_t to a 64-bit type on native Windows.  */
+ /* Get off_t, ssize_t, mode_t.  */
+ #include <sys/types.h>
++#include <wusers/wuser_types.h> /* libwusers' uid_t and gid_t */
+ 
+ /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
+ 
+diff --git a/m4/getgroups.m4 b/m4/getgroups.m4
+index bd746cdf..7a1f5507 100644
+--- a/m4/getgroups.m4
++++ b/m4/getgroups.m4
+@@ -61,7 +61,7 @@ AC_DEFUN([AC_FUNC_GETGROUPS],
+ 
+ AC_DEFUN([gl_FUNC_GETGROUPS],
+ [
+-  AC_REQUIRE([AC_TYPE_GETGROUPS])
++  AC_DEFINE_UNQUOTED(GETGROUPS_T, gid_t, [Define to the type of elements in the array set by `getgroups' -- autoconf incorrectly assumes `int' when cross-compiling.])
+   AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
+   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+ 
