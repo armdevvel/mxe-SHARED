@@ -1,0 +1,13 @@
+diff --git a/C/Threads.h b/C/Threads.h
+index 71972558..f604e3ad 100644
+--- a/C/Threads.h
++++ b/C/Threads.h
+@@ -97,7 +97,7 @@ typedef UInt64 CCpuSet;
+ 
+ #define THREAD_FUNC_CALL_TYPE MY_STD_CALL
+ 
+-#if defined(_WIN32) && defined(__GNUC__)
++#if defined(_WIN32) && defined(__GNUC__) && !defined(__ARM_ARCH)
+ /* GCC compiler for x86 32-bit uses the rule:
+    the stack is 16-byte aligned before CALL instruction for function calling.
+    But only root function main() contains instructions that

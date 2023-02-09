@@ -22,8 +22,15 @@ endef
 # liblzma is actually installed by xz
 # https://github.com/mxe/mxe/issues/1481
 define $(PKG)_BUILD
+    # lowercase file names on case-sensitive file systems
+    $(SED) -i 's#lOle32#lole32#' '$(SOURCE_DIR)/C/7zip_gcc_c.mak'
+
+    # disable CRC32 instructions available since armv8/aarch64
+    $(SED) -i 's#MY_CPU_ARM_OR_ARM64#MY_CPU_ARM64#' '$(SOURCE_DIR)/C/7zCrc.c'
+
     $(MAKE) all -C '$(1)/C/Util/Lzma' \
         -f makefile.gcc -j '$(JOBS)' \
+        'IS_MINGW=1' \
         'PROG=lzma.exe' \
         'CC=$(TARGET)-gcc' \
         'CXX=$(TARGET)-g++' \
@@ -32,13 +39,13 @@ define $(PKG)_BUILD
         'WINDRES=$(TARGET)-windres' \
         'PKG_CONFIG=$(TARGET)-pkg-config' \
         'LDFLAGS=-Wl,--allow-multiple-definition -L$(TARGET)/lib'
-    cp '$(1)/C/Util/Lzma/_o/lzma.exe' \
+    cp '$(1)/bin/lzma.exe' \
         '$(PREFIX)/$(TARGET)/bin/lzma.exe'
     $(MAKE) all -C '$(1)/CPP/7zip/Bundles/LzmaCon' \
         -f makefile.gcc -j '$(JOBS)' \
         'IS_MINGW=1' \
         'PROG=lzma.exe' \
-        'CXX=$(TARGET)-g++ -O2 -Wall' \
+        'CXX=$(TARGET)-g++ -O2 -Wall -Wno-missing-exception-spec' \
         'CXX_C=$(TARGET)-gcc -O2 -Wall' \
         'CC=$(TARGET)-gcc' \
         'LD=$(TARGET)-ld' \
