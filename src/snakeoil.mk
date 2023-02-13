@@ -1,6 +1,6 @@
 PKG             := snakeoil
 $(PKG)_WEBSITE  := https://github.com/armdevvel/mxe-SHARED/wiki/Code-signing-for-Windows-RT-with-open-source-tools
-$(PKG)_DESCR    := OpenSSH configuration for self-signing PE binaries
+$(PKG)_DESCR    := OpenSSL configuration for self-signing PE binaries
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.0.1
 $(PKG)_CHECKSUM := eb2f8d74876bbcd9ac6feaa2e029701d7b909f2897a5b35f32511743f4c377ee
