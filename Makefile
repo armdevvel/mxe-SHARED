@@ -806,6 +806,7 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	                && CUTOFF='$(MXE_CUTOFF_FILE)' \
 	                    PREFIX='$(PREFIX)' \
 	                    BUILD='$(BUILD)' \
+	                    VERSION='$($(1)_VERSION)' \
 	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
