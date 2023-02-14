@@ -84,8 +84,8 @@ define $(PKG)_BUILD
             find -name '*.pl'; \
             find -name '*.pm'; \
             find -name '*.ld'; \
-            find -name '*.txt' \
-            find -name '*.yml' \
+            find -name '*.txt'; \
+            find -name '*.yml'; \
             find -name '*.dd'; \
             echo ExtUtils/MANIFEST.SKIP; \
             echo ExtUtils/typemap; \
@@ -121,10 +121,14 @@ define $(PKG)_BUILD
     # ditto -- foreach(app|embedding a Perl interpreter) app.heads(up)
     $(INSTALL) -d \
             '$(PREFIX)/$(TARGET)/include/$($(PKG)_SUBDIR)/'
-    ls '$(BUILD_DIR)/$(perl_SUBDIR)/*.h' | while read path; do \
+    find '$(BUILD_DIR)/$(perl_SUBDIR)' -maxdepth 1 -name '*.h' | while read path; do \
         $(INSTALL) -m 644 "$$path" \
             '$(PREFIX)/$(TARGET)/include/$($(PKG)_SUBDIR)/'; \
     done
+
+    # remove the original link lest were interpreted as a folder to place another one in:
+    rm -f \
+        '$(PREFIX)/$(TARGET)/include/perl5'
     ln -sf $($(PKG)_SUBDIR) \
         '$(PREFIX)/$(TARGET)/include/perl5'
 
