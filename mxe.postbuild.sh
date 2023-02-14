@@ -9,8 +9,8 @@ TMPDIR="tmp-${1}_${2}-postbuild"
 mkdir -p "$TMPDIR"
 
 # The Debian convention is "Foo_ver[-rev]_arch"
-FOONAME=`echo ${1} | tr _ -`
-FOO_VER=`echo $VERSION | tr _ -`
+FOONAME=`echo ${1} | tr '[:upper:] _' '[:lower:]-'`
+FOO_VER=`echo $VERSION | tr '[:upper:] _' '[:lower:]-'`
 
 OUTDIR="./out/${2}"
 TGZDIR="$OUTDIR/tgz"
@@ -86,6 +86,7 @@ done
 
 if [ -e "$TMPTAR" ]; then
     gzip "$TMPTAR" -c > "$OUTTGZ"
+    echo ln -sf `realpath "$OUTTGZ" "--relative-to=$TGZDIR/latest"` "$TGZDIR/$LATEST.tar.gz"
     ln -sf `realpath "$OUTTGZ" "--relative-to=$TGZDIR/latest"` "$TGZDIR/$LATEST.tar.gz"
 fi
 
