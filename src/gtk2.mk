@@ -4,8 +4,8 @@ PKG             := gtk2
 $(PKG)_WEBSITE  := https://gtk.org/
 $(PKG)_DESCR    := GTK+
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.24.29
-$(PKG)_CHECKSUM := 0741c59600d3d810a223866453dc2bbb18ce4723828681ba24aa6519c37631b8
+$(PKG)_VERSION  := 2.24.33
+$(PKG)_CHECKSUM := ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da
 $(PKG)_SUBDIR   := gtk+-$($(PKG)_VERSION)
 $(PKG)_FILE     := gtk+-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/gtk+/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
@@ -27,6 +27,7 @@ define $(PKG)_BUILD
         --disable-test-print-backend \
         --disable-gtk-doc \
         --disable-man \
+		--disable-visibility \
         --with-included-immodules \
         --without-x
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
@@ -41,5 +42,3 @@ define $(PKG)_BUILD
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk2.exe' \
         `'$(TARGET)-pkg-config' gtk+-2.0 gmodule-2.0 --cflags --libs`
 endef
-
-$(PKG)_BUILD_SHARED =
