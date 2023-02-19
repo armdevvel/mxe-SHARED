@@ -28,7 +28,7 @@ This version of MXE is meant for specifically Windows on ARM32 porting only, but
 
 ## Setting up
 
-To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements). Then, download a zip of the current release of LLVM-MinGW (preferably from [here](https://github.com/armdevvel/llvm-mingw/releases)).
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements).
 
 After this, you'll need to add MXE to your path and restart your terminal. For this example, I'll add it to Bash. In `~/.bashrc`, I would add the following for my home directory.
 
