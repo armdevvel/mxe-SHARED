@@ -28,9 +28,13 @@ This version of MXE is meant for specifically Windows on ARM32 porting only, but
 
 ## Setting up
 
-To use this for ARM development easily, first clone this repository to your home directory on any Linux system. [Be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements).
+To use this for ARM development easily, first clone this repository to your home directory on any Linux system.
 
-After this, you'll need to add MXE to your path and restart your terminal. For this example, I'll add it to Bash. In `~/.bashrc`, I would add the following for my home directory.
+```bash
+git clone https://github.com/armdevvel/mxe-SHARED --depth 1 armmxe-shared
+```
+
+[After this, be sure you have the dependencies installed from the site already](https://mxe.cc/#requirements). Now, you'll need to add MXE to your path and restart your terminal. For this example, I'll add it to Bash. In `~/.bashrc`, I would add the following for my MXE directory that I cloned to `~/armmxe-shared`.
 
 ```bash
 export PATH=$HOME/armmxe-shared/usr/bin:$PATH
@@ -48,7 +52,7 @@ You should be good to go now! Go have fun with your heart's desires building wha
     - Build `meson-wrapper` and use `armv7-w64-mingw32-meson` provided by MXE
   * CMake:
     - Build `cmake-conf` and use `armv7-w64-mingw32-cmake` provided by MXE
-  * normal make:
+  * Normal GNU Make:
     - For projects that still use this way for some reason, use `make CC=armv7-w64-mingw32-gcc CXX=armv7-w64-mingw32-g++ LD=armv7-w64-mingw32-ld AR=armv7-w64-mingw32-ar AS=armv7-w64-mingw32-as`
   * MXE:
     - This stays the same, but instead of a host triplet being `i686-w64-mingw32` or `x86_64-w64-mingw32`, you just run make with the package you want. Basically, run `make package`
