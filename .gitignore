@@ -19,3 +19,6 @@ cmake_install.cmake
 /mxe-*.deb*
 /wheezy
 /jessie
+
+# vscode
+.vscode/
