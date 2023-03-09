@@ -11,7 +11,7 @@ $(PKG)_DEPS     := cc
 $(PKG)_TARGETS  := $(BUILD)
 
 define $(PKG)_BUILD
-    $(if $(BUILD_CROSS),'$(TARGET)-',)gcc -c '$(SOURCE_DIR)/popen2.c' -o '$(BUILD_DIR)/popen2.o' \
+    $(if $(BUILD_CROSS),'$(TARGET)-',)gcc $(if $(BUILD_CROSS),'','-fPIE') -c '$(SOURCE_DIR)/popen2.c' -o '$(BUILD_DIR)/popen2.o' \
         && '$(INSTALL)' -m 644 '$(BUILD_DIR)/popen2.o' '$(PREFIX)/$(TARGET)/lib' \
         && '$(INSTALL)' -m 644 '$(SOURCE_DIR)/popen2.h' '$(PREFIX)/$(TARGET)/include' \
         && $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/pkgconfig' \
