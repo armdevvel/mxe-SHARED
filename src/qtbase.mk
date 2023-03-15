@@ -25,6 +25,8 @@ endef
 
 define $(PKG)_BUILD
     # ICU is buggy on static builds. See #653. TODO: reenable it some time in the future.
+    # xplatform win32-clang-g++ fixes Clang from erroring out due to "-fno-keep-inline-dllexport"
+    # We'll bring back GL soon
     cd '$(1)' && \
         OPENSSL_LIBS="`'$(TARGET)-pkg-config' --libs-only-l openssl`" \
         PSQL_LIBS="-lpq -lpgport -lpgcommon -lsecur32 `'$(TARGET)-pkg-config' --libs-only-l openssl pthreads` -lws2_32" \
@@ -36,7 +38,6 @@ define $(PKG)_BUILD
         ./configure \
             -opensource \
             -confirm-license \
-            # Fixes Clang from erroring out due to "-fno-keep-inline-dllexport"
             -xplatform win32-clang-g++ \
             -device-option CROSS_COMPILE=${TARGET}- \
             -device-option PKG_CONFIG='${TARGET}-pkg-config' \
@@ -47,7 +48,6 @@ define $(PKG)_BUILD
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
-            # We'll bring back GL soon
             -no-opengl \
             -no-glib \
             -accessibility \
