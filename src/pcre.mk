@@ -22,6 +22,8 @@ define $(PKG)_BUILD_SHARED
         --disable-pcregrep-libz \
         --disable-pcregrep-libbz2 \
         --disable-pcretest-libreadline
+    # NOTE /1/ {a,b}{c,d} is the Bash for combinatorial enumeration, resolves to "ac ad bc bd"
+    # NOTE /2/ There is a suppressed test suite in this package; we may want to reactivate it.
     $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_PROGRAMS) dist_html_DATA= dist_doc_DATA= \
         LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}{i,l}divmod.S.obj {,u}divmodsi4.S.obj {,u}divmoddi4.c.obj chkstk.S.obj`'
     rm -f '$(PREFIX)/$(TARGET)'/share/man/man1/pcre*.1
