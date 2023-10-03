@@ -30,7 +30,7 @@ define $(PKG)_BUILD
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-glxgears.exe'
 
     # manual install to avoid clobbering platform opengl driver
-    for i in EGL GLES GLES2 GLES3 KHR; do \
+    for i in EGL GL GLES GLES2 GLES3 KHR; do \
         $(INSTALL) -d "$(PREFIX)/$(TARGET)/include/$$i"; \
         $(INSTALL) -m 644 "$(1)/include/$$i/"* "$(PREFIX)/$(TARGET)/include/$$i/"; \
     done
