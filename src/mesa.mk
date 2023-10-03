@@ -22,6 +22,13 @@ define $(PKG)_BUILD
         '$(BUILD_DIR)' '$(SOURCE_DIR)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
 
+    # the test is the famous glxgears example adapted here (MIT license):
+    # https://github.com/CalvinHartwell/windows-glxgears/tree/master/glxgears
+    '$(TARGET)-g++' \
+        -W -Wall -Werror -ansi -pedantic  \
+        -I$(1)/include -Wl,'$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll.a' -lgdi32 \
+        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-glxgears.exe'
+
     # manual install to avoid clobbering platform opengl driver
     for i in EGL GLES GLES2 GLES3 KHR; do \
         $(INSTALL) -d "$(PREFIX)/$(TARGET)/include/$$i"; \
