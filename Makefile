@@ -626,7 +626,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring shared,$(TARGET)),SHARED,STATIC)))
+    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring arm,$(TARGET)),SHARED,STATIC)))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
@@ -636,7 +636,7 @@ RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
 # foo_BUILD_i686-w64-mingw32.static.win32
 # foo_BUILD_i686-w64-mingw32.static
 # foo_BUILD_i686-w64-mingw32
-# foo_BUILD_SHARED
+# foo_BUILD_SHARED  
 # foo_BUILD
 
 # return the pre-populated rule if defined
