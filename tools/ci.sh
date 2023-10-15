@@ -13,10 +13,11 @@ if [ -d usr/$DEPLOY_TRG ]; then
     if make $DEPLOY_PKG; then
       if [ -n $DEPLOY_NET ]; then
         DEPLOY_ZIP=${DEPLOY_PKG}_${DEPLOY_TRG}.zip
-        echo; echo "Deploying $DEPLOY_ZIP to $DEPLOY_NET:"
+        echo; echo "Deploying $DEPLOY_ZIP to $DEPLOY_NET:$DEPLOY_DIR"
         if scp out/${DEPLOY_TRG}/zip/latest/${DEPLOY_ZIP} $DEPLOY_NET:$DEPLOY_DIR
         then
-          ssh $DEPLOY_NET -C "unzip -o $DEPLOY_ZIP"
+          echo "Unpacking: cd $DEPLOY_DIR && unzip -o $DEPLOY_ZIP"
+          ssh $DEPLOY_NET -C "cd $DEPLOY_DIR && unzip -o $DEPLOY_ZIP"
           if [ -n $DEPLOY_EXE ]; then
             echo; echo "Running $DEPLOY_EXE on $DEPLOY_NET (assuming correct PATH):"
             ssh $DEPLOY_NET -C "$DEPLOY_EXE"
