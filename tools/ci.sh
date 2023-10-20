@@ -18,7 +18,7 @@ if [ -d usr/$DEPLOY_TRG ]; then
         then
           echo "Unpacking: cd $DEPLOY_DIR && unzip -o $DEPLOY_ZIP"
           ssh $DEPLOY_NET -C "cd $DEPLOY_DIR && unzip -o $DEPLOY_ZIP"
-          if [ -n $DEPLOY_EXE ]; then
+          if [ -n "$DEPLOY_EXE" ]; then
             echo; echo "Running $DEPLOY_EXE on $DEPLOY_NET (assuming correct PATH):"
             ssh $DEPLOY_NET -C "$DEPLOY_EXE"
           fi
