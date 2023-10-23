@@ -1,14 +1,14 @@
 # This file is part of MXE. See LICENSE.md for licensing information.
 
 PKG             := curl
-$(PKG)_WEBSITE  := https://curl.haxx.se/libcurl/
+$(PKG)_WEBSITE  := https://curl.se
 $(PKG)_DESCR    := cURL
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 7.87.0
-$(PKG)_CHECKSUM := ee5f1a1955b0ed413435ef79db28b834ea5f0fb7c8cfb1ce47175cc3bee08fff
+$(PKG)_VERSION  := 8.4.0
+$(PKG)_CHECKSUM := 816e41809c043ff285e8c0f06a75a1fa250211bbfb2dc0a037eeef39f1a9e427
 $(PKG)_SUBDIR   := curl-$($(PKG)_VERSION)
-$(PKG)_FILE     := curl-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://curl.haxx.se/download/$($(PKG)_FILE)
+$(PKG)_FILE     := curl-$($(PKG)_VERSION).tar.gz
+$(PKG)_URL      := https://curl.se/download/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc libidn2 libssh2 pthreads
 
 define $(PKG)_UPDATE
