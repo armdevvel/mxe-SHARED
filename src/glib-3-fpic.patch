@@ -1,0 +1,13 @@
+diff --git a/glib/meson.build b/glib/meson.build
+index 2e2e57f..ded9b99 100644
+--- a/glib/meson.build
++++ b/glib/meson.build
+@@ -355,7 +355,7 @@ if use_pcre_static_flag
+   pcre_static_args = ['-DPCRE_STATIC']
+ endif
+ 
+-glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
++glib_c_args = ['-fPIC', '-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
+ libglib = library('glib-2.0',
+   glib_dtrace_obj, glib_dtrace_hdr,
+   sources : [deprecated_sources, glib_sources],
