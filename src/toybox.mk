@@ -4,11 +4,11 @@ PKG             := toybox
 $(PKG)_WEBSITE  := https://landley.net/toybox/
 $(PKG)_DESCR    := Toybox: all-in-one Linux command line. Public domain.
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 0.8.10-mingw-0.0.1
-$(PKG)_CHECKSUM := 447331a3530ababbaabba16d0e680aa0cf09f8841c347fb02050f1fef015e87f
+$(PKG)_VERSION  := 0.8.10-mingw-0.0.2
+$(PKG)_CHECKSUM := 3bc4f6e020214b2655d1df43f27504e13c9dc6de84e283c4d2c95008e5fda4ab
 $(PKG)_GH_CONF  := treeswift/toybox-mingw/tags
 # TODO: (some part of) the hellish list of dependencies below will be moved to the 'libmoregw' meta-package
-$(PKG)_DEPS     := cc libwusers libfatctl libmemmap ws2fwd pcre2 glob getline-compatible libob openssl zlib
+$(PKG)_DEPS     := cc libwusers libfatctl libmemmap ws2fwd pcre2 glob getline-compatible libob libprefix openssl zlib
 
 $(PKG)_OUTNAME = $(PKG).exe
 $(PKG)_OUTFILE = $($(PKG)_OUTNAME)
