@@ -41,7 +41,7 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         "CFLAGS=-DMSDOS=1" \
     && $(MAKE) \
-        LDFLAGS='$(PREFIX)/$(TARGET)/lib/glob.o -lwusers -lbcrypt -lws2_32 -lssp' \
+        LDFLAGS='-lglob -lwusers -lbcrypt -lws2_32 -lssp' \
         -j '$(JOBS)' \
         install
 endef

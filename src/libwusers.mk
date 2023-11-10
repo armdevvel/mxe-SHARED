@@ -3,9 +3,9 @@
 PKG             := libwusers
 $(PKG)_WEBSITE  := https://github.com/treeswift/libwusers
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 0.0.4
-$(PKG)_CHECKSUM := 7b74e98856f76ea5f9505f05cc540aa286c25bf98e3967d5c77140d412def013
-$(PKG)_GH_CONF  := treeswift/libwusers/tags/tag,,,
+$(PKG)_VERSION  := 0.0.5
+$(PKG)_CHECKSUM := 96b24e7d9a1d11dfc002418b924454cf08dc4e7172f9959f0975532b03895cdc
+$(PKG)_GH_CONF  := treeswift/libwusers/tags,
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
