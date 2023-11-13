@@ -70,8 +70,12 @@ endef
 
 define $(PKG)_BUILD_SHARED
     # insert space
-    $(SED) -i 's,v"DCRAW_VERSION,v" DCRAW_VERSION,' '$(SOURCE_DIR)/Source/LibRawLite/internal/dcraw_common.cpp'
-    $(SED) -i 's,-shared -static,-shared,' '$(1)/Makefile.mingw'
+    $(SED) -i 's,v"DCRAW_VERSION,v" DCRAW_VERSION,' \
+            '$(SOURCE_DIR)/Source/LibRawLite/internal/dcraw_common.cpp'
+    $(SED) -i \
+        -e 's,-shared -static,-shared,' \
+        -e 's#-Wl,-soname,$$(SOLIBNAME) ##' \
+            '$(SOURCE_DIR)/Makefile.mingw'
     $(MAKE) -C '$(1)' -j '$(JOBS)' -f Makefile.mingw \
         CXX='$(TARGET)-g++' \
         CC='$(TARGET)-gcc' \
@@ -79,11 +83,11 @@ define $(PKG)_BUILD_SHARED
         RC='$(TARGET)-windres' \
         DLLTOOL='$(TARGET)-dlltool' \
         LD='$(TARGET)-g++' \
+        WIN32_CXXFLAGS='-Wno-c++11-narrowing' \
         FREEIMAGE_LIBRARY_TYPE=SHARED \
         SHAREDLIB=libfreeimage.dll \
         IMPORTLIB=libfreeimage.dll.a \
         TARGET=freeimage
-
 
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib'
     $(INSTALL) -m644 '$(1)/libfreeimage.dll.a' '$(PREFIX)/$(TARGET)/lib/'
