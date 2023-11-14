@@ -24,6 +24,7 @@ define $(PKG)_BUILD
         -Dintrospection=disabled \
         -Ddoc=disabled \
         $(PKG_MESON_OPTS) \
+        -Dc_link_args=-lws2_32 \
         '$(BUILD_DIR)' '$(SOURCE_DIR)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
