@@ -11,7 +11,7 @@ $(PKG)_FILE     := $(PKG)-everywhere-opensource-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/official_releases/qt/5.15/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libmysqlclient \
                    libpng mesa openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd \
-                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
+                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c) libprefix
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
@@ -34,6 +34,7 @@ define $(PKG)_BUILD
         PKG_CONFIG="${TARGET}-pkg-config" \
         PKG_CONFIG_SYSROOT_DIR="/" \
         PKG_CONFIG_LIBDIR="$(PREFIX)/$(TARGET)/lib/pkgconfig" \
+        LIBS='-lprefix' \
         MAKE=$(MAKE) \
         ./configure \
             -opensource \
