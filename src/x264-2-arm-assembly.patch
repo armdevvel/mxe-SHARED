@@ -1,0 +1,243 @@
+diff --git a/configure b/configure
+index 49c2ff15..9f2d03c6 100755
+--- a/configure
++++ b/configure
+@@ -577,6 +577,8 @@ if [[ $host_os = mingw* || $host_os = cygwin* ]]; then
+             host_cpu=x86_64
+         elif cpp_check '' '' 'defined(_M_IX86)' ; then
+             host_cpu=i486
++        elif cpp_check '' '' 'defined(_M_ARM)' ; then
++            host_cpu=arm
+         fi
+         if cc_check '' -Qdiag-error:10006,10157 ; then
+             CHECK_CFLAGS="$CHECK_CFLAGS -Qdiag-error:10006,10157"
+diff --git a/tools/gas-preprocessor.pl b/tools/gas-preprocessor.pl
+index 37877565..bec6adc3 100755
+--- a/tools/gas-preprocessor.pl
++++ b/tools/gas-preprocessor.pl
+@@ -1170,6 +1170,7 @@ if ($as_type ne "armasm") {
+ close(INPUT) or exit 1;
+ close(ASMFILE) or exit 1;
+ if ($as_type eq "armasm" and ! defined $ENV{GASPP_DEBUG}) {
++    print @gcc_cmd;
+     system(@gcc_cmd) == 0 or die "Error running assembler";
+ }
+ 
+diff --git a/common/arm/cpu-a.S b/common/arm/cpu-a.S
+index 1f68ca13..3ae7f1f5 100644
+--- a/common/arm/cpu-a.S
++++ b/common/arm/cpu-a.S
+@@ -40,10 +40,12 @@ endfunc
+ function cpu_enable_armv7_counter, export=0
+     mrc         p15, 0, r2, c9, c12, 0      // read PMNC
+     ands        r0, r2, #1
++    it ne
+     andne       r0, r2, #9
+ 
+     orr         r2, r2, #1                  // enable counters
+     bic         r2, r2, #8                  // full resolution
++    it eq
+     mcreq       p15, 0, r2, c9, c12, 0      // write PMNC
+     mov         r2, #1 << 31                // enable cycle counter
+     mcr         p15, 0, r2, c9, c12, 1      // write CNTENS
+@@ -68,6 +70,7 @@ function cpu_fast_neon_mrc_test
+     // check for user access to performance counters
+     mrc         p15, 0, r0, c9, c14, 0
+     cmp         r0, #0
++    it eq
+     bxeq        lr
+ 
+     push        {r4-r6,lr}
+@@ -76,6 +79,7 @@ function cpu_fast_neon_mrc_test
+     mov         r3, #0
+     mov         ip, #4
+     mov         r6, #4
++    ite eq
+     moveq       r5, #1
+     movne       r5, #64
+ 
+@@ -92,6 +96,7 @@ average_loop:
+ 
+     subs        r6, r6, #1
+     sub         r2, r2, r1
++    iteet gt
+     cmpgt       r2, #30 << 3    // assume context switch if it took over 30 cycles
+     addle       r3, r3, r2
+     subsle      ip, ip, #1
+@@ -99,10 +104,12 @@ average_loop:
+ 
+     // disable counters if we enabled them
+     ands        r0, r0, #1
++    it eq
+     bleq        cpu_disable_armv7_counter
+ 
+     lsr         r0, r3, #5
+     cmp         r0, #10
++    it gt
+     movgt       r0, #0
+     pop         {r4-r6,pc}
+ endfunc
+diff --git a/common/arm/deblock-a.S b/common/arm/deblock-a.S
+index 310e9ae6..92ac89d9 100644
+--- a/common/arm/deblock-a.S
++++ b/common/arm/deblock-a.S
+@@ -32,6 +32,7 @@
+     vdup.32         d24, ip
+     and             ip,  ip,  ip, lsl #16
+     ands            ip,  ip,  ip, lsl #8
++    it lt
+     bxlt            lr
+ .endm
+ 
+diff --git a/common/arm/mc-a.S b/common/arm/mc-a.S
+index 1686bc78..066f9082 100644
+--- a/common/arm/mc-a.S
++++ b/common/arm/mc-a.S
+@@ -1224,6 +1224,7 @@ filter_c_loop:
+     vadd.s16        q8,  q8,  q12
+     vext.16         q9,  q2,  q3,  #7
+     vst1.64         {d30-d31}, [r0,:128]!
++    it le
+     bxle            lr
+     subs            r2,  r2,  #16
+ 
+@@ -1301,6 +1302,7 @@ filter_h_loop:
+     vaddl.u8        q14, d17, d25
+ 
+     vst1.64         {d6-d7}, [r0,:128]!
++    it le
+     bxle            lr
+     subs            r2,  r2,  #16
+ 
+@@ -1326,6 +1328,7 @@ filter_h_loop:
+     vaddl.u8        q14, d17, d25
+ 
+     vst1.64         {d6-d7}, [r0,:128]!
++    it le
+     bxle            lr
+     subs            r2,  r2,  #16
+ 
+@@ -1536,6 +1539,7 @@ function plane_copy_deinterleave_rgb_neon
+     sub             r1,  r1,  lr
+     sub             r3,  r3,  lr
+     sub             r5,  r5,  lr
++    itet ne
+     subne           r7,  r7,  lr, lsl #1
+     subeq           r7,  r7,  lr
+     bne             block4
+@@ -1896,6 +1900,7 @@ function mbtree_fix8_pack_neon, export=1
+     bge             1b
+ 2:
+     adds            r3,  r3,  #8
++    it eq
+     bxeq            lr
+ 3:
+     subs            r3,  r3,  #1
+@@ -1924,6 +1929,7 @@ function mbtree_fix8_unpack_neon, export=1
+     bge             1b
+ 2:
+     adds            r3,  r3,  #8
++    it eq
+     bxeq            lr
+ 3:
+     subs            r3,  r3,  #1
+diff --git a/common/arm/quant-a.S b/common/arm/quant-a.S
+index 5665e95e..38d665b5 100644
+--- a/common/arm/quant-a.S
++++ b/common/arm/quant-a.S
+@@ -70,6 +70,7 @@ endconst
+ .macro QUANT_END d
+     vmov        r2,  r3,  \d
+     orrs        r0,  r2,  r3
++    it ne
+     movne       r0,  #1
+     bx          lr
+ .endm
+@@ -142,14 +143,18 @@ function quant_4x4x4_neon
+     vmov        r0,  r1,  d8
+     vmov        r2,  r3, d10
+     orrs        r0,  r1
++    it ne
+     movne       r0,  #1
+     orrs        r2,  r3
++    it ne
+     orrne       r0,  #2
+     vmov        r1,  r2, d12
+     vmov        r3,  ip, d14
+     orrs        r1,  r2
++    it ne
+     orrne       r0,  #4
+     orrs        r3,  ip
++    it ne
+     orrne       r0,  #8
+     vpop        {d8-d15}
+     bx          lr
+@@ -342,6 +347,7 @@ function decimate_score\size\()_neon
+ 0:
+     mvns        r1,  r1
+     mov         r0,  #0
++    it eq
+     bxeq        lr
+ .ifc \size, 15
+     lsr         r1,  r1,  #2
+@@ -429,6 +435,7 @@ function decimate_score64_neon
+     bne         1b
+ 2:
+     cmp         r12, #0
++    it eq
+     popeq       {pc}
+ 
+     clz         r2,  r12
+@@ -437,6 +444,7 @@ function decimate_score64_neon
+     ldrb        r2,  [r3, r2]
+     lsls        r1,  r1,  #1
+     add         r0,  r0,  r2
++    it eq
+     popeq       {pc}
+ 3:
+     clz         r2,  r1
+@@ -452,9 +460,11 @@ endfunc
+ function coeff_last4_arm
+     ldrd        r2,  r3,  [r0]
+     subs        r0,  r3,  #0
++    itt ne
+     movne       r0,  #2
+     movne       r2,  r3
+     lsrs        r2,  r2,  #16
++    it ne
+     addne       r0,  r0,  #1
+     bx          lr
+ endfunc
+@@ -462,13 +472,16 @@ endfunc
+ function coeff_last8_arm
+     ldrd        r2,  r3,  [r0, #8]
+     orrs        ip,  r2,  r3
++    itee ne
+     movne       r0,  #4
+     ldrdeq      r2,  r3,  [r0]
+     moveq       r0,  #0
+     tst         r3,  r3
++    itt ne
+     addne       r0,  #2
+     movne       r2,  r3
+     lsrs        r2,  r2,  #16
++    it ne
+     addne       r0,  r0,  #1
+     bx          lr
+ endfunc
+@@ -490,6 +503,7 @@ function coeff_last\size\()_neon
+     vmov        r0,  r1,  d0
+ 
+     subs        r1,  ip,  r1,  lsr #2
++    itee ge
+     addge       r0,  r1,  #\size - 8
+     subslt      r0,  r3,  r0,  lsr #2
+     movlt       r0,  #0
+@@ -539,6 +553,7 @@ function coeff_last64_neon
+     vmov        r0,  r1,  d0
+ 
+     subs        r1,  ip,  r1
++    itee ge
+     addge       r0,  r1,  #32
+     subslt      r0,  ip,  r0
+     movlt       r0,  #0

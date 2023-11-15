@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := 9f876c88aeb21fa9315e4a078931faf6fc0d3c3f47e05a306d2fdc62ea0af
 $(PKG)_SUBDIR   := $(PKG)-snapshot-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-snapshot-$($(PKG)_VERSION).tar.bz2
 $(PKG)_URL      := https://download.videolan.org/pub/videolan/$(PKG)/snapshots/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc liblsmash $(BUILD)~nasm
+$(PKG)_DEPS     := cc liblsmash
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://git.videolan.org/?p=x264.git;a=shortlog' | \
@@ -18,13 +18,13 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    cd '$(BUILD_DIR)' && AS='$(PREFIX)/$(BUILD)/bin/nasm' '$(SOURCE_DIR)/configure'\
+    cd '$(BUILD_DIR)' && AS='$(PREFIX)/bin/$(TARGET)-as' '$(SOURCE_DIR)/configure'\
         $(MXE_CONFIGURE_OPTS) \
         --cross-prefix='$(TARGET)'- \
         --enable-win32thread \
         --disable-lavf \
         --disable-swscale   # Avoid circular dependency with ffmpeg. Remove if undesired.
     $(MAKE) -C '$(BUILD_DIR)' -j 1 uninstall
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' --keep-going         # Want to see all errors.
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
