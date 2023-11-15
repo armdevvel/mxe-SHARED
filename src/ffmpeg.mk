@@ -12,10 +12,26 @@ $(PKG)_DEPS     := cc bzip2 gnutls lame libass libbluray libbs2b libcaca \
                    libvpx opencore-amr opus sdl2 speex theora vidstab \
                    vo-amrwbenc vorbis x264 xvidcore yasm zlib
 
+# FROM UPSTREAM MXE MAINTAINERS:
 # DO NOT ADD fdk-aac OR openssl SUPPORT.
 # Although they are free softwares, their licenses are not compatible with
 # the GPL, and we'd like to enable GPL in our default ffmpeg build.
 # See docs/index.html#potential-legal-issues
+
+# PROJECT RAKKO (ROADMAP): we WOULD like to offer a sticky license-free distro.
+# Therefore, the default option for Rita should be --disable-gpl.
+# Component builds tainted with sticky licenses cannot be offered via official
+# Rita installation channels. Installing such components must require a deliberate
+# user action that is distinct from installing or updating Rita.
+#
+# If playing by these rules renders you uncomfortable, alternative solutions exist.
+# If your Linux box has enough computing power, you can build desired components from
+# source for your personal consumption without worrying about license compatibility.
+# Alternatively, you can use the power of the four other boxes (soap, jury, ballot...)
+# to convince the body politic that while commercial copyright is a sad and misguided
+# compromise between excusable human need for reward and inexcusable human ignorance,
+# sticky "copyleft" licenses are pure evil and abolishing them will help advance the
+# legitimate interests of everyone while hurting the legitimate interests of no one.
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://ffmpeg.org/releases/' | \
@@ -26,6 +42,8 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # --enable-avisynth is Intel specific (examine!)
+
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         --cross-prefix='$(TARGET)'- \
         --enable-cross-compile \
@@ -37,14 +55,11 @@ define $(PKG)_BUILD
             --disable-static --enable-shared ) \
         --yasmexe='$(TARGET)-yasm' \
         --disable-debug \
-        --disable-pthreads \
-        --enable-w32threads \
         --disable-doc \
         --enable-avresample \
         --enable-gpl \
         --enable-version3 \
         --extra-libs='-mconsole' \
-        --enable-avisynth \
         --enable-gnutls \
         --enable-libass \
         --enable-libbluray \
@@ -62,8 +77,17 @@ define $(PKG)_BUILD
         --enable-libvpx \
         --enable-libx264 \
         --enable-libxvid \
-        --extra-ldflags="-fstack-protector" \
+        --extra-cflags="-D_WIN32_WINNT=0x0600" \
+        --extra-ldflags="-fstack-protector -lpthread -lws2_32" \
         $($(PKG)_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
+
+    # manual config.h hotfixing
+    sed -i \
+        -e 's!HAVE_WINSOCK2_H 0!HAVE_WINSOCK2_H 1!' \
+        -e 's!HAVE_CLOSESOCKET 0!HAVE_CLOSESOCKET 1!' \
+        -e 's!HAVE_STRUCT_POLLFD 0!HAVE_STRUCT_POLLFD 1!' \
+        -e 's!HAVE_STRUCT_ADDRINFO 0!HAVE_STRUCT_ADDRINFO 1!' \
+            '$(BUILD_DIR)/config.h'
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' --keep-going
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
