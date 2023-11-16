@@ -42,4 +42,20 @@ define $(PKG)_BUILD
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/mesa'
     $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/wgl/libgallium_wgl.dll.a' '$(PREFIX)/$(TARGET)/lib/mesa/'
     $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll.a' '$(PREFIX)/$(TARGET)/lib/mesa/'
+
+    # create pkg-config files
+    $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/pkgconfig'
+    (echo 'prefix=$(PREFIX)/$(TARGET)' ; \
+     echo 'libdir=$${prefix}/lib' ; \
+     echo 'mesadir=$${libdir}/mesa' ; \
+     echo ; \
+     echo 'Name: $(PKG)'; \
+     echo 'Version: $($(PKG)_VERSION)'; \
+     echo 'Description: $($(PKG)_DESCR)'; \
+     echo 'Libs: -L$${mesadir} -lgallium_wgl -lopengl32';) \
+     > '$(PREFIX)/$(TARGET)/lib/pkgconfig/$(PKG).pc'
+
+    # NOTE We may have to rename opengl32.dll if basename collision causes problems even though the path is
+    # NOTE  different. Fortunately, we only need to know that at link time (at runtime %PATH% is the boss).
+
 endef

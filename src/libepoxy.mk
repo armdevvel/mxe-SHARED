@@ -8,10 +8,12 @@ $(PKG)_CHECKSUM := d168a19a6edfdd9977fef1308ccf516079856a4275cf876de688fb7927e36
 $(PKG)_GH_CONF  := anholt/libepoxy/releases/latest
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://github.com/anholt/libepoxy/releases/download/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc meson-wrapper xorg-macros
+$(PKG)_DEPS     := cc meson-wrapper xorg-macros mesa
 
 define $(PKG)_BUILD
-     '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) -Dtests=false -Ddocs=false '$(BUILD_DIR)' '$(SOURCE_DIR)'
+    '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
+        -Dc_link_args='-L$(PREFIX)/$(TARGET)/lib/mesa' \
+        -Dtests=false -Ddocs=false '$(BUILD_DIR)' '$(SOURCE_DIR)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install
 

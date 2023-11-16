@@ -1,0 +1,10 @@
+diff --git a/config/Makefile.linux-mingw32 b/config/Makefile.linux-mingw32
+index 12dfb99a..bac74984 100644
+--- a/config/Makefile.linux-mingw32
++++ b/config/Makefile.linux-mingw32
+@@ -19,4 +19,4 @@ LIB.SONAME    = lib$(NAME).dll
+ LIB.DEVLNK    = lib$(NAME).dll.a    # for mingw this is the dll import lib
+ LIB.SHARED    = $(NAME).dll
+ LIB.STATIC    = lib$(NAME).a        # the static lib will be broken
+-LDFLAGS.SO    = -shared -soname $(LIB.SONAME) --out-implib lib/$(LIB.DEVLNK)
++LDFLAGS.SO    = -shared @LD_PATH@ -Wl,--out-implib=lib/$(LIB.DEVLNK) -Wl,--enable-auto-import -Wl,--export-all-symbols -Wl,--allow-multiple-definition -v

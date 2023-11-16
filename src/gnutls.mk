@@ -9,7 +9,7 @@ $(PKG)_SUBDIR   := gnutls-$($(PKG)_VERSION)
 $(PKG)_FILE     := gnutls-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://gnupg.org/ftp/gcrypt/gnutls/v3.6/$($(PKG)_FILE)
 $(PKG)_URL_2    := https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnutls/v3.5/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc gettext gmp libidn2 libtasn1 libunistring nettle zlib
+$(PKG)_DEPS     := cc ws2fwd gettext gmp libidn2 libtasn1 libunistring nettle zlib
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- https://gnupg.org/ftp/gcrypt/gnutls/v3.6/ | \
@@ -19,6 +19,12 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # no calling convention conflict on ARM => no hack necessary
+    $(SED) -i 's#inet_ntop#gnu_inet_ntop#g' \
+        $(SOURCE_DIR)/gl/arpa_inet.in.h \
+        $(SOURCE_DIR)/src/gl/arpa_inet.in.h \
+        $(SOURCE_DIR)/src/gl/inet_ntop.c
+
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)'/configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-rpath \
@@ -30,8 +36,18 @@ define $(PKG)_BUILD
         --enable-ssl3-support \
         --without-p11-kit \
         --disable-silent-rules
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+
+    $(SED) -i \
+        -e 's/#define HAVE_DECL_INET_NTOP 0/#define HAVE_DECL_INET_NTOP 1/' \
+        -e 's/#define HAVE_DEV_ZERO 1/#define HAVE_DEV_ZERO 0/' \
+            $(BUILD_DIR)/config.h
+
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' \
+        AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=: \
+        CFLAGS='-Wno-#pragma-messages' LDFLAGS='-lws2_32'
+
+    $(MAKE) -C '$(BUILD_DIR)' -j 1 install \
+        AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
 
     '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \

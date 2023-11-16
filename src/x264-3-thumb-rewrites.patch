@@ -1,0 +1,118 @@
+diff --git a/configure b/configure
+index 9fc23a9e..6f914cc4 100755
+--- a/configure
++++ b/configure
+@@ -801,6 +801,7 @@ case $host_cpu in
+                 LDFLAGS="$LDFLAGS -arch armv7"
+             fi
+         elif [ "$SYS" = WINDOWS ] ; then
++            ASFLAGS="$ASFLAGS -D_M_THUMB=1"
+             AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch arm -as-type armasm -force-thumb -- armasm -nologo -ignore 4509}"
+         else
+             AS="${AS-${CC}}"
+diff --git a/common/arm/deblock-a.S b/common/arm/deblock-a.S
+index 92ac89d9..e4e90ccf 100644
+--- a/common/arm/deblock-a.S
++++ b/common/arm/deblock-a.S
+@@ -37,7 +37,12 @@
+ .endm
+ 
+ .macro align_push_regs
++#ifdef _M_THUMB
++    mov             ip,  sp
++    and             ip,  ip,  #15
++#else
+     and             ip,  sp,  #15
++#endif
+     add             ip,  ip,  #32
+     sub             sp,  sp,  ip
+     vst1.64         {d12-d15}, [sp,:128]
+diff --git a/common/arm/mc-a.S b/common/arm/mc-a.S
+index 066f9082..6e13a6d3 100644
+--- a/common/arm/mc-a.S
++++ b/common/arm/mc-a.S
+@@ -814,7 +814,13 @@ function mc_chroma_neon
+     beq             mc_chroma_w4
+ 
+ .macro CHROMA_MC_START r00, r01, r10, r11
++#ifdef _M_THUMB
++    mov             r5, r7
++    muls            r7, r7, r6
++    mov             lr, r7
++#else
+     muls            lr, r5, r6
++#endif /* r7 is overwritten by the following rsb: */
+     rsb             r7, lr, r6, lsl #3
+     rsb             ip, lr, r5, lsl #3
+     sub             r5, lr, r5, lsl #3
+diff --git a/common/arm/pixel-a.S b/common/arm/pixel-a.S
+index 29c0c775..4fe64e33 100644
+--- a/common/arm/pixel-a.S
++++ b/common/arm/pixel-a.S
+@@ -48,17 +48,42 @@ endconst
+ .macro SAD4_ARMV6 h
+ function pixel_sad_4x\h\()_armv6
+     push        {r4-r6,lr}
++#ifdef _M_THUMB
++    ldr         r4, [r2]
++    add         r2, r3
++    ldr         r5, [r0]
++    add         r0, r1
++    ldr         r6, [r2]
++    add         r2, r3
++    ldr         lr, [r0]
++    add         r0, r1
++#else /* regular post-indexing */
+     ldr         r4, [r2], r3
+     ldr         r5, [r0], r1
+     ldr         r6, [r2], r3
+     ldr         lr, [r0], r1
++#endif
+     usad8       ip, r4, r5
+ .rept (\h - 2)/2
++#ifdef _M_THUMB
++    ldr         r4, [r2]
++    add         r2, r3
++    ldr         r5, [r0]
++    add         r0, r1
++#else /* regular post-indexing */
+     ldr         r4, [r2], r3
+     ldr         r5, [r0], r1
++#endif
+     usada8      ip, r6, lr, ip
++#ifdef _M_THUMB
++    ldr         r6, [r2]
++    add         r2, r3
++    ldr         lr, [r0]
++    add         r0, r1
++#else /* regular post-indexing */
+     ldr         r6, [r2], r3
+     ldr         lr, [r0], r1
++#endif
+     usada8      ip, r4, r5, ip
+ .endr
+     usada8      r0, r6, lr, ip
+diff --git a/common/arm/quant-a.S b/common/arm/quant-a.S
+index 38d665b5..ad153086 100644
+--- a/common/arm/quant-a.S
++++ b/common/arm/quant-a.S
+@@ -186,11 +186,19 @@ endfunc
+     lsr         r3,  r3,  #8            // i_qbits = i_qp / 6
+     add         ip,  r3,  r3,  lsl #1
+     sub         r2,  r2,  ip,  lsl #1   // i_mf = i_qp % 6
++#ifdef _M_THUMB
++    add         r1,  r1,  r2, lsl #\mf_size  // dequant_mf[i_mf]
++.ifc \dc,no
++.else
++    ldr         r1, [r1] // dequant_mf[i_mf][0][0]
++.endif
++#else
+ .ifc \dc,no
+     add         r1,  r1,  r2, lsl #\mf_size  // dequant_mf[i_mf]
+ .else
+     ldr         r1, [r1,  r2, lsl #\mf_size] // dequant_mf[i_mf][0][0]
+ .endif
++#endif
+     subs        r3,  r3,  #\offset      // 6 for 8x8
+ .endm
+ 
