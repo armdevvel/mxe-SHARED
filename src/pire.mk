@@ -15,7 +15,7 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --enable-extra \
         ac_cv_func_malloc_0_nonnull=yes
-    $(MAKE) -C '$(BUILD_DIR)/pire' -j '$(JOBS)' bin_PROGRAMS= LDFLAGS='-no-undefined'
+    $(MAKE) -C '$(BUILD_DIR)/pire' -j '$(JOBS)' bin_PROGRAMS= LDFLAGS='-no-undefined `$(MXE_INTRINSIC_SH) aeabi_uidivmod.S.obj udivmodsi4.S.obj chkstk.S.obj`'
     $(MAKE) -C '$(BUILD_DIR)/pire' -j 1 install bin_PROGRAMS=
 
     '$(TARGET)-g++' \
