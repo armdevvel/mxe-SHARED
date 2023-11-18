@@ -114,3 +114,16 @@ index 1111111..2222222 100644
  #include <time.h>
  #include <stdlib.h>
  #include <string.h>
+diff --git a/advanced/config.mk.in b/advanced/config.mk.in
+index 33365403..c652f9ba 100644
+--- a/advanced/config.mk.in
++++ b/advanced/config.mk.in
+@@ -342,7 +342,7 @@ ifeq ($(patsubst mingw32%,mingw32,$(HOST_OS)),mingw32)
+   SHLIB_SUFFIX = dll
+   shlibfn = $(1:%=%.$(SHLIB_SUFFIX))
+   shliblefn = $(1:%=%.$(SHLIB_SUFFIX))
+-  LDFLAGS_SHLIB = -shared -Wl,-soname,$(SONAME) $(SHLIB_CLIB)
++  LDFLAGS_SHLIB = -shared $(SHLIB_CLIB)
+   MSVCRT = yes
+ endif
+ 
