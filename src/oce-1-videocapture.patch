@@ -1,0 +1,14 @@
+diff --git a/adm/cmake/TKOpenGl/CMakeLists.txt b/adm/cmake/TKOpenGl/CMakeLists.txt
+index f355c09c..428efe43 100644
+--- a/adm/cmake/TKOpenGl/CMakeLists.txt
++++ b/adm/cmake/TKOpenGl/CMakeLists.txt
+@@ -58,7 +58,8 @@ if (OPENCL_FOUND AND OCE_WITH_OPENCL)
+ 
+ 	set(TOOLKIT_INCLUDE_DIRECTORIES ${TOOLKIT_INCLUDE_DIRECTORIES} ${OPENCL_INCLUDE_DIRS})
+ endif (OPENCL_FOUND AND OCE_WITH_OPENCL)
+-if(WIN32)
++if(WIN32 AND OCE_HAVE_VIDEOCAPTURE)
++    add_definitions(-DHAVE_VIDEOCAPTURE)
+     list(APPEND TOOLKIT_LIBS vfw32)
+ endif()
+ 
