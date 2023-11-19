@@ -2,14 +2,14 @@
 
 PKG             := plib
 $(PKG)_WEBSITE  := https://plib.sourceforge.io/
-$(PKG)_DESCR    := Plib
+$(PKG)_DESCR    := Plib: A Suite of Portable Game Libraries.
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 1.8.5-rc1
 $(PKG)_CHECKSUM := d421a3c84517b4bfc8c6402887c74984ec57c12bc85f2dc2729de3ec4cdcdbe4
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/$(PKG)/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc mesa
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- "https://sourceforge.net/projects/plib/files/plib/" | \
@@ -20,14 +20,20 @@ endef
 
 define $(PKG)_BUILD
     cd '$(1)' && autoreconf -fi
+
+    $(SED) -i '$(1)/ltmain.sh' \
+        -e 's#allow_undefined=yes#allow_undefined=no#'
+
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
+        LDFLAGS="`$(TARGET)-pkg-config mesa --libs`" \
         PKG_CONFIG='$(TARGET)-pkg-config'
+
     $(MAKE) -C '$(1)' -j '$(JOBS)' install \
         bin_PROGRAMS= \
         sbin_PROGRAMS= \
         noinst_PROGRAMS= \
         html_DATA= \
-        LDFLAGS=-no-undefined
+        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}idivmod.S.obj {,u}divmodsi4.S.obj floatdidf.c.obj chkstk.S.obj`' \
         AR='$(TARGET)-ar'
 endef
