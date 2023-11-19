@@ -19,6 +19,26 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # coding discipline...
+    $(SED) -i '$(1)/src/net/netChat.cxx' \
+        -e 's#char\* ptr = strstr#const &#g'
+    $(SED) -i '$(1)/src/ssg/ssgLoadMDL_BGLTexture.cxx' \
+        -e 's#char \*p = strrchr#char *p = (char*)strrchr#g'
+    $(SED) -i '$(1)/src/ssg/ssgSaveAC.cxx' \
+        -e 's#char *\* *s#const &#g'
+
+    $(SED) -i '$(1)/src/ssg/ssgParser.cxx' \
+        -e 's#= "EO#= (char*)"EO#' \
+        -e 's#return strchr#return (char*)strchr#'
+
+    $(SED) -e 's#char *\* *indent = ""#const &#g' -i \
+        '$(1)/src/ssg/ssgLoadVRML.h' \
+        '$(1)/src/ssg/ssgLoaderWriterStuff.h' \
+        '$(1)/src/ssg/ssgOptimiser.cxx' \
+        '$(1)/src/ssg/ssg.h'
+    $(SED) -e 's#char *\* *in*dent,#const &#g' -i \
+        `find $(1)/src/ssg -name 'ssg*.cxx'`
+
     cd '$(1)' && autoreconf -fi
 
     $(SED) -i '$(1)/ltmain.sh' \
@@ -29,11 +49,12 @@ define $(PKG)_BUILD
         LDFLAGS="`$(TARGET)-pkg-config mesa --libs`" \
         PKG_CONFIG='$(TARGET)-pkg-config'
 
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install \
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install --keep-going \
         bin_PROGRAMS= \
         sbin_PROGRAMS= \
         noinst_PROGRAMS= \
         html_DATA= \
+        CXXFLAGS='-Wno-overloaded-virtual' \
         LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_{,u}idivmod.S.obj {,u}divmodsi4.S.obj floatdidf.c.obj chkstk.S.obj`' \
         AR='$(TARGET)-ar'
 endef
