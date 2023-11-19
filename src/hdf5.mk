@@ -18,38 +18,59 @@ define $(PKG)_UPDATE
     head -1
 endef
 
+$(PKG)_H5_CFGAGENT := H5Agent
+$(PKG)_AGENT_TOOLS := H5detect.exe H5make_libsettings.exe libhdf5.settings
+$(PKG)_AGENT_BATCH := hdf5-cfg.bat
+$(PKG)_AGENT_FILES := $($(PKG)_AGENT_TOOLS) $($(PKG)_AGENT_BATCH)
+$(PKG)_AGENT_LOCAL = $(PREFIX)/$(TARGET)/bin/$($(PKG)_H5_CFGAGENT)
+$(PKG)_TEST_DEVICE := $${DEPLOY_NET:-user@HOST}
+$(PKG)_AGENT_INTEL := H5lib_settings.c H5Tinit.c
+$(PKG)_FILED_UNDER := mxe-generated-sources/
+
 define $(PKG)_BUILD
-    # automake 1.13 needs this directory to exist
-    [ -d '$(1)/m4' ] || mkdir '$(1)/m4'
-    cd '$(1)' && autoreconf --force --install
-    cd '$(1)' && ./configure \
-        $(MXE_CONFIGURE_OPTS) \
-        --enable-cxx \
-        --disable-direct-vfd \
-        --with-pthread='$(PREFIX)' \
-        --with-zlib='$(PREFIX)' \
-        AR='$(TARGET)-ar' \
-        CPPFLAGS='-DH5_HAVE_WIN32_API \
-                  -DH5_HAVE_MINGW \
-                  -DHAVE_WINDOWS_PATH \
-                  -DH5_BUILT_AS_$(if $(BUILD_STATIC),STATIC,DYNAMIC)_LIB'
+    # HDF5 needs some information that it prefers to collect on the target device itself.
+    # We first check availability of device-originated files under $($(PKG)_FILED_UNDER).
+    # Then, if device-specific generated files are not available, we build the generator
+    # and leave the operator (you) instructions how to run it on the device.
+    # If the target device has no sshd running, perform the equivalent actions manually.
 
-    # libtool is somehow created to effectively disallow shared builds
-    $(SED) -i 's,allow_undefined_flag="unsupported",allow_undefined_flag="",g' '$(1)/libtool'
-
-    # These programs need to be executed on host to create
-    # H5lib_settings.c and H5Tinit.c
-    for f in H5detect.exe H5make_libsettings.exe libhdf5.settings; do \
-        $(MAKE)       -C '$(1)'/src $$f && \
-        $(INSTALL) -m755 '$(1)'/src/$$f '$(PREFIX)/$(TARGET)/bin/'; \
-    done
-    (echo 'mkdir $(TARGET)'; \
-     echo 'H5detect.exe > $(TARGET)\H5Tinit.c'; \
-     echo 'H5make_libsettings.exe > $(TARGET)\H5lib_settings.c';) \
-     > '$(PREFIX)/$(TARGET)/bin/hdf5-create-settings.bat'
-    # generated sources are mostly tied to CPU
-    # and don't vary with static/shared
-    cp '$(1)/mxe-generated-sources/$(word 1,$(subst ., ,$(TARGET)))/'*.c '$(1)/src/'
+    cp '$(1)/$($(PKG)_FILED_UNDER)/$(word 1,$(subst ., ,$(TARGET)))/'*.c '$(1)/src/' || ( \
+    : automake 1.13 needs the following directory to exist;                                     \
+    ( [ -d '$(1)/m4' ] || mkdir '$(1)/m4' );                                                    \
+    cd '$(1)' && autoreconf --force --install;                                                  \
+    cd '$(1)' && ./configure                                                                    \
+        $(MXE_CONFIGURE_OPTS)                                                                   \
+        --enable-cxx                                                                            \
+        --disable-direct-vfd                                                                    \
+        --with-pthread='$(PREFIX)'                                                              \
+        --with-zlib='$(PREFIX)'                                                                 \
+        AR='$(TARGET)-ar'                                                                       \
+        CPPFLAGS='-DH5_HAVE_WIN32_API                                                           \
+                -DH5_HAVE_MINGW                                                                 \
+                -DHAVE_WINDOWS_PATH                                                             \
+                  -DH5_BUILT_AS_$(if $(BUILD_STATIC),STATIC,DYNAMIC)_LIB';                      \
+    : libtool is somehow created to effectively disallow shared builds;                         \
+    $(SED) -i 's,allow_undefined_flag="unsupported",allow_undefined_flag="",g' '$(1)/libtool';  \
+    $(INSTALL) -d $($(PKG)_AGENT_LOCAL);                                                        \
+    for f in $($(PKG)_AGENT_TOOLS); do                                                          \
+        $(MAKE)       -C '$(1)'/src $$f &&                                                      \
+        $(PREFIX)/bin/selfsign.sh '$(1)'/src/$$f &&                                             \
+        $(INSTALL) -m755 '$(1)'/src/$$f $($(PKG)_AGENT_LOCAL)/;                                 \
+    done;                                                                                       \
+    (echo 'mkdir $(TARGET)';                                                                    \
+    echo 'H5detect.exe > $(TARGET)\H5Tinit.c';                                                  \
+    echo 'H5make_libsettings.exe > $(TARGET)\H5lib_settings.c';)                                \
+    > '$($(PKG)_AGENT_LOCAL)/$($(PKG)_AGENT_BATCH)';                                            \
+    : generated sources are mostly tied to CPU and do not vary with static/shared;              \
+    echo "---- 8< ---- 8< ---- 8< ---- 8< ---- 8< ---- 8< ---- 8< ----";                        \
+    echo "1. Copy to target:                                                                    \
+       scp -r usr/$(TARGET)/bin/$($(PKG)_H5_CFGAGENT) $($(PKG)_TEST_DEVICE):";                  \
+    echo "2. Generate: ssh $($(PKG)_TEST_DEVICE)                                                \
+        -C 'cmd /C \"cd $($(PKG)_H5_CFGAGENT) && $($(PKG)_AGENT_BATCH)\"'";                     \
+    echo "3. Pull generated directory: scp -r                                                   \
+        $($(PKG)_TEST_DEVICE):$($(PKG)_H5_CFGAGENT)/$(TARGET) ./";                              \
+    echo "4. Add it to hdf5-2-platform-detection.patch under $($(PKG)_FILED_UNDER)";            \
+    false ) # The buck stops here, as we have left complete manual instructions to the operator.
 
     for d in src c++/src hl/src hl/c++/src; do \
         $(MAKE) -C '$(1)'/$$d -j '$(JOBS)' && \
