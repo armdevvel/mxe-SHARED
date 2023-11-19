@@ -1,0 +1,35 @@
+diff --git a/src/include/plibc.h b/src/include/plibc.h
+index 8106da1b..76973ae3 100644
+--- a/src/include/plibc.h
++++ b/src/include/plibc.h
+@@ -522,7 +522,6 @@ void plibc_set_panic_proc(TPanicProc proc);
+ 
+ int flock(int fd, int operation);
+ int fsync(int fildes);
+-int inet_pton(int af, const char *src, void *dst);
+ int inet_pton4(const char *src, u_char *dst, int pton);
+ #if USE_IPV6
+ int inet_pton6(const char *src, u_char *dst);
+@@ -531,7 +530,6 @@ int statfs(const char *path, struct statfs *buf);
+ const char *hstrerror(int err);
+ int mkstemp(char *tmplate);
+ char *strptime (const char *buf, const char *format, struct tm *tm);
+-const char *inet_ntop(int af, const void *src, char *dst, size_t size);
+ #ifndef gmtime_r
+ struct tm *gmtime_r(const time_t *clock, struct tm *result);
+ #endif
+diff --git a/src/Makefile.am b/src/Makefile.am
+index f3060f33..fcc48831 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -31,9 +31,7 @@ libplibc_la_SOURCES = \
+  kill.c \
+  hsearch.c \
+  hsearch_r.c \
+- inet_pton.c \
+  intl.c \
+- inet_ntop.c \
+  langinfo.c \
+  lsearch.c \
+  mkstemp.c \
+
