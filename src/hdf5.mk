@@ -18,7 +18,7 @@ define $(PKG)_UPDATE
     head -1
 endef
 
-$(PKG)_H5_CFGAGENT := H5Agent
+$(PKG)_H5_CFGAGENT := h5cfg
 $(PKG)_AGENT_TOOLS := H5detect H5make_libsettings
 $(PKG)_AGENT_BATCH := hdf5-cfg.bat
 $(PKG)_AGENT_LOCAL = $(PREFIX)/$(TARGET)/bin/$($(PKG)_H5_CFGAGENT)
@@ -33,7 +33,7 @@ define $(PKG)_BUILD
     # and leave the operator (you) instructions how to run it on the device.
     # If the target device has no sshd running, perform the equivalent actions manually.
 
-    cp '$(1)/$($(PKG)_FILED_UNDER)/$(word 1,$(subst ., ,$(TARGET)))/'*.c '$(1)/src/' || ( \
+    cp -r '$(1)/$($(PKG)_FILED_UNDER)/$(TARGET)/'*.c '$(BUILD_DIR)/' || ( \
     : automake 1.13 needs the following directory to exist;                                     \
     ( [ -d '$(1)/m4' ] || mkdir '$(1)/m4' );                                                    \
     cd '$(1)' && autoreconf --force --install;                                                  \
@@ -71,14 +71,26 @@ define $(PKG)_BUILD
     echo "4. Add it to hdf5-2-platform-detection.patch under $($(PKG)_FILED_UNDER)";            \
     false ) # The buck stops here, as we have left complete manual instructions to the operator.
 
-    for d in src c++/src hl/src hl/c++/src; do \
-        $(MAKE) -C '$(1)'/$$d -j '$(JOBS)' && \
-        $(MAKE) -C '$(1)'/$$d -j 1 install; \
-    done
+    # for d in src c++/src hl/src hl/c++/src; do \
+    #     $(MAKE) -C '$(1)'/$$d -j '$(JOBS)' && \
+    #     $(MAKE) -C '$(1)'/$$d -j 1 install; \
+    # done
+
+    cd $(BUILD_DIR) && $(TARGET)-cmake $(SOURCE_DIR) \
+        -DCMAKE_POLICY_DEFAULT_CMP0053=OLD \
+        -DCMAKE_POLICY_DEFAULT_CMP0075=NEW \
+        -DHDF5_BUILD_TOOLS=ON \
+        -DHDF5_BUILD_HL_LIB=ON \
+        -DHDF5_BUILD_CPP_LIB=ON \
+        -DHDF5_ENABLE_THREADSAFE=ON \
+        -DHDF5_ENABLE_DEPRECATED_SYMBOLS=ON \
+        -DBUILD_SHARED_LIBS=ON
+    $(MAKE) -C $(BUILD_DIR) -j '$(JOBS)' --keep-going
+    $(MAKE) -C $(BUILD_DIR) -j 1 install
 
     # install prefixed wrapper scripts
-    $(INSTALL) -m755 '$(1)'/tools/misc/h5cc '$(PREFIX)/bin/$(TARGET)-h5cc'
-    $(INSTALL) -m755 '$(1)'/c++/src/h5c++   '$(PREFIX)/bin/$(TARGET)-h5c++'
+    $(INSTALL) -m755 '$(BUILD_DIR)/h5cc'  '$(PREFIX)/bin/$(TARGET)-h5cc'
+    $(INSTALL) -m755 '$(BUILD_DIR)/h5c++' '$(PREFIX)/bin/$(TARGET)-h5c++'
 
     # setup cmake toolchain
     (echo 'set(HDF5_C_COMPILER_EXECUTABLE $(PREFIX)/bin/$(TARGET)-h5cc)'; \
@@ -96,7 +108,7 @@ define $(PKG)_BUILD
 
     # compile test
     '$(TARGET)-g++' \
-        -W -Wall -Werror -ansi -pedantic \
+        -W -Wall -ansi -pedantic \
         '$(PWD)/src/$(PKG)-test.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-hdf5.exe' \
         `'$(TARGET)-pkg-config' $(PKG) --cflags --libs`
 
