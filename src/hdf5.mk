@@ -19,9 +19,8 @@ define $(PKG)_UPDATE
 endef
 
 $(PKG)_H5_CFGAGENT := H5Agent
-$(PKG)_AGENT_TOOLS := H5detect.exe H5make_libsettings.exe libhdf5.settings
+$(PKG)_AGENT_TOOLS := H5detect H5make_libsettings
 $(PKG)_AGENT_BATCH := hdf5-cfg.bat
-$(PKG)_AGENT_FILES := $($(PKG)_AGENT_TOOLS) $($(PKG)_AGENT_BATCH)
 $(PKG)_AGENT_LOCAL = $(PREFIX)/$(TARGET)/bin/$($(PKG)_H5_CFGAGENT)
 $(PKG)_TEST_DEVICE := $${DEPLOY_NET:-user@HOST}
 $(PKG)_AGENT_INTEL := H5lib_settings.c H5Tinit.c
@@ -49,13 +48,13 @@ define $(PKG)_BUILD
                 -DH5_HAVE_MINGW                                                                 \
                 -DHAVE_WINDOWS_PATH                                                             \
                   -DH5_BUILT_AS_$(if $(BUILD_STATIC),STATIC,DYNAMIC)_LIB';                      \
-    : libtool is somehow created to effectively disallow shared builds;                         \
-    $(SED) -i 's,allow_undefined_flag="unsupported",allow_undefined_flag="",g' '$(1)/libtool';  \
+    : skip the crazy installation script and avoid libtool completely;                          \
     $(INSTALL) -d $($(PKG)_AGENT_LOCAL);                                                        \
+    $(INSTALL) -m755 '$(1)'/src/libhdf5.settings $($(PKG)_AGENT_LOCAL)/;                        \
     for f in $($(PKG)_AGENT_TOOLS); do                                                          \
-        $(MAKE)       -C '$(1)'/src $$f &&                                                      \
-        $(PREFIX)/bin/selfsign.sh '$(1)'/src/$$f &&                                             \
-        $(INSTALL) -m755 '$(1)'/src/$$f $($(PKG)_AGENT_LOCAL)/;                                 \
+        $(TARGET)-gcc $(1)/src/$$f.c -o $(1)/src/$$f.exe &&                                     \
+        $(PREFIX)/bin/selfsign.sh '$(1)'/src/$$f.exe &&                                         \
+        $(INSTALL) -m755 '$(1)'/src/$$f.exe $($(PKG)_AGENT_LOCAL)/;                             \
     done;                                                                                       \
     (echo 'mkdir $(TARGET)';                                                                    \
     echo 'H5detect.exe > $(TARGET)\H5Tinit.c';                                                  \
