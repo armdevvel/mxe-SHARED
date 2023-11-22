@@ -1,0 +1,24 @@
+diff --git a/src/logic/slbt_exec_ctx.c b/src/logic/slbt_exec_ctx.c
+index 294641e..136d3b6 100644
+--- a/src/logic/slbt_exec_ctx.c
++++ b/src/logic/slbt_exec_ctx.c
+@@ -28,6 +28,7 @@ static size_t slbt_parse_comma_separated_flags(
+ 	return ch - str;
+ }
+ 
++static char* ptrsink = "";
+ 
+ static char * slbt_source_file(char ** argv)
+ {
+@@ -262,8 +263,9 @@ int  slbt_get_exec_ctx(
+ 	ictx->ctx.cass = &ictx->ctx.argv[i++];
+ 
+ 	ictx->ctx.noundef = &ictx->ctx.argv[i++];
+-	ictx->ctx.soname  = &ictx->ctx.argv[i++];
+-	ictx->ctx.lsoname = &ictx->ctx.argv[i++];
++	/* soname is not supported in COFF DLL output mode */
++	ictx->ctx.soname  = &ptrsink;
++	ictx->ctx.lsoname = &ptrsink;
+ 	ictx->ctx.symdefs = &ictx->ctx.argv[i++];
+ 	ictx->ctx.symfile = &ictx->ctx.argv[i++];
+ 
