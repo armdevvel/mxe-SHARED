@@ -9,7 +9,7 @@ $(PKG)_CHECKSUM := 583478c581317862aa03a19f14c527c3888478a06284b9a46a0155fa5886d
 $(PKG)_SUBDIR   := Coin-$($(PKG)_VERSION)
 $(PKG)_FILE     := Coin-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://bitbucket.org/Coin3D/coin/downloads/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc dlfcn-win32
+$(PKG)_DEPS     := cc dlfcn-win32 mesa mesa-glu $(BUILD)~slibtool
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://bitbucket.org/Coin3D/coin/downloads' | \
@@ -19,20 +19,28 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    sed -i '$(1)/include/Inventor/elements/SoGLLazyElement.h' \
+        -e 's#typedef struct COIN_DLL_API#typedef struct GLState#'
+
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-debug \
-        --disable-symbols \
         --enable-compact \
+        --enable-3ds-import \
         --without-x \
+        CXXFLAGS=-Wno-c++11-narrowing \
+        LDFLAGS="`$(TARGET)-pkg-config mesa --libs` -ldl -lgdi32 -lwinmm" \
+        OBJDUMP=$(TARGET)-objdump \
+        NM=$(TARGET)-nm \
         COIN_STATIC=$(if $(BUILD_STATIC),true,false)
 
-    # libtool misses some dependency libs and there's no lt_cv* etc. options
-    # can be removed after 3.1.3 if recent libtool et al. is used
-    $(SED) -i 's,^postdeps="-,postdeps="-ldl -lopengl32 -lgdi32 -lwinmm -,g' '$(1)/libtool'
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LIBTOOL=$(PREFIX)/midipix/bin/slibtool-$(if $(BUILD_STATIC),static,shared) install
 
-    $(MAKE) -C '$(1)' -j '$(JOBS)'
-    $(MAKE) -C '$(1)' -j 1 install
+    # *.la isn't the way it should be -- see TODOs in slibtool commit ec296aa;
+    # keep these replacements for reference, use pkg-config downstream instead
+    # $(SED) -i '$(PREFIX)/$(TARGET)/lib/libCoin.la' \
+    #     -e "/library_names/s#.dll#.dll.a#g" -e "/old_library/s#'.*'#''#" \
+    #     -e "s#dependency_libs='#&`$(TARGET)-pkg-config mesa --libs` -ldl -lgdi32 -lwinmm#" # TODO DRY
 
     '$(TARGET)-g++' \
         -W -Wall -pedantic \

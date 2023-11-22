@@ -4038,3 +4038,25 @@ index 1111111..2222222 100644
  #include <Inventor/C/basic.h>
  
  /* ********************************************************************** */
+diff --git a/src/3ds/SoStream.cpp b/src/3ds/SoStream.cpp
+index 1b5f96d2..5b266edc 100644
+--- a/src/3ds/SoStream.cpp
++++ b/src/3ds/SoStream.cpp
+@@ -176,7 +176,7 @@ do { \
+   if (!gotNum) { setBadBit(); return FALSE; } \
+  \
+   char *ce; \
+-  s = '\0'; \
++  *s = '\0'; \
+   _convertType_ tempVal = _convertFunc_(buf, &ce, 0); \
+  \
+   if (ce != s) \
+@@ -273,7 +273,7 @@ do { \
+ gotAll: \
+   \
+   char *ce; \
+-  s = '\0'; \
++  *s = '\0'; \
+   double tempVal = _convertFunc_(buf, &ce); \
+  \
+   if (ce != s) \
