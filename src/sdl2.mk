@@ -16,6 +16,7 @@ define $(PKG)_BUILD
         --disable-video-opengles \
         --disable-video-opengles2 \
         --disable-video-vulkan \
+        --enable-shared \
         --enable-threads \
         --enable-directx \
         --enable-libsamplerate \
@@ -31,5 +32,4 @@ define $(PKG)_BUILD
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-sdl2.exe' \
         `'$(TARGET)-pkg-config' sdl2 --cflags --libs`
-
 endef

@@ -19,17 +19,21 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # allowing static linkage of libSDLmain.a (see protobuf.mk for a related example):
+    sed -i '$(SOURCE_DIR)/config/ltmain.sh' \
+        -e 's#valid_a_lib=no#valid_a_lib=yes#' \
+        -e 's#deplib is not portable!"#deplib is now allowed."; deplib="-XCCLinker -Wl,$$deplib"#'
+
     cd '$(1)' && ./configure \
         --host='$(TARGET)' \
-        --disable-shared \
+        --build='$(BUILD)' \
+        --enable-shared \
         --prefix='$(PREFIX)/$(TARGET)' \
         WINDRES='$(TARGET)-windres'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
 
-#    '$(TARGET)-gcc' \
-#        -W -Wall -Werror -ansi -pedantic \
-#        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-sdl_rwhttp.exe' \
-#        `'$(TARGET)-pkg-config' SDL_rwhttp --cflags --libs`
+   '$(TARGET)-gcc' \
+       -W -Wall -Werror -ansi -pedantic \
+       '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-sdl_rwhttp.exe' \
+       `'$(TARGET)-pkg-config' SDL_rwhttp --cflags --libs`
 endef
-
-$(PKG)_BUILD_SHARED =
