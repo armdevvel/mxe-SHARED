@@ -1,0 +1,338 @@
+diff --git a/src/unpack_armv7.S b/src/unpack_armv7.S
+index f70fb9fa..f82c6951 100644
+--- a/src/unpack_armv7.S
++++ b/src/unpack_armv7.S
+@@ -44,8 +44,8 @@
+  * r3 = int32_t long_math
+  */
+ 
+-        .arm
+-        .type           unpack_decorr_stereo_pass_cont_armv7, STT_FUNC
++        .thumb
++      # .type           unpack_decorr_stereo_pass_cont_armv7, STT_FUNC # ELF only
+ 
+ unpack_decorr_stereo_pass_cont_armv7:
+ 
+@@ -120,10 +120,12 @@ S117:   mov     r8, #0                  @ use 64-bit multiply to avoid overflow
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S118:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S118:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S325
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -144,10 +146,12 @@ S119:   mov     r3, #0
+         add     r3, r3, r11, lsr #10
+         mov     r11, #512
+ 
+-S120:   strne   r3, [r1, #-4]
++S120:   itt ne
++        strne   r3, [r1, #-4]
+         cmpne   r2, #0
+         beq     S329
+         teq     ip, r2
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+ 
+@@ -189,10 +193,12 @@ S121:   mov     r8, #0                  @ use 64-bit multiply to avoid overflow
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S122:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S122:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S337
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -214,10 +220,12 @@ S123:   mov     r3, #0
+         add     r3, r3, r11, lsr #10
+         mov     r11, #512
+ 
+-S124:   strne   r3, [r1, #-4]
++S124:   itt ne
++        strne   r3, [r1, #-4]
+         cmpne   r2, #0
+         beq     S341
+         teq     ip, r2
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+ 
+@@ -268,10 +276,12 @@ S125:   mov     r8, #0                  @ use 64-bit multiply to avoid overflow
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S126:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S126:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S225
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -292,10 +302,12 @@ S127:   mov     r3, #0
+         add     r3, r3, r11, lsr #10
+         mov     r11, #512
+ 
+-S128:   strne   r3, [r1, #-4]
++S128:   itt ne
++        strne   r3, [r1, #-4]
+         cmpne   r2, #0
+         beq     S229
+         teq     ip, r2
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+ 
+@@ -320,7 +332,9 @@ S229:   cmp     r7, r1                  @ loop back if more samples to do
+ 
+ term_default_loop:
+         ldr     ip, [r1]                @ get original sample
+-        ldr     r3, [r1, -r2, asl #3]   @ get decorrelation value based on term
++      # ldr     r3, [r1, -r2, asl #3]   @ get decorrelation value based on term
++        sub r8, r1, r2, asl #3
++        ldr r3, [r8]
+         mov     r8, r3, lsl #11         @ check magnitude by shifting left then right
+         cmp     r3, r8, asr #11         @  and comparing, branch to 64-bit math if different
+         bne     S135
+@@ -336,14 +350,18 @@ S135:   mov     r8, #0                  @ use 64-bit multiply to avoid overflow
+         mov     r11, #512
+ 
+ S136:   str     r8, [r1], #4            @ store update sample
++        it ne
+         cmpne   ip, #0
+         beq     S350
+         teq     ip, r3                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+ S350:   ldr     ip, [r1]                @ do the same thing for right channel
+-        ldr     r3, [r1, -r2, asl #3]
++      # ldr     r3, [r1, -r2, asl #3]
++        sub r8, r1, r2, asl #3
++        ldr r3, [r8]
+         mov     r8, r3, lsl #11         @ check magnitude by shifting left then right
+         cmp     r3, r8, asr #11         @  and comparing, branch to 64-bit math if different
+         bne     S137
+@@ -359,9 +377,11 @@ S137:   mov     r8, #0
+         mov     r11, #512
+ 
+ S138:   str     r8, [r1], #4
++        it ne
+         cmpne   ip, #0
+         beq     S354
+         teq     ip, r3
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+ 
+@@ -424,14 +444,18 @@ S142:   mov     lr, #0                  @ use 64-bit multiply to avoid overflow
+         mov     r11, #512
+ 
+ S143:   str     lr, [r1], #8
++        it ne
+         cmpne   ip, #0
+         beq     S361
+         teq     ip, r3                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+         cmp     r4, #1024
++        it gt
+         movgt   r4, #1024
+         cmp     r4, r10
++        it lt
+         movlt   r4, r10
+ 
+ S361:   ldr     r2, [r1, #-4]           @ for right channel the decorrelation value
+@@ -450,15 +474,19 @@ S144:   mov     r3, #0
+         add     r3, r3, r11, lsr #10
+         mov     r11, #512
+ 
+-S145:   strne   r3, [r1, #-4]
++S145:   itt ne
++        strne   r3, [r1, #-4]
+         cmpne   r2, #0
+         beq     S369
+         teq     r2, lr
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+         cmp     r0, #1024               @ then clip weight to +/-1024
++        it gt
+         movgt   r0, #1024
+         cmp     r0, r10
++        it lt
+         movlt   r0, r10
+ 
+ S369:   cmp     r7, r1                  @ loop back if more samples to do
+@@ -503,15 +531,19 @@ S146:   mov     lr, #0                  @ use 64-bit multiply to avoid overflow
+         add     lr, lr, r11, lsr #10
+         mov     r11, #512
+ 
+-S147:   strne   lr, [r1, #4]
++S147:   itt ne
++        strne   lr, [r1, #4]
+         cmpne   ip, #0
+         beq     S380
+         teq     ip, r3                  @ update weight based on signs
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+         cmp     r0, #1024               @ then clip weight to +/-1024
++        it gt
+         movgt   r0, #1024
+         cmp     r0, r10
++        it lt
+         movlt   r0, r10
+ 
+ S380:   ldr     r2, [r1, #0]            @ for left channel the decorrelation value
+@@ -531,14 +563,18 @@ S148:   mov     r3, #0
+         mov     r11, #512
+ 
+ S149:   str     r3, [r1], #8
++        it ne
+         cmpne   r2, #0
+         beq     S388
+         teq     r2, lr
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+         cmp     r4, #1024
++        it gt
+         movgt   r4, #1024
+         cmp     r4, r10
++        it lt
+         movlt   r4, r10
+ 
+ S388:   cmp     r7, r1                  @ loop back if more samples to do
+@@ -583,14 +619,18 @@ S160:   mov     r2, #0                  @ use 64-bit multiply to avoid overflow
+         mov     r11, #512
+ 
+ S161:   str     r2, [r1], #4
++        it ne
+         cmpne   ip, #0
+         beq     S399
+         teq     ip, r3                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+         cmp     r4, #1024               @ then clip weight to +/-1024
++        it gt
+         movgt   r4, #1024
+         cmp     r4, r10
++        it lt
+         movlt   r4, r10
+ 
+ S399:   mov     ip, r8                  @ ip = previous left we use now
+@@ -610,15 +650,19 @@ S162:   mov     r3, #0
+         add     r3, r3, r11, lsr #10
+         mov     r11, #512
+ 
+-S163:   strne   r3, [r1, #-4]
++S163:   itt ne
++        strne   r3, [r1, #-4]
+         cmpne   r2, #0
+         beq     S407
+         teq     ip, r2
++        ite mi
+         submi   r0, r0, r6
+         addpl   r0, r0, r6
+         cmp     r0, #1024
++        it gt
+         movgt   r0, #1024
+         cmp     r0, r10
++        it lt
+         movlt   r0, r10
+ 
+ S407:   cmp     r7, r1                  @ loop back if more samples to do
+@@ -652,8 +696,8 @@ common_exit:
+  * r3 = int32_t long_math
+  */
+ 
+-        .arm
+-        .type           unpack_decorr_mono_pass_cont_armv7, STT_FUNC
++        .thumb
++      # .type           unpack_decorr_mono_pass_cont_armv7, STT_FUNC # ELF only
+ 
+ unpack_decorr_mono_pass_cont_armv7:
+ 
+@@ -712,10 +756,12 @@ S717:   mov     r8, #0
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S718:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S718:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S129
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -757,10 +803,12 @@ S817:   mov     r8, #0
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S818:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S818:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S141
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -809,10 +857,12 @@ S917:   mov     r8, #0
+         add     r8, r8, r11, lsr #10
+         mov     r11, #512
+ 
+-S918:   strne   r8, [r1, #-4]           @ if change possible, store sample back
++S918:   itt ne
++        strne   r8, [r1, #-4]           @ if change possible, store sample back
+         cmpne   r2, #0
+         beq     S029
+         teq     ip, r2                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 
+@@ -837,7 +887,9 @@ S029:   cmp     r7, r1                  @ loop back if more samples to do
+ 
+ mono_term_default_loop:
+         ldr     ip, [r1]                @ get original sample
+-        ldr     r3, [r1, -r2, asl #2]   @ get decorrelation value based on term
++      # ldr     r3, [r1, -r2, asl #2]   @ get decorrelation value based on term
++        sub r1, r2, asl #2
++        ldr r3, [r8]
+         mov     r8, r3, lsl #11         @ check magnitude by shifting left then right
+         cmp     r3, r8, asr #11         @  and comparing, branch to 64-bit math if different
+         bne     S617
+@@ -853,9 +905,11 @@ S617:   mov     r8, #0
+ 
+ S618:   str     r8, [r1], #4            @ store update sample
+         cmp     r3, #0
++        it ne
+         cmpne   ip, #0
+         beq     S154
+         teq     ip, r3                  @ update weight based on signs
++        ite mi
+         submi   r4, r4, r6
+         addpl   r4, r4, r6
+ 

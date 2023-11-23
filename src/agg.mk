@@ -20,12 +20,55 @@ endef
 
 define $(PKG)_BUILD
     $(foreach f,authors news readme, mv '$(1)/$f' '$(1)/$f_';mv '$(1)/$f_' '$(1)/$(call uc,$f)';)
+    
+    # unpack enough CLang-RT builtin implementations for injection...
+    $(MXE_INTRINSIC_SH) {aeabi_{,u}idivmod,{,u}divmodsi4,chkstk}.S.obj
+
+    # first, configure for a static build, for the Win32 entry point
+    cd '$(1)' && autoreconf -fi -I $(PREFIX)/$(TARGET)/share/aclocal
+    cd '$(1)' && ./configure \
+        --host='$(TARGET)' \
+        --build='$(BUILD)' \
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --enable-static --disable-shared \
+        --without-x
+
+    # now build the static entry point library that calls agg_main()
+    $(MAKE) -C '$(1)/src/platform/win32' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= \
+        LDFLAGS="`$(MXE_INTRINSIC_SH) floatdidf.c.obj`" \
+        libaggplatformwin32_la_DEPENDENCIES= \
+        libaggplatformwin32_la_LIBADD=-lgdi
+
+    # now skip the platform, examples and reconfigure
+    $(SED) -e 's! *platform!!' -i '$(1)/src/Makefile.am'
+    $(SED) -e 's! *examples!!' -i '$(1)/Makefile.am'
     cd '$(1)' && autoreconf -fi -I $(PREFIX)/$(TARGET)/share/aclocal
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --without-x
+
+    # brute force in lieu of backticks and shell brace expansion
+    $(SED) -i '$(1)/src/Makefile' \
+        -e "s#am_libagg_la_OBJECTS =#& \
+            $(BUILD_DIR)/aeabi_uidivmod.S.obj.lo \
+            $(BUILD_DIR)/udivmodsi4.S.obj.lo \
+            $(BUILD_DIR)/chkstk.S.obj.lo \
+        #"
+
+    # same for font_win32_tt + font_freetype + clarify deps + allow a DLL build:
+    $(SED) -i '$(1)/font_freetype/Makefile' \
+              '$(1)/font_win32_tt/Makefile' \
+        -e 's#la_LDFLAGS = *#&\
+            $(BUILD_DIR)/aeabi_idivmod.S.obj.lo \
+            $(BUILD_DIR)/aeabi_uidivmod.S.obj.lo \
+            $(BUILD_DIR)/divmodsi4.S.obj.lo \
+            $(BUILD_DIR)/udivmodsi4.S.obj.lo \
+            $(BUILD_DIR)/chkstk.S.obj.lo \
+        -no-undefined #'
+    $(SED) -i '$(1)/font_freetype/Makefile' \
+        -e 's#libaggfontfreetype_la_LIBADD = *#& $$(top_builddir)/src/libagg.la#'
+
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
 endef
 
 $(PKG)_BUILD_x86_64-w64-mingw32 =
-$(PKG)_BUILD_SHARED =
