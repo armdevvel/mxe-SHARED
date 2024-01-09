@@ -22,9 +22,8 @@ endef
 
 define $(PKG)_BUILD
     cd '$(1)' && CHOST='$(TARGET)' ./configure \
-        --prefix='$(PREFIX)/$(TARGET)' \
-        --static
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install
+        --prefix='$(PREFIX)/$(TARGET)'
+    $(MAKE) SFLAGS="-fPIC" -C '$(1)' -j '$(JOBS)' install
 endef
 
 define $(PKG)_BUILD_SHARED
