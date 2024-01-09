@@ -34,3 +34,33 @@ index 1111111..2222222 100644
  #endif
  
  struct x265_encoder {};
+diff --git a/source/dynamicHDR10/json11/json11.cpp b/source/dynamicHDR10/json11/json11.cpp
+index 9cbb2d17..ffd95d64 100644
+--- a/source/dynamicHDR10/json11/json11.cpp
++++ b/source/dynamicHDR10/json11/json11.cpp
+@@ -40,8 +40,12 @@ using std::move;
+ /* * * * * * * * * * * * * * * * * * * *
+  * Serialization
+  */
++struct null_t {
++    bool operator==(const null_t&) const { return true; }
++    bool operator<(const null_t&) const { return false; }
++} null;
+ 
+-static void dump(std::nullptr_t, string &out) {
++void dump(const null_t&, string &out) {
+     out += "null";
+ }
+ 
+@@ -208,9 +212,9 @@ public:
+     explicit JsonObject(Json::object &&value)      : Value(move(value)) {}
+ };
+ 
+-class JsonNull final : public Value<Json::NUL, std::nullptr_t> {
++class JsonNull final : public Value<Json::NUL, null_t> {
+ public:
+-    JsonNull() : Value(nullptr) {}
++    JsonNull() : Value(null) {}
+ };
+ 
+ /* * * * * * * * * * * * * * * * * * * *

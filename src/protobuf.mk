@@ -17,6 +17,15 @@ define $(PKG)_BUILD
     cd '$(SOURCE_DIR)' && mv '$(googletest_SUBDIR)' gmock/gtest
     cd '$(SOURCE_DIR)' && ./autogen.sh
 
+    # Hack you libtool and huck you GNU for failing to accept a simple fix. (Jealosy for CLang?)
+    # See analysis and discussion: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=27866
+    sed -i 's#-L\* \x7c -R\* \x7c -l\*#& | *clang_rt*#' '$(SOURCE_DIR)/m4/libtool.m4'
+    sed -i '$(SOURCE_DIR)/ltmain.sh' \
+        -e 's#deplib is not portable!"#deplib is now allowed."; deplib="-XCCLinker -Wl,$$deplib"#' \
+        -e 's#valid_a_lib=false#valid_a_lib=:#'
+    # Note: this libtool patch eliminates the need for the MXE_INTRINSIC_SH fix.
+    # Wiki: https://github.com/armdevvel/mxe-SHARED/wiki/ld.lld:-error:-undefined-symbol:-__chkstk-or-__rt__blahblah
+
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)'/configure \
         $(MXE_CONFIGURE_OPTS) \
         $(if $(BUILD_CROSS), \

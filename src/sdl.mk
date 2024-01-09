@@ -23,6 +23,7 @@ define $(PKG)_BUILD
     $(SED) -i 's,-mwindows,-lwinmm -mwindows,' '$(1)/configure'
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
+		--disable-video-opengl \
         --enable-threads \
         --enable-directx \
         --disable-stdio-redirect

@@ -22,7 +22,7 @@ define $(PKG)_BUILD
     $(INSTALL) -m644 '$(BUILD_DIR)/libzip.pc' '$(PREFIX)/$(TARGET)/lib/pkgconfig'
 
     '$(TARGET)-gcc' \
-        -W -Wall -Werror -pedantic \
+        -W -Wall -Werror -pedantic -Wno-nullability-extension -Wno-nullability-completeness \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-libzip.exe' \
         `'$(TARGET)-pkg-config' libzip --cflags --libs`
 endef

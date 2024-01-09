@@ -12,6 +12,11 @@ $(PKG)_DEPS     := cc libiconv libsamplerate
 define $(PKG)_BUILD
     cd '$(1)' && aclocal -I acinclude && autoconf && $(SHELL) ./configure \
         $(MXE_CONFIGURE_OPTS) \
+        --disable-video-opengl \
+        --disable-video-opengles \
+        --disable-video-opengles2 \
+        --disable-video-vulkan \
+        --enable-shared \
         --enable-threads \
         --enable-directx \
         --enable-libsamplerate \
@@ -27,5 +32,4 @@ define $(PKG)_BUILD
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-sdl2.exe' \
         `'$(TARGET)-pkg-config' sdl2 --cflags --libs`
-
 endef

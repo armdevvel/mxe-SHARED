@@ -18,18 +18,30 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    sed -i 's#-fno-strength-reduce##' '$(SOURCE_DIR)/configure.ac'
     cd '$(SOURCE_DIR)' && autoreconf -fi
     $(if $(BUILD_STATIC),                                         \
         $(SED) -i 's/__declspec(dllimport)//' '$(1)/caca/caca.h'; \
         $(SED) -i 's/__declspec(dllimport)//' '$(1)/caca/caca0.h')
-    cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
+    cd '$(BUILD_DIR)' && \
+    env GL_CFLAGS='-I$(PREFIX)/$(TARGET)' \
+    env GL_LIBS="`$(TARGET)-pkg-config --libs mesa`" \
+    '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --disable-csharp \
         --disable-java \
         --disable-python \
         --disable-ruby \
         --disable-doc \
+        CFLAGS='-D_WIN32=1 -DDLL_EXPORT=1 -DUSE_WINSOCK=1' \
+        CACA_LIBS="-lws2_32 `$(MXE_INTRINSIC_SH) chkstk.S.obj`" \
         $(if $(BUILD_STATIC), LIBS=-luuid)
+
+    # NOTE: https://www.gnu.org/software/libtool/manual/html_node/Stripped-link-flags.html
+    # TL;DR libtool silently censors ld flags. A good commie is one resting 3' underground.
+    $(MAKE) -C '$(BUILD_DIR)/caca' -j '$(JOBS)' \
+        LDFLAGS='-XCClinker -Wl,--export-all-symbols'
+    sed -i "s#^LIBS =#LIBS = `$(MXE_INTRINSIC_SH) chkstk.S.obj`#" '$(BUILD_DIR)/cxx/Makefile'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
     ln -sf '$(PREFIX)/$(TARGET)/bin/caca-config' '$(PREFIX)/bin/$(TARGET)-caca-config'

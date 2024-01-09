@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := d4000e02102acaf259998c870e25214739d1f16f67f99cb35e4f46841399d
 $(PKG)_SUBDIR   := freeglut-$($(PKG)_VERSION)
 $(PKG)_FILE     := freeglut-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/freeglut/freeglut/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc mesa mesa-glu
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://sourceforge.net/projects/freeglut/files/freeglut/' | \

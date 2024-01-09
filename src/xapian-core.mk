@@ -18,8 +18,24 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # see protobuf.mk -- the applied fix is a development of that one:
+    sed -i 's#-L\* \x7c -R\* \x7c -l\*#& | *clang_rt*#' '$(SOURCE_DIR)/m4/libtool.m4'
+    sed -i '$(SOURCE_DIR)/ltmain.sh' \
+        -e 's#deplib is not portable!"#deplib is now allowed."; deplib="-XCCLinker -Wl,$$deplib"#' \
+        -e 's#valid_a_lib=false#valid_a_lib=:#'
+
+    sed -i 's#AC_DEFINE..__MSVCRT_VERSION__.#dnl &NO_#' '$(SOURCE_DIR)/configure.ac'
+
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT)
+
+    #  now final injection of the runtimes:
+    sed -i '$(BUILD_DIR)/libtool' \
+        -e 's#postdeps="-#&lclang_rt.builtins-arm -#' \
+        -e 's#-lmsvcrt#-lucrt -lssp#g'
+
+    #  _stati64 is history together with msvcrt.
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) \
+        CXXFLAGS='-D_UCRT=1'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT)
 endef

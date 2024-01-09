@@ -22,11 +22,40 @@ define $(PKG)_BUILD
         '$(BUILD_DIR)' '$(SOURCE_DIR)'
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)'
 
+    # the test is the famous glxgears example adapted here (MIT license):
+    # https://github.com/CalvinHartwell/windows-glxgears/tree/master/glxgears
+    '$(TARGET)-g++' \
+        -W -Wall -Werror -ansi -pedantic  \
+        -I$(1)/include -Wl,'$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll.a' -lgdi32 \
+        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-glxgears.exe'
+
     # manual install to avoid clobbering platform opengl driver
-    for i in EGL GLES GLES2 GLES3 KHR; do \
+    for i in EGL GL GLES GLES2 GLES3 KHR; do \
         $(INSTALL) -d "$(PREFIX)/$(TARGET)/include/$$i"; \
         $(INSTALL) -m 644 "$(1)/include/$$i/"* "$(PREFIX)/$(TARGET)/include/$$i/"; \
     done
-    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/wgl/libgallium_wgl.dll' '$(PREFIX)/$(TARGET)/bin/'
-    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll' '$(PREFIX)/$(TARGET)/bin/'
+
+    $(INSTALL) -d '$(PREFIX)/$(TARGET)/bin/mesa'
+    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/wgl/libgallium_wgl.dll' '$(PREFIX)/$(TARGET)/bin/mesa/'
+    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll' '$(PREFIX)/$(TARGET)/bin/mesa/'
+
+    $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/mesa'
+    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/wgl/libgallium_wgl.dll.a' '$(PREFIX)/$(TARGET)/lib/mesa/'
+    $(INSTALL) -m 755 '$(BUILD_DIR)/src/gallium/targets/libgl-gdi/opengl32.dll.a' '$(PREFIX)/$(TARGET)/lib/mesa/'
+
+    # create pkg-config files
+    $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/pkgconfig'
+    (echo 'prefix=$(PREFIX)/$(TARGET)' ; \
+     echo 'libdir=$${prefix}/lib' ; \
+     echo 'mesadir=$${libdir}/mesa' ; \
+     echo ; \
+     echo 'Name: $(PKG)'; \
+     echo 'Version: $($(PKG)_VERSION)'; \
+     echo 'Description: $($(PKG)_DESCR)'; \
+     echo 'Libs: -L$${mesadir} -lgallium_wgl -lopengl32';) \
+     > '$(PREFIX)/$(TARGET)/lib/pkgconfig/$(PKG).pc'
+
+    # NOTE We may have to rename opengl32.dll if basename collision causes problems even though the path is
+    # NOTE  different. Fortunately, we only need to know that at link time (at runtime %PATH% is the boss).
+
 endef

@@ -1,0 +1,72 @@
+diff --git a/Makefile b/Makefile
+index 40dbeef7..da385b9a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -25,7 +25,7 @@ src += perly.c pp.c pp_hot.c pp_ctl.c pp_sys.c regcomp.c regexec.c
+ src += utf8.c sv.c taint.c toke.c util.c deb.c run.c universal.c
+ src += pad.c globals.c keywords.c perlio.c perlapi.c numeric.c
+ src += mathoms.c locale.c pp_pack.c pp_sort.c caretx.c dquote.c $(time64.c)
+-src += pp_type.c xsutils.c # cperl
++src += pp_type.c xsutils.c win32.c win32thread.c win32sck.c fcrypt.c
+ src += $(wildcard builtin.c)
+ src += $(mallocsrc)
+ 
+@@ -138,15 +138,15 @@ regen_perly:
+ 
+ ifeq ($(useshrplib),true)
+ ifeq ($(soname),)
+-perl$x: LDFLAGS += -Wl,-rpath,$(archlib)/CORE
++perl$x: LDFLAGS += 
+ endif
+ endif # or should it be "else"?
+-perl$x: LDFLAGS += -Wl,-E
++perl$x: LDFLAGS += -Wl,--export-all-symbols
+ 
+ perl$x: perlmain$o $(LIBPERL) $(static_modules) static.list ext.libs
+ 	$(eval extlibs=$(shell cat ext.libs))
+ 	$(eval statars=$(shell cat static.list))
+-	$(CC) $(LDFLAGS) -o $@ $(filter %$o,$^) $(LIBPERL) $(statars) $(LIBS) $(extlibs)
++	$(CC) $(LDFLAGS) -o $@ $(filter %$o,$^) -L$(PATCHED_PERL_DIR) -lperl $(statars) $(LIBS) $(extlibs)
+ 
+ %$o: %.c config.h
+ 	$(CC) $(CFLAGS) -c -o $@ $<
+@@ -186,7 +186,7 @@ endif
+ 
+ ifeq ($(useshrplib),true)
+ $(LIBPERL):
+-	$(CC) $(LDDLFLAGS) -o $@ $(filter %$o,$^) $(LIBS)
++	$(CC) $(LDDLFLAGS) -Wl,--export-all-symbols -Wl,--out-implib=$(PATCHED_PERL_DIR)/libperl.a -o $@ $(filter %$o,$^) $(LIBS)
+ else
+ $(LIBPERL):
+ 	$(AR) cru $@ $(filter %$o,$^)
+@@ -427,17 +427,10 @@ install:
+ install.perl: installperl | miniperl$X
+ 	./miniperl_top installperl --destdir=$(DESTDIR) $(INSTALLFLAGS) $(STRIPFLAGS)
+ 	-@test ! -s extras.lst || $(MAKE) extras.install
+-ifneq ($(perlname),perl)
+-	-rm -f $(DESTDIR)$(installbin)/$(perlname)$(version)
+-	ln -sf $(perlname) $(DESTDIR)$(installbin)/perl
+-else
+-	-rm -f $(DESTDIR)$(installbin)/$(perlname)$(version)
+-endif
+ 
+ install.sym: # deprecated
+ 
+ install.man: installman pod/perltoc.pod | miniperl$X
+-	./miniperl_top installman --destdir=$(DESTDIR) $(INSTALLFLAGS)
+ 
+ # ---[ testpack ]---------------------------------------------------------------
+ .PHONY: testpack
+diff --git a/cnf/configure_tool.sh b/cnf/configure_tool.sh
+index ca495c77..4550c2a0 100644
+--- a/cnf/configure_tool.sh
++++ b/cnf/configure_tool.sh
+@@ -154,7 +154,7 @@ define _exe ''
+ 
+ # Used only for modules
+ define cccdlflags '-fPIC -Wno-unused-function'
+-define ccdlflags '-Wl,-E'
++define ccdlflags '-Wl,--export-all-symbols'
+ 
+ # Misc flags setup
+ predef lddlflags "-shared"	# modules

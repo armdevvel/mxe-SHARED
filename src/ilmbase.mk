@@ -37,5 +37,6 @@ define $(PKG)_BUILD
     '$(1)/Half/eLut' > '$(1)/eLut.h'
     cd '$(1)/Half' && $(BUILD_CXX) toFloat.cpp -o toFloat
     '$(1)/Half/toFloat' > '$(1)/toFloat.h'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= \
+        LDFLAGS="`$(MXE_INTRINSIC_SH) chkstk.S.obj`"
 endef

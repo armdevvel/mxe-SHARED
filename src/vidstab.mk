@@ -10,7 +10,11 @@ $(PKG)_GH_CONF  := georgmartius/vid.stab/tags,v
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
-    cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)'
+    # TODO replace SSE2 with NEON intrinsics (see: "motiondetect_opt.c")
+    sed -i 's#SSE2_FOUND#SSE2_FOUND_DISABLED#' '$(SOURCE_DIR)/CMakeLists.txt'
+
+    # either harness -lgomp (vidstab is GPL anyway) or disable OMP
+    cd '$(BUILD_DIR)' && $(TARGET)-cmake '-DUSE_OMP:Bool=False' '$(SOURCE_DIR)'
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 

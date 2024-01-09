@@ -1,0 +1,24 @@
+diff --git a/meson.build b/meson.build
+index 7949e300..23ac3e65 100644
+--- a/meson.build
++++ b/meson.build
+@@ -34,5 +34,5 @@ pkgconf.generate(
+   libglu,
+   name : 'glu',
+   description : 'Mesa OpenGL Utility Library',
+-  requires: dep_gl
++  libraries: dep_gl # see: https://gitlab.gnome.org/GNOME/gtk/-/issues/6147
+ )
+diff --git a/meson_options.txt b/meson_options.txt
+index 6709b1b1..adb7e4a7 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -4,7 +4,7 @@
+ option(
+   'gl_provider',
+   type : 'combo',
+-  choices : ['glvnd', 'gl', 'osmesa'],
++  choices : ['glvnd', 'gl', 'mesa', 'osmesa'],
+   value : 'glvnd',
+   description : 'Which OpenGL to link with'
+ )

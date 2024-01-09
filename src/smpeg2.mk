@@ -29,7 +29,7 @@ define $(PKG)_BUILD
         --disable-gtk-player \
         --disable-opengl-player \
         CFLAGS='-ffriend-injection -Wno-narrowing'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_DISABLE_CRUFT)
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) {{aeabi_{,u}{i,l}divmod,{,u}divmodsi4}.S,{,u}divmoddi4.c}.obj chkstk.S.obj`' install $(MXE_DISABLE_CRUFT)
 
     '$(TARGET)-gcc' \
         -W -Wall -Werror -std=c99 -pedantic \

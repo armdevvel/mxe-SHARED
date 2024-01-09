@@ -3,8 +3,8 @@
 PKG             := zlib
 $(PKG)_WEBSITE  := https://zlib.net/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.2.13
-$(PKG)_CHECKSUM := d14c38e313afc35a9a8760dadf26042f51ea0f5d154b0630a31da0540107fb98
+$(PKG)_VERSION  := 1.3
+$(PKG)_CHECKSUM := 8a9ba2898e1d0d774eca6ba5b4627a11e5588ba85c8851336eb38de4683050a7
 $(PKG)_SUBDIR   := zlib-$($(PKG)_VERSION)
 $(PKG)_FILE     := zlib-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://zlib.net/$($(PKG)_FILE)
@@ -21,10 +21,19 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    cd '$(1)' && CHOST='$(TARGET)' CFLAGS=-fPIC ./configure \
+    cd '$(1)' && CHOST='$(TARGET)' ./configure \
         --prefix='$(PREFIX)/$(TARGET)' \
         --static
     $(MAKE) -C '$(1)' -j '$(JOBS)' install
+endef
 
-    $(if $(BUILD_SHARED), $(MAKE_SHARED_FROM_STATIC) '$(1)/libz.a',)
+define $(PKG)_BUILD_SHARED
+    $(MAKE) -C '$(1)' -f win32/Makefile.gcc \
+        SHARED_MODE=1 \
+        STATICLIB= \
+        BINARY_PATH='$(PREFIX)/$(TARGET)/bin' \
+        INCLUDE_PATH='$(PREFIX)/$(TARGET)/include' \
+        LIBRARY_PATH='$(PREFIX)/$(TARGET)/lib' \
+        PREFIX='$(TARGET)-' \
+        -j '$(JOBS)' install
 endef

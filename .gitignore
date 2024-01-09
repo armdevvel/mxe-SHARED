@@ -4,6 +4,7 @@
 /log*/
 /pkg
 /wip/
+/out
 /tmp-*
 /.ccache
 
@@ -18,3 +19,6 @@ cmake_install.cmake
 /mxe-*.deb*
 /wheezy
 /jessie
+
+# vscode
+.vscode/

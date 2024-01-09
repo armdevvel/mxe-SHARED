@@ -1,0 +1,12 @@
+diff --git a//meson.build b//meson.build
+index 172c64a7..d2236c74 100644
+--- a//meson.build
++++ b//meson.build
+@@ -1288,6 +1288,7 @@ if host_machine.cpu_family().startswith('x86') and cc.get_argument_syntax() != '
+ else
+   with_sse41 = false
+   sse41_args = []
++  c_args += ['-fmax-type-align=8']
+ endif
+
+ # Check for GCC style atomics

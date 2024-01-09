@@ -18,24 +18,27 @@
 
 int main(){
 
-    idx_t nVertices = 6;
-    idx_t nEdges    = 7;
-    idx_t nWeights  = 1;
+    constexpr idx_t kVertices = 6;
+    constexpr idx_t kEdges    = 7;
+    constexpr idx_t kWeights  = 1;
+    idx_t nVertices = kVertices;
+    idx_t nEdges    = kEdges;
+    idx_t nWeights  = kWeights;
     idx_t nParts    = 2;
 
     idx_t objval;
-    idx_t part[nVertices];
+    idx_t part[kVertices];
 
 
     // Indexes of starting points in adjacent array
-    idx_t xadj[nVertices+1] = {0,2,5,7,9,12,14};
+    idx_t xadj[kVertices+1] = {0,2,5,7,9,12,14};
 
     // Adjacent vertices in consecutive index order
-    idx_t adjncy[2 * nEdges] = {1,3,0,4,2,1,5,0,4,3,1,5,4,2};
+    idx_t adjncy[2 * kEdges] = {1,3,0,4,2,1,5,0,4,3,1,5,4,2};
 
     // Weights of vertices
     // if all weights are equal then can be set to NULL
-    idx_t vwgt[nVertices * nWeights];
+    idx_t vwgt[kVertices * kWeights];
 
 
     // int ret = METIS_PartGraphRecursive(&nVertices,& nWeights, xadj, adjncy,
@@ -48,7 +51,7 @@ int main(){
 
     std::cout << ret << std::endl;
 
-    for(unsigned part_i = 0; part_i < nVertices; part_i++){
+    for(idx_t part_i = 0; part_i < nVertices; part_i++){
     std::cout << part_i << " " << part[part_i] << std::endl;
     }
 

@@ -1,0 +1,308 @@
+diff --git a/lib/system.h b/lib/system.h
+index 7213031a..4b4b056d 100644
+--- a/lib/system.h
++++ b/lib/system.h
+@@ -467,7 +467,7 @@
+ # include <grp.h>
+ #endif
+ 
+-#if MSDOS
++#if MSDOS || defined(_WIN32)
+ # include <process.h>
+ # define SET_BINARY_MODE(arc) setmode(arc, O_BINARY)
+ # define mkdir(file, mode) (mkdir) (file)
+diff --git a/lib/rtapelib.c b/lib/rtapelib.c
+index 7213031a..4b4b056d 100644
+--- a/lib/rtapelib.c
++++ b/lib/rtapelib.c
+@@ -121,9 +121,7 @@ do_command (int handle, const char *buffer)
+   /* Save the current pipe handler and try to make the request.  */
+ 
+   size_t length = strlen (buffer);
+-  RETSIGTYPE (*pipe_handler) (int) = signal (SIGPIPE, SIG_IGN);
+   ssize_t written = full_write (WRITE_SIDE (handle), buffer, length);
+-  signal (SIGPIPE, pipe_handler);
+ 
+   if (written == length)
+     return 0;
+@@ -447,7 +445,7 @@ rmt_open__ (const char *file_name, int open_mode, int bias,
+ 
+   WRITE_SIDE (remote_pipe_number) = READ_SIDE (remote_pipe_number);
+ 
+-#else /* not WITH_REXEC */
++#elif !_WIN32 /* not WITH_REXEC and not Windows */
+   {
+     const char *remote_shell_basename;
+     pid_t status;
+@@ -521,6 +519,10 @@ rmt_open__ (const char *file_name, int open_mode, int bias,
+     close (from_remote[remote_pipe_number][PWRITE]);
+     close (to_remote[remote_pipe_number][PREAD]);
+   }
++#else /* Windows */
++  errno = EPIPE;
++  return -1;
++
+ #endif /* not WITH_REXEC */
+ 
+   /* Attempt to open the tape device.  */
+@@ -597,16 +599,13 @@ size_t
+ rmt_write__ (int handle, char *buffer, size_t length)
+ {
+   char command_buffer[COMMAND_BUFFER_SIZE];
+-  RETSIGTYPE (*pipe_handler) (int);
+   size_t written;
+ 
+   sprintf (command_buffer, "W%lu\n", (unsigned long) length);
+   if (do_command (handle, command_buffer) == -1)
+     return 0;
+ 
+-  pipe_handler = signal (SIGPIPE, SIG_IGN);
+   written = full_write (WRITE_SIDE (handle), buffer, length);
+-  signal (SIGPIPE, pipe_handler);
+   if (written == length)
+     {
+       long int r = get_status (handle);
+diff --git a/src/checkpoint.c b/src/checkpoint.c
+index eb12c1c0..1d768aea 100644
+--- a/src/checkpoint.c
++++ b/src/checkpoint.c
+@@ -20,8 +20,10 @@
+ #include <system.h>
+ #include "common.h"
+ #include "wordsplit.h"
++#ifdef TIOCGWINSZ
+ #include <sys/ioctl.h>
+ #include <termios.h>
++#endif /* TIOCGWINSZ */
+ #include "fprintftime.h"
+ #include <signal.h>
+ 
+@@ -100,7 +102,6 @@ checkpoint_compile_action (const char *str)
+ 
+   if (checkpoint_state == CHKP_INIT)
+     {
+-      sigemptyset (&sigs);
+       checkpoint_state = CHKP_COMPILE;
+     }
+   
+@@ -140,7 +141,6 @@ checkpoint_compile_action (const char *str)
+     {
+       act = alloc_action (cop_wait);
+       act->v.signal = decode_signal (str + 5);
+-      sigaddset (&sigs, act->v.signal);
+     }
+   else
+     FATAL_ERROR ((0, 0, _("%s: unknown checkpoint action"), str));
+@@ -159,7 +159,6 @@ checkpoint_finish_compile (void)
+ 
+   if (checkpoint_state == CHKP_COMPILE)
+     {
+-      sigprocmask (SIG_BLOCK, &sigs, NULL);
+ 
+       if (!checkpoint_option)
+ 	/* set default checkpoint rate */
+@@ -428,8 +424,6 @@ run_checkpoint_actions (bool do_write)
+ 
+ 	case cop_wait:
+ 	  {
+-	    int n;
+-	    sigwait (&sigs, &n);
+ 	  }
+ 	}
+     }
+diff --git a/src/tar.c b/src/tar.c
+index 6629f190..1978fda0 100644
+--- a/src/tar.c
++++ b/src/tar.c
+@@ -1009,11 +1009,15 @@ decode_signal (const char *name)
+     char const *name;
+     int signo;
+   } const sigtab[] = {
+-    { "USR1", SIGUSR1 },
+-    { "USR2", SIGUSR2 },
+-    { "HUP", SIGHUP },
+     { "INT", SIGINT },
+-    { "QUIT", SIGQUIT }
++    { "ILL", SIGILL },
++    { "ABRT_COMPAT", SIGABRT_COMPAT },
++    { "FPE", SIGFPE },
++    { "SEGV", SIGSEGV },
++    { "TERM", SIGTERM },
++    { "BREAK", SIGBREAK },
++    { "ABRT", SIGABRT },
++    { "ABRT2", SIGABRT2 },
+   };
+   struct sigtab const *p;
+   char const *s = name;
+@@ -2765,7 +2769,6 @@
+   archive_names = 0;
+ 
+   /* System V fork+wait does not work if SIGCHLD is ignored.  */
+-  signal (SIGCHLD, SIG_DFL);
+ 
+   /* Try to disable the ability to unlink a directory.  */
+   priv_set_remove_linkdir ();
+diff --git a/src/system.c b/src/system.c
+index 9e273bc7..a995f748 100644
+--- a/src/system.c
++++ b/src/system.c
+@@ -37,6 +37,8 @@ xexec (const char *cmd)
+   exec_fatal (cmd);
+ }
+ 
++extern union block *record_start; /* fixed (see below) */
++
+ #if MSDOS
+ 
+ bool
+@@ -92,7 +94,7 @@ sys_compare_gid (struct stat *a, struct stat *b)
+   return true;
+ }
+ 
+-void
++bool
+ sys_compare_links (struct stat *link_data, struct stat *stat_data)
+ {
+   return true;
+@@ -111,22 +113,36 @@ sys_write_archive_buffer (void)
+ }
+ 
+ /* Set ARCHIVE for writing, then compressing an archive.  */
+-void
++pid_t
+ sys_child_open_for_compress (void)
+ {
+   FATAL_ERROR ((0, 0, _("Cannot use compressed or remote archives")));
++  return -1;
+ }
+ 
+ /* Set ARCHIVE for uncompressing, then reading an archive.  */
+-void
++pid_t
+ sys_child_open_for_uncompress (void)
+ {
+   FATAL_ERROR ((0, 0, _("Cannot use compressed or remote archives")));
++  return -1;
+ }
+ 
+-#else
++int
++sys_exec_command(char *file_name, int typechar, struct tar_stat_info *st)
++{ return -1; }
++
++void
++sys_wait_command (void)
++{}
+ 
+-extern union block *record_start; /* FIXME */
++void
++sys_exec_checkpoint_script (const char *, const char *, int) {}
++
++int
++sys_exec_info_script (const char **archive_name, int volume_number) {}
++
++#else
+ 
+ static struct stat archive_stat; /* stat block for archive file */
+ 
+@@ -187,7 +203,6 @@ sys_wait_for_child (pid_t child_pid, bool eof)
+       if (WIFSIGNALED (wait_status))
+ 	{
+ 	  int sig = WTERMSIG (wait_status);
+-	  if (!(!eof && sig == SIGPIPE))
+ 	    FATAL_ERROR ((0, 0, _("Child died with signal %d"), sig));
+ 	}
+       else if (WEXITSTATUS (wait_status) != 0)
+@@ -331,7 +346,6 @@ sys_child_open_for_compress (void)
+   pid_t grandchild_pid;
+   pid_t child_pid;
+ 
+-  signal (SIGPIPE, SIG_IGN);
+   xpipe (parent_pipe);
+   child_pid = xfork ();
+ 
+@@ -347,7 +361,6 @@ sys_child_open_for_compress (void)
+   /* The new born child tar is here!  */
+ 
+   set_program_name (_("tar (child)"));
+-  signal (SIGPIPE, SIG_DFL);
+ 
+   xdup2 (parent_pipe[PREAD], STDIN_FILENO);
+   xclose (parent_pipe[PWRITE]);
+@@ -526,7 +539,6 @@ sys_child_open_for_uncompress (void)
+   /* The newborn child tar is here!  */
+ 
+   set_program_name (_("tar (child)"));
+-  signal (SIGPIPE, SIG_DFL);
+ 
+   xdup2 (parent_pipe[PWRITE], STDOUT_FILENO);
+   xclose (parent_pipe[PREAD]);
+@@ -722,7 +734,6 @@ stat_to_env (char *name, char type, struct tar_stat_info *st)
+ }
+ 
+ static pid_t global_pid;
+-static void (*pipe_handler) (int sig);
+ 
+ int
+ sys_exec_command (char *file_name, int typechar, struct tar_stat_info *st)
+@@ -730,7 +741,6 @@ sys_exec_command (char *file_name, int typechar, struct tar_stat_info *st)
+   int p[2];
+ 
+   xpipe (p);
+-  pipe_handler = signal (SIGPIPE, SIG_IGN);
+   global_pid = xfork ();
+ 
+   if (global_pid != 0)
+@@ -757,7 +767,6 @@ sys_wait_command (void)
+   if (global_pid < 0)
+     return;
+ 
+-  signal (SIGPIPE, pipe_handler);
+   while (waitpid (global_pid, &status, 0) == -1)
+     if (errno != EINTR)
+       {
+@@ -790,10 +799,8 @@ sys_exec_info_script (const char **archive_name, int volume_number)
+   pid_t pid;
+   char uintbuf[UINTMAX_STRSIZE_BOUND];
+   int p[2];
+-  static void (*saved_handler) (int sig);
+ 
+   xpipe (p);
+-  saved_handler = signal (SIGPIPE, SIG_IGN);
+ 
+   pid = xfork ();
+ 
+@@ -818,13 +825,10 @@ sys_exec_info_script (const char **archive_name, int volume_number)
+       while (waitpid (pid, &status, 0) == -1)
+ 	if (errno != EINTR)
+ 	  {
+-	    signal (SIGPIPE, saved_handler);
+ 	    waitpid_error (info_script_option);
+ 	    return -1;
+ 	  }
+ 
+-      signal (SIGPIPE, saved_handler);
+-
+       if (WIFEXITED (status))
+ 	{
+ 	  if (WEXITSTATUS (status) == 0 && rc > 0)
+diff --git a/src/misc.c b/src/misc.c
+index 6819c467..3b300741 100644
+--- a/src/misc.c
++++ b/src/misc.c
+@@ -1172,6 +1172,7 @@ file_removed_diag (const char *name, bool top_level,
+     diagfn (name);
+ }
+ 
++#ifndef MSDOS
+ /* Fork, aborting if unsuccessful.  */
+ pid_t
+ xfork (void)
+@@ -1181,6 +1182,7 @@ xfork (void)
+     call_arg_fatal ("fork", _("child process"));
+   return p;
+ }
++#endif
+ 
+ /* Create a pipe, aborting if unsuccessful.  */
+ void

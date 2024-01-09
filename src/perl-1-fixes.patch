@@ -1,0 +1,145 @@
+diff --git a/dist/IO/poll.h b/dist/IO/poll.h
+index 08de2506..c9a2a9ae 100644
+--- a/dist/IO/poll.h
++++ b/dist/IO/poll.h
+@@ -10,7 +10,7 @@
+ #ifndef POLL_H
+ #  define POLL_H
+ 
+-#if (defined(HAS_POLL) && defined(I_POLL)) || defined(POLLWRBAND)
++#if 0
+ #  include <poll.h>
+ #elif (defined(HAS_POLL) && defined(I_SYS_POLL))
+ #  include <sys/poll.h>
+diff --git a/ext/Errno/Errno_pm.PL b/ext/Errno/Errno_pm.PL
+index ee2f4a3a..b91988ba 100644
+--- a/ext/Errno/Errno_pm.PL
++++ b/ext/Errno/Errno_pm.PL
+@@ -122,7 +122,7 @@ sub get_files {
+ 	# Some Linuxes have weird errno.hs which generate
+ 	# no #file or #line directives
+ 	($linux_errno_h) = grep { -e $_ } map { "$_/errno.h" }
+-	    "$sysroot/usr/include", "$sysroot/usr/local/include",
++	    "$sysroot/include", "$sysroot/usr/local/include",
+ 	    split / / => $Config{locincpth};
+     }
+ 
+diff --git a/win32/win32.h b/win32/win32.h
+index fea567f7..0ab69bd0 100644
+--- a/win32/win32.h
++++ b/win32/win32.h
+@@ -171,6 +171,8 @@ typedef struct
+ #include <io.h>
+ #include <process.h>
+ #include <stdio.h>
++#include <pwd.h>
++#include <grp.h>
+ #include <direct.h>
+ #include <stdlib.h>
+ #include <stddef.h>
+@@ -333,9 +335,9 @@ typedef struct
+ /* Note: PERLIO_FILE_ptr/base/cnt are not actually used for GCC or <VS2015
+  * since FILE_ptr/base/cnt do the same thing anyway but it doesn't hurt to
+  * define them all here for completeness. */
+-#define PERLIO_FILE_flag_RD _IOREAD /* 0x001 */
+-#define PERLIO_FILE_flag_WR _IOWRT  /* 0x002 */
+-#define PERLIO_FILE_flag_RW _IORW   /* 0x080 */
++#define PERLIO_FILE_flag_RD 0x001 /* _IOREAD */
++#define PERLIO_FILE_flag_WR 0x002 /* _IOWRT  */
++#define PERLIO_FILE_flag_RW 0x080 /* _IORW   */
+ #define PERLIO_FILE_ptr(f)  ((f)->_ptr)
+ #define PERLIO_FILE_base(f) ((f)->_base)
+ #define PERLIO_FILE_cnt(f)  ((f)->_cnt)
+@@ -346,8 +348,6 @@ typedef struct
+ 
+ #ifdef __MINGW32__		/* Minimal Gnu-Win32 */
+ 
+-typedef long		uid_t;
+-typedef long		gid_t;
+ #ifndef _environ
+ #define _environ	environ
+ #endif
+@@ -666,7 +666,7 @@ EXTERN_C _CRTIMP ioinfo* __pioinfo[];
+ #endif
+ 
+ /* since we are not doing a dup2(), this works fine */
+-#define _set_osfhnd(fh, osfh) (void)(_osfhnd(fh) = (intptr_t)osfh)
++#define _set_osfhnd_suppress(fh, osfh) (void)(_osfhnd(fh) = (intptr_t)osfh)
+ 
+ #endif /* PERL_CORE */
+ 
+diff --git a/win32/win32.c b/win32/win32.c
+index 78a4c856..0bfd6e5c 100644
+--- a/win32/win32.c
++++ b/win32/win32.c
+@@ -1,3 +1,4 @@
++#ifndef USE_CROSS_COMPILE
+ /* WIN32.C
+  *
+  * (c) 1995 Microsoft Corporation. All rights reserved.
+@@ -526,8 +527,8 @@ Perl_my_popen(pTHX_ const char *cmd, const char *mode)
+     return win32_popen(cmd, mode);
+ }
+ 
+-long
++I32
+ Perl_my_pclose(pTHX_ PerlIO *fp)
+ {
+     return win32_pclose(fp);
+ }
+@@ -5289,3 +5290,4 @@ Perl_sys_intern_dup(pTHX_ struct interp_intern *src, struct interp_intern *dst)
+ }
+ #  endif /* USE_ITHREADS */
+ #endif /* HAVE_INTERP_INTERN */
++#endif /* USE_CROSS_COMPILE */
+diff --git a/win32/win32sck.c b/win32/win32sck.c
+index ef5c6821..6c490af7 100644
+--- a/win32/win32sck.c
++++ b/win32/win32sck.c
+@@ -1,3 +1,4 @@
++#ifndef USE_CROSS_COMPILE
+ /* win32sck.c
+  *
+  * (c) 1995 Microsoft Corporation. All rights reserved. 
+@@ -22,7 +23,7 @@
+ #include "EXTERN.h"
+ #include "perl.h"
+ 
+-#include "Win32iop.h"
++#include "win32iop.h"
+ #include <sys/socket.h>
+ #include <fcntl.h>
+ #include <sys/stat.h>
+@@ -985,3 +986,4 @@ win32_savecopyservent(struct servent*d, struct servent*s, const char *proto)
+ }
+ 
+ 
++#endif /* USE_CROSS_COMPILE */
+diff --git a/win32/win32thread.c b/win32/win32thread.c
+index 1f327d6d..e9f5cb61 100644
+--- a/win32/win32thread.c
++++ b/win32/win32thread.c
+@@ -1,3 +1,4 @@
++#ifndef USE_CROSS_COMPILE
+ #include "EXTERN.h"
+ #include "perl.h"
+ 
+@@ -35,3 +36,4 @@ Perl_get_context(void)
+     return NULL;
+ #endif
+ }
++#endif /* USE_CROSS_COMPILE */
+diff --git a/win32/fcrypt.c b/win32/fcrypt.c
+index 219f4f0b..367552d2 100644
+--- a/win32/fcrypt.c
++++ b/win32/fcrypt.c
+@@ -1,3 +1,4 @@
++#ifndef USE_CROSS_COMPILE
+ /* fcrypt.c */
+ /* Copyright (C) 1993 Eric Young - see README for more details */
+ #include <stdio.h>
+@@ -591,3 +592,4 @@ body(	unsigned long *out0,
+         return(0);
+         }
+ 
++#endif /* USE_CROSS_COMPILE */

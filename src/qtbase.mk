@@ -11,7 +11,7 @@ $(PKG)_FILE     := $(PKG)-everywhere-opensource-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/official_releases/qt/5.15/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg libmysqlclient \
                    libpng mesa openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd \
-                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
+                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c) libprefix
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
@@ -25,6 +25,8 @@ endef
 
 define $(PKG)_BUILD
     # ICU is buggy on static builds. See #653. TODO: reenable it some time in the future.
+    # xplatform win32-clang-g++ fixes Clang from erroring out due to "-fno-keep-inline-dllexport"
+    # We'll bring back GL soon
     cd '$(1)' && \
         OPENSSL_LIBS="`'$(TARGET)-pkg-config' --libs-only-l openssl`" \
         PSQL_LIBS="-lpq -lpgport -lpgcommon -lsecur32 `'$(TARGET)-pkg-config' --libs-only-l openssl pthreads` -lws2_32" \
@@ -32,11 +34,12 @@ define $(PKG)_BUILD
         PKG_CONFIG="${TARGET}-pkg-config" \
         PKG_CONFIG_SYSROOT_DIR="/" \
         PKG_CONFIG_LIBDIR="$(PREFIX)/$(TARGET)/lib/pkgconfig" \
+        LIBS='-lprefix' \
         MAKE=$(MAKE) \
         ./configure \
             -opensource \
             -confirm-license \
-            -xplatform win32-g++ \
+            -xplatform win32-clang-g++ \
             -device-option CROSS_COMPILE=${TARGET}- \
             -device-option PKG_CONFIG='${TARGET}-pkg-config' \
             -pkg-config \
@@ -46,7 +49,7 @@ define $(PKG)_BUILD
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
-            -opengl dynamic \
+            -no-opengl \
             -no-glib \
             -accessibility \
             -nomake examples \

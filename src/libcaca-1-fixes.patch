@@ -214,3 +214,57 @@ index 1111111..2222222 100644
    fi
    PKG_CHECK_MODULES(FTGL, ftgl >= 2.1.3, [FTGL="yes"], [FTGL="no"])
  fi
+diff --git a/src/cacaserver.c b/src/cacaserver.c
+index 825c3d44..3ae1c607 100644
+--- a/src/cacaserver.c
++++ b/src/cacaserver.c
+@@ -178,8 +178,13 @@ int main(void)
+     }
+ 
+     /* Non blocking socket */
++#if USE_WINSOCK
++    ULONG mode = 1;
++    ioctlsocket(server->sockfd, FIONBIO, &mode);
++#else // USE_WINSOCK
+     flags = fcntl(server->sockfd, F_GETFL, 0);
+     fcntl(server->sockfd, F_SETFL, flags | O_NONBLOCK);
++#endif // USE_WINSOCK
+ 
+     if(listen(server->sockfd, BACKLOG) == -1)
+     {
+@@ -190,8 +195,10 @@ int main(void)
+     server->canvas = caca_create_canvas(0, 0);
+     server->buffer = NULL;
+ 
++#ifdef SIGPIPE
+     /* Ignore SIGPIPE */
+     server->sigpipe_handler = signal(SIGPIPE, SIG_IGN);
++#endif
+ 
+     fprintf(stderr, "initialised network, listening on port %i\n",
+                     server->port);
+@@ -285,8 +292,10 @@ restart:
+ 
+     caca_free_canvas(server->canvas);
+ 
++#ifdef SIGPIPE
+     /* Restore SIGPIPE handler */
+     signal(SIGPIPE, server->sigpipe_handler);
++#endif
+ 
+     free(server);
+ 
+@@ -314,8 +323,13 @@ static void manage_connections(struct server *server)
+                     fd, inet_ntoa(remote_addr.sin_addr));
+ 
+     /* Non blocking socket */
++#if USE_WINSOCK
++    ULONG mode = 1;
++    ioctlsocket(fd, FIONBIO, &mode);
++#else // USE_WINSOCK
+     flags = fcntl(fd, F_SETFL, 0);
+     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
++#endif // USE_WINSOCK
+ 
+     if(server->clients == NULL)
+     {

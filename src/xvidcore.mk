@@ -17,8 +17,10 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    $(SED) -i 's,yasm_prog="yasm",yasm_prog="$(TARGET)-yasm",' \
-        '$(SOURCE_DIR)/build/generic/configure.in'
+    $(SED) -i \
+        -e 's,yasm_prog="yasm",yasm_prog="$(TARGET)-yasm",' \
+        -e 's#,--dll##' \
+            '$(SOURCE_DIR)/build/generic/configure.in'
     cd '$(SOURCE_DIR)/build/generic' && autoreconf -fi
     cd '$(SOURCE_DIR)/build/generic' && ./configure \
         $(MXE_CONFIGURE_OPTS)

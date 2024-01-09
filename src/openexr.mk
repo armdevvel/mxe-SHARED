@@ -19,6 +19,8 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # MOREINFO: we actually have CMakeLists.txt, use CMake?
+
     # Update auto-stuff, except autoheader, because if fails...
     cd '$(1)' && AUTOHEADER=true autoreconf -fi
     # unpack and build a native version of ilmbase
@@ -60,7 +62,8 @@ define $(PKG)_BUILD
         -lHalf -lIlmThread -lIex -lpthread \
         -o dwaLookups
     '$(1)/IlmImf/dwaLookups' > '$(1)/IlmImf/dwaLookups.h'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= \
+        LIBS='`$(MXE_INTRINSIC_SH) aeabi_{,u}idivmod.S.obj {,u}divmodsi4.S.obj chkstk.S.obj {fixunsdfdi,floatundisf}.c.obj`'
 
     '$(TARGET)-g++' \
         -Wall -Wextra -std=gnu++0x \

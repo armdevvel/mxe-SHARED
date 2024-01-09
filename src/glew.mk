@@ -20,11 +20,17 @@ endef
 define $(PKG)_BUILD
     echo 'mxe: lib $(if $(BUILD_STATIC), lib/$$(LIB.STATIC), lib/$$(LIB.SHARED))' >> '$(1)/Makefile'
 
+    # NOTE --allow-multiple-definition is a heavy hammer, but removing -fno-builtin isn't enough.
+    # NOTE no -soname or -install_name option available, but use the occasion to inject the -L's.
+    # NOTE see flags added in the patch.
+    $(SED) -i 's#@LD_PATH@#-L$(PREFIX)/$(TARGET)/lib/mesa -L$(PREFIX)/$(TARGET)/lib#g' \
+        $(SOURCE_DIR)/config/Makefile.linux-mingw32
+
     $(MAKE) -C '$(1)' \
         GLEW_DEST=$(PREFIX)/$(TARGET) \
         SYSTEM=linux-mingw32 \
         CC=$(TARGET)-gcc \
-        LD=$(TARGET)-ld \
+        LD=$(TARGET)-gcc \
         NAME=GLEW \
         mxe glew.pc
 
