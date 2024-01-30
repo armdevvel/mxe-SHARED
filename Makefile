@@ -10,8 +10,7 @@ include $(EXT_DIR)/gmsl
 
 MXE_TRIPLETS       := armv7-w64-mingw32
 MXE_LIB_TYPES      := shared
-MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
-                          $(TRIPLET)))
+MXE_TARGET_LIST    := armv7-w64-mingw32 armv7-w64-mingw32-debug
 MXE_TARGETS        := armv7-w64-mingw32
 .DEFAULT_GOAL      := all-filtered
 
@@ -669,13 +668,7 @@ RTRIM            := $(SED) 's, \+$$$$,,'
 WRAP_MESSAGE      = $(\n)$(\n)$(call repeat,-,60)$(\n)$(1)$(and $(2),$(\n)$(\n)$(2))$(\n)$(call repeat,-,60)$(\n)
 
 define TARGET_RULE
-    $(if $(findstring i686-pc-mingw32,$(1)),\
-        $(error $(call WRAP_MESSAGE,\
-                Obsolete target specified: "$(1)",\
-                Please use i686-w64-mingw32.[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n)\
-                i686-pc-mingw32 removed 2014-10-14 (https://github.com/mxe/mxe/pull/529)\
-                )))\
-    $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(BUILD) $(MXE_TRIPLETS)),$(1)),,\
+    $(if $(filter $(MXE_TARGET_LIST) $(addsuffix %,$(BUILD)),$(1)),,\
         $(error $(call WRAP_MESSAGE,\
                 Invalid target specified: "$(1)",\
                 Please use:$(\n)\

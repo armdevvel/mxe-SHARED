@@ -25,9 +25,15 @@ define $(PKG)_BUILD
     # autoreconf to update config.sub etc.
     cd '$(SOURCE_DIR)' && autoreconf -fi
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
-        $(MXE_CONFIGURE_OPTS) \
+        --host=$(yasm_target) \
+        --target=$(BUILD) \
+        --prefix='$(PREFIX)/$(TARGET)' \
         --disable-nls \
         --disable-python
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
+
+$(PKG)_BUILD_armv7-w64-mingw32       = $(subst @yasm_target@,armv7-w64-mingw32,$($(PKG)_BUILD))
+$(PKG)_BUILD_armv7-w64-mingw32-debug = $(subst @yasm_target@,armv7-w64-mingw32,$($(PKG)_BUILD))
+$(PKG)_BUILD_$(BUILD)                = $(subst @yasm_target@,$($(BUILD)),$($(PKG)_BUILD))
