@@ -1,22 +1,19 @@
 This file is part of MXE. See LICENSE.md for licensing information.
 
-Contains ad hoc patches for cross building.
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: "fix@me" <fix@me>
-Date: Sun, 10 Aug 2014 19:35:55 -0700
-Subject: [PATCH 1/3] Disable targets
-
-Disable examples, test, and documentation in the CMakeLists.txt file.
-(The file unfortunately does not provide switches for this purpose.)
-
-Signed-off-by: Timothy Gu <timothygu99@gmail.com>
-
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 1111111..2222222 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -155,9 +155,9 @@ endif(WIN32)
+diff --color -Naur a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2024-01-08 03:10:48.649035340 -0500
++++ b/CMakeLists.txt	2024-01-08 03:12:15.989397018 -0500
+@@ -146,18 +146,13 @@
+ # require proper c++
+ #add_definitions( "-Wall -ansi -pedantic" )
+ # HDF5 uses long long which is not ansi
+-if (WIN32)
+-    # lots of warnings with cl.exe right now, use /W1
+-    add_definitions("/W1 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /bigobj")
+-else(WIN32)
+-    add_definitions( "-Wall -Wno-unknown-pragmas -Wno-unused-function" )
+-endif(WIN32)
++add_definitions( "-Wall -Wno-unknown-pragmas -Wno-unused-function" )
  
  add_subdirectory( cmake )
  add_subdirectory( src )
@@ -29,50 +26,10 @@ index 1111111..2222222 100644
  
  
  # CPACK options
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Timothy Gu <timothygu99@gmail.com>
-Date: Mon, 11 Aug 2014 10:09:08 -0700
-Subject: [PATCH 2/3] Fix gcc compile flags
-
-Signed-off-by: Timothy Gu <timothygu99@gmail.com>
-
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 1111111..2222222 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -146,12 +146,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src/cpp)
- # require proper c++
- #add_definitions( "-Wall -ansi -pedantic" )
- # HDF5 uses long long which is not ansi
--if (WIN32)
-+if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCC)
-     # lots of warnings with cl.exe right now, use /W1
-     add_definitions("/W1 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /bigobj")
--else(WIN32)
-+else(WIN32 AND NOT CMAKE_COMPILER_IS_GNUCC)
-     add_definitions( "-Wall -Wno-unknown-pragmas -Wno-unused-function" )
--endif(WIN32)
-+endif(WIN32 AND NOT CMAKE_COMPILER_IS_GNUCC)
- 
- add_subdirectory( cmake )
- add_subdirectory( src )
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Timothy Gu <timothygu99@gmail.com>
-Date: Mon, 11 Aug 2014 09:57:42 -0700
-Subject: [PATCH 3/3] Use BUILD_SHARED_LIBS to control which kind of libs to
- build
-
-Also removes the Linux-only --whole-archive trick, and CUDA libs.
-
-Signed-off-by: Timothy Gu <timothygu99@gmail.com>
-
-diff --git a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
-index 1111111..2222222 100644
---- a/src/cpp/CMakeLists.txt
-+++ b/src/cpp/CMakeLists.txt
-@@ -8,58 +8,17 @@ file(GLOB_RECURSE C_SOURCES flann.cpp)
+diff --color -Naur a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
+--- a/src/cpp/CMakeLists.txt	2024-01-08 03:10:48.652368687 -0500
++++ b/src/cpp/CMakeLists.txt	2024-01-08 03:12:45.589519589 -0500
+@@ -8,58 +8,17 @@
  file(GLOB_RECURSE CPP_SOURCES flann_cpp.cpp)
  file(GLOB_RECURSE CU_SOURCES *.cu)
  
@@ -95,13 +52,12 @@ index 1111111..2222222 100644
 -    cuda_add_library(flann_cuda_s STATIC ${CU_SOURCES})
 -    set_property(TARGET flann_cuda_s PROPERTY COMPILE_DEFINITIONS FLANN_STATIC)
 -endif()
- 
+-
 -if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_COMPILER_IS_GNUCC)
 -    add_library(flann_cpp SHARED "")
 -    set_target_properties(flann_cpp PROPERTIES LINKER_LANGUAGE CXX)
 -    target_link_libraries(flann_cpp -Wl,-whole-archive flann_cpp_s -Wl,-no-whole-archive)
-+add_library(flann_cpp ${CPP_SOURCES})
- 
+-
 -    if (BUILD_CUDA_LIB)
 -	    cuda_add_library(flann_cuda SHARED "")
 -        set_target_properties(flann_cuda PROPERTIES LINKER_LANGUAGE CXX)
@@ -116,13 +72,14 @@ index 1111111..2222222 100644
 -        set_property(TARGET flann_cpp PROPERTY COMPILE_DEFINITIONS FLANN_USE_CUDA)
 -    endif()
 -endif()
--
+ 
 -set_target_properties(flann_cpp PROPERTIES
 -   VERSION ${FLANN_VERSION}
 -   SOVERSION ${FLANN_SOVERSION}
 -   DEFINE_SYMBOL FLANN_EXPORTS
 -) 
--
++add_library(flann_cpp ${CPP_SOURCES})
+ 
 -if (BUILD_CUDA_LIB)
 -    set_target_properties(flann_cuda PROPERTIES
 +if (BUILD_SHARED_LIBS)
@@ -136,7 +93,7 @@ index 1111111..2222222 100644
  endif()
  
  
-@@ -76,60 +35,39 @@ endif()
+@@ -76,60 +35,39 @@
  
  
  if (BUILD_C_BINDINGS)
@@ -213,3 +170,34 @@ index 1111111..2222222 100644
  endif()
  
  install (
+diff --color -Naur a/src/cpp/flann/algorithms/kdtree_index.h b/src/cpp/flann/algorithms/kdtree_index.h
+--- a/src/cpp/flann/algorithms/kdtree_index.h	2024-01-08 03:10:48.652368687 -0500
++++ b/src/cpp/flann/algorithms/kdtree_index.h	2024-01-08 03:11:50.682625551 -0500
+@@ -36,6 +36,7 @@
+ #include <cassert>
+ #include <cstring>
+ #include <stdarg.h>
++#include <cmath>
+ 
+ #include "flann/general.h"
+ #include "flann/algorithms/nn_index.h"
+@@ -663,7 +664,7 @@
+             ElementType max_span = 0;
+             size_t div_feat = 0;
+             for (size_t i=0;i<veclen_;++i) {
+-                ElementType span = abs(point[i]-leaf_point[i]);
++                ElementType span = std::abs(point[i]-leaf_point[i]);
+                 if (span > max_span) {
+                     max_span = span;
+                     div_feat = i;
+diff --color -Naur a/src/cpp/flann/util/serialization.h b/src/cpp/flann/util/serialization.h
+--- a/src/cpp/flann/util/serialization.h	2024-01-08 03:10:48.662368728 -0500
++++ b/src/cpp/flann/util/serialization.h	2024-01-08 03:11:50.679292205 -0500
+@@ -86,6 +86,7 @@
+ BASIC_TYPE_SERIALIZER(unsigned int);
+ BASIC_TYPE_SERIALIZER(long);
+ BASIC_TYPE_SERIALIZER(unsigned long);
++BASIC_TYPE_SERIALIZER(unsigned long long);
+ BASIC_TYPE_SERIALIZER(float);
+ BASIC_TYPE_SERIALIZER(double);
+ BASIC_TYPE_SERIALIZER(bool);

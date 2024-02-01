@@ -1,0 +1,14 @@
+This file is part of MXE. See LICENSE.md for licensing information.
+
+diff --color -Naur a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2024-01-08 21:35:43.444293549 -0500
++++ b/CMakeLists.txt	2024-01-08 21:35:52.247650703 -0500
+@@ -121,7 +121,7 @@
+ 
+ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+     # using regular Clang or AppleClang
+-    add_compile_options(-Wall -Wconversion -Wshadow -Werror=conversion -Werror=sign-compare)
++    add_compile_options(-Wall -Wconversion -Wshadow -Werror=sign-compare)
+ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+     # using GCC
+     add_compile_options(-Wall -Wconversion -Wshadow -Wextra)

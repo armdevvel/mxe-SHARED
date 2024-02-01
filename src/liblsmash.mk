@@ -13,7 +13,7 @@ $(PKG)_DEPS     := cc
 # the option --host and fails on unknown options.
 # Therefor $(MXE_CONFIGURE_OPTS) can't be used here.
 define $(PKG)_BUILD
-    sed -i 's#-Wl,--version-script,liblsmash.ver##' '$(SOURCE_DIR)/configure'
+    $(SED) -i 's#-Wl,--version-script,liblsmash.ver##' '$(SOURCE_DIR)/configure'
     cd '$(SOURCE_DIR)' && ./configure \
         --prefix='$(PREFIX)/$(TARGET)' \
         --target-os=mingw \
