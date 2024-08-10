@@ -142,7 +142,7 @@ MXE_CONFIGURE_OPTS = \
 # default libc; see ./mxe.intrinsic.sh for details.
 # Since we only target one platform, we don't need to be flexible.
 # If needed, however, we can branch with $(if) or split $(TARGET).
-MXE_COMPILER_RT='$(PREFIX)/lib/clang/14.0.0/lib/windows/libclang_rt.builtins-arm.a'
+MXE_COMPILER_RT='$(PREFIX)/lib/clang/18/lib/windows/libclang_rt.builtins-arm.a'
 
 MXE_INTRINSIC_SH = \
     cd $(BUILD_DIR) && \
