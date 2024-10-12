@@ -20,6 +20,7 @@ define $(PKG)_BUILD
     touch '$(CMAKE_TOOLCHAIN_DIR)/.gitkeep'
     cmake-configure-file \
         -DCMAKE_VERSION=$(cmake_VERSION) \
+		-DCMAKE_BUILD_TYPE=$(ifeq ($(findstring debug,$(TARGET)),debug),Debug,Release) \
         -DCMAKE_SHARED_BOOL=$(CMAKE_SHARED_BOOL) \
         -DCMAKE_STATIC_BOOL=$(CMAKE_STATIC_BOOL) \
         -DLIBTYPE=$(if $(BUILD_SHARED),SHARED,STATIC) \

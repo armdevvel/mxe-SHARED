@@ -25,4 +25,5 @@ define $(PKG)_BUILD
     $(TARGET)-ranlib $(PREFIX)/$(TARGET)/lib/libvpx.a
 endef
 
-$(PKG)_BUILD_armv7-w64-mingw32   = $(subst @libvpx-target@,armv7-win32-gcc,$($(PKG)_BUILD))
+$(PKG)_BUILD_armv7-w64-mingw32       = $(subst @libvpx-target@,armv7-win32-gcc,$($(PKG)_BUILD))
+$(PKG)_BUILD_armv7-w64-mingw32.debug = $(subst @libvpx-target@,armv7-win32-gcc,$($(PKG)_BUILD))

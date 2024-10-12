@@ -17,8 +17,11 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+	# NEON is broken on debug builds, at least for right now, and has been since LLVM 14 at minimum (also locally tested).
+	# https://github.com/llvm/llvm-project/issues/64278
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
+		--disable-neon \
         --enable-everything
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 endef

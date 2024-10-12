@@ -10,7 +10,7 @@ $(PKG)_FILE     := cmake-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://www.cmake.org/files/v$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
 $(PKG)_TARGETS  := $(BUILD)
 $(PKG)_DEPS     := openssl
-$(PKG)_DEPS_$(BUILD) :=
+$(PKG)_DEPS_$(BUILD) := cc
 
 define $(PKG)_UPDATE
     echo 'NOTE: Please ensure all cmake packages build after updating with:' >&2;
