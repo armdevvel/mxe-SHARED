@@ -3,8 +3,8 @@
 PKG             := json-c
 $(PKG)_WEBSITE  := https://github.com/json-c/json-c/wiki
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 0.13.1
-$(PKG)_CHECKSUM := 94a26340c0785fcff4f46ff38609cf84ebcd670df0c8efd75d039cc951d80132
+$(PKG)_VERSION  := 0.17
+$(PKG)_CHECKSUM := 8df3b66597333dd365762cab2de2ff68e41e3808a04b692e696e0550648eefaa
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION)-nodoc.tar.gz
 $(PKG)_URL      := https://$(PKG)_releases.s3.amazonaws.com/releases/$($(PKG)_FILE)
@@ -19,15 +19,9 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    cd '$(1)' && ./autogen.sh
-    cd '$(1)' && ./configure \
-        $(MXE_CONFIGURE_OPTS) \
-        CFLAGS=-Wno-error
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install $(MXE_REMOVE_CRUFT)
-
-    '$(TARGET)-gcc' \
-        -W -Wall -Werror -pedantic \
-        '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-json-c.exe' \
-        `'$(TARGET)-pkg-config' json-c --cflags --libs`
+    cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
+        -DCMAKE_INSTALL_PREFIX=$(PREFIX)/$(TARGET)/
+    $(MAKE) -C '$(BUILD_DIR)' -j $(JOBS)
+    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
 
