@@ -61,6 +61,13 @@ You should be good to go now! Go have fun with your heart's desires building wha
 
 When you build applications and run them on Windows on ARM (32 or 64), you might need the UCRT files. It may be included, but some OSes (such as RT8.1 without all updates) do not have it. For the ARM32 UCRT DLLs, you can snatch them [here](resources/WinUCRT.tar.xz).
 
+  * Note for Ubuntu 24.04+ and Debian 13+ users ---
+    - If you encounter the following error:
+```bash
+ERROR: <PythonExternalProgram 'python3' -> ['/usr/bin/python3']> is not a valid python or it is missing distutils
+```
+`python3-distutils` has been retired in favour of `python-distutils-extra`, install this instead to get certain packages like glib to build.
+
 ## FAQ
 
 Q: Will this work on WSL?  \
