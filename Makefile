@@ -144,6 +144,10 @@ MXE_CONFIGURE_OPTS = \
 # If needed, however, we can branch with $(if) or split $(TARGET).
 MXE_COMPILER_RT='$(PREFIX)/lib/clang/14.0.0/lib/windows/libclang_rt.builtins-arm.a'
 
+MXE_EASYSTRIP_SH = \
+    mkdir -p '$(PREFIX)/$(TARGET)/bin/stripped-executables' && \
+        $(SHELL) $(PWD)/mxe.easystrip.sh '$(PREFIX)/$(TARGET)/bin' '$(TARGET)'
+
 MXE_INTRINSIC_SH = \
     cd $(BUILD_DIR) && \
         BUILD_DIR=$(BUILD_DIR) \
@@ -808,6 +812,8 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	                    BUILD='$(BUILD)' \
 	                    VERSION='$($(1)_VERSION)' \
 	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
+                    && echo 'Stripping all executables not previously stripped.' \
+                    && $(MXE_EASYSTRIP_SH) \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
 	            echo 'Failed to build package $(1) for target $(3)!'; \
