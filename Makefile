@@ -8,7 +8,7 @@ EXT_DIR  := $(TOP_DIR)/ext
 # See docs/gmsl.html for further information
 include $(EXT_DIR)/gmsl
 
-MXE_TRIPLETS       := armv7-w64-mingw32
+MXE_TRIPLETS       := armv7-w64-mingw32 armv7-w64-mingw32.debug
 MXE_LIB_TYPES      := shared
 MXE_TARGET_LIST    := $(strip $(foreach TRIPLET,$(MXE_TRIPLETS),\
                           $(TRIPLET)))
@@ -142,7 +142,11 @@ MXE_CONFIGURE_OPTS = \
 # default libc; see ./mxe.intrinsic.sh for details.
 # Since we only target one platform, we don't need to be flexible.
 # If needed, however, we can branch with $(if) or split $(TARGET).
-MXE_COMPILER_RT='$(PREFIX)/lib/clang/18/lib/windows/libclang_rt.builtins-arm.a'
+MXE_COMPILER_RT='$(PREFIX)/lib/clang/14.0.0/lib/windows/libclang_rt.builtins-arm.a'
+
+MXE_EASYSTRIP_SH = \
+    mkdir -p '$(PREFIX)/$(TARGET)/bin/stripped-executables' && \
+        $(SHELL) $(PWD)/mxe.easystrip.sh '$(PREFIX)/$(TARGET)/bin' '$(TARGET)'
 
 MXE_INTRINSIC_SH = \
     cd $(BUILD_DIR) && \
@@ -808,6 +812,8 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	                    BUILD='$(BUILD)' \
 	                    VERSION='$($(1)_VERSION)' \
 	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
+                    && echo 'Stripping all executables not previously stripped.' \
+                    && $(MXE_EASYSTRIP_SH) \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
 	            echo 'Failed to build package $(1) for target $(3)!'; \
@@ -880,6 +886,7 @@ build-only-$(1)_$(3):
 	    $$(call $(call LOOKUP_PKG_RULE,$(1),BUILD,$(3)),$(2)/$($(1)_SUBDIR))
 	    @echo
 	    @find '$(2)' -name 'config.log' -print -exec cat {} \;
+	    @find '$(2)' -name '*.pdb' -print -exec cp {} '$(PREFIX)/$(TARGET)/bin' \;
 	    @echo
 	    @echo 'settings.mk'
 	    @cat '$(TOP_DIR)/settings.mk'

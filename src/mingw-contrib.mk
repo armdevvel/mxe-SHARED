@@ -12,7 +12,7 @@ $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
 	# build and install the library
-    cd '$(BUILD_DIR)' && armv7-w64-mingw32-cmake '$(SOURCE_DIR)'
+    cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)'
 	$(MAKE) -C '$(BUILD_DIR)' -j $(JOBS)
 	$(MAKE) -C '$(BUILD_DIR)' install
 endef
