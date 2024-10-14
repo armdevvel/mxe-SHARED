@@ -15,8 +15,8 @@ if [ -z "$2" ]; then
 fi
 
 if ! [ -x "$(command -v "$2-strip")" ]; then
-	echo "Executable $2-strip not found! Check your PATH?"
-	exit 1
+	echo "Executable $2-strip not found! LLVM may not be installed yet. Exiting gracefully."
+	exit 0
 fi
 
 for i in $1/*.dll $1/*.exe; do
