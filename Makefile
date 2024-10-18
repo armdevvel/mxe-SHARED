@@ -812,8 +812,9 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	                    BUILD='$(BUILD)' \
 	                    VERSION='$($(1)_VERSION)' \
 	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
-                    && echo 'Stripping all executables not previously stripped.' \
-                    && $(MXE_EASYSTRIP_SH) \
+                    $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(MXE_TRIPLETS)),$(3)), \
+                        && $(MXE_EASYSTRIP_SH)  \
+                    ) \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
 	            echo 'Failed to build package $(1) for target $(3)!'; \
