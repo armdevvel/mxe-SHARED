@@ -3,10 +3,10 @@
 PKG             := libslirp
 $(PKG)_WEBSITE  := https://gitlab.freedesktop.org/slirp/libslirp
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 4.7.0
+$(PKG)_VERSION  := 4.8.0
 $(PKG)_SUBDIR   := libslirp-v$($(PKG)_VERSION)
 $(PKG)_FILE     := libslirp-v$($(PKG)_VERSION).tar.gz
-$(PKG)_CHECKSUM := 9398f0ec5a581d4e1cd6856b88ae83927e458d643788c3391a39e61b75db3d3b
+$(PKG)_CHECKSUM := 7a986863098ce4a938ca88e89befd474ae7d9266edd1178fbdcd3b8e0dd10414
 $(PKG)_URL      := https://gitlab.freedesktop.org/slirp/$(PKG)/-/archive/v$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc glib meson-wrapper
 
