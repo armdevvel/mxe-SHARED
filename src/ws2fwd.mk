@@ -5,7 +5,7 @@ $(PKG)_DESCR    := POSIX/BSD forward headers to WinSock2
 $(PKG)_IGNORE   :=
 $(PKG)_SOURCE_DIR := $(PWD)/resources/nihil
 $(PKG)_VERSION  := 0.0.0
-$(PKG)_DEPS     := llvm-mingw
+$(PKG)_DEPS     := $(BUILD)~llvm-mingw
 
 $(PKG)_INSTALL  := $(PREFIX)/$(TARGET)/include
 
