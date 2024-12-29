@@ -7,7 +7,7 @@ $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.0.1
 $(PKG)_CHECKSUM := e2abd0adc625ddd543f2c54a1ce723d5a574ac4228db846007eb061681f54ed5
 $(PKG)_GH_CONF  := armdevvel/prefix/tags,
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc meson-wrapper
 
 define $(PKG)_BUILD
     '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
