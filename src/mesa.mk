@@ -7,7 +7,7 @@ $(PKG)_VERSION  := 22.3.2
 $(PKG)_CHECKSUM := c15df758a8795f53e57f2a228eb4593c22b16dffd9b38f83901f76cd9533140b
 $(PKG)_SUBDIR   := mesa-$($(PKG)_VERSION)
 $(PKG)_FILE     := mesa-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://archive.mesa3d.org/$($(PKG)_FILE)
+$(PKG)_URL      := https://github.com/armdevvel/mxe-storage/raw/master/libraries/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc meson-wrapper zlib zstd
 
 define $(PKG)_UPDATE
