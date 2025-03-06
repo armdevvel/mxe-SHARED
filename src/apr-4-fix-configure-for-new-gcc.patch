@@ -1,0 +1,63 @@
+diff --color -Naur a/configure b/configure
+--- a/configure	2025-03-05 20:10:02.878790194 -0500
++++ b/configure	2025-03-05 20:12:41.523510940 -0500
+@@ -23550,12 +23550,13 @@
+ /* end confdefs.h.  */
+ #include <stdio.h>
+ #include <sys/types.h>
++#include <stdlib.h>
+ #ifdef WIN32
+ #define binmode "b"
+ #else
+ #define binmode
+ #endif
+-main()
++int main()
+ {
+   FILE *f=fopen("conftestval", "w" binmode);
+   if (!f) exit(1);
+@@ -23785,12 +23786,13 @@
+ /* end confdefs.h.  */
+ #include <stdio.h>
+ #include <sys/types.h>
++#include <stdlib.h>
+ #ifdef WIN32
+ #define binmode "b"
+ #else
+ #define binmode
+ #endif
+-main()
++int main()
+ {
+   FILE *f=fopen("conftestval", "w" binmode);
+   if (!f) exit(1);
+@@ -23848,12 +23850,13 @@
+ /* end confdefs.h.  */
+ #include <stdio.h>
+ #include <stddef.h>
++#include <stdlib.h>
+ #ifdef WIN32
+ #define binmode "b"
+ #else
+ #define binmode
+ #endif
+-main()
++int main()
+ {
+   FILE *f=fopen("conftestval", "w" binmode);
+   if (!f) exit(1);
+@@ -23911,12 +23914,13 @@
+ /* end confdefs.h.  */
+ #include <stdio.h>
+ #include <sys/types.h>
++#include <stdlib.h>
+ #ifdef WIN32
+ #define binmode "b"
+ #else
+ #define binmode
+ #endif
+-main()
++int main()
+ {
+   FILE *f=fopen("conftestval", "w" binmode);
+   if (!f) exit(1);
