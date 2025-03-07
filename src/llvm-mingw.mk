@@ -2,8 +2,8 @@
 
 PKG                  := llvm-mingw
 $(PKG)_WEBSITE       := http://www.github.com/mstorsjo/llvm-mingw
-$(PKG)_VERSION       := 14.0-debug
-$(PKG)_CHECKSUM      := 26ecd6515c54840a5cad16f02fe3d3f5f2b37028d2685e33068c9a893e555f0d
+$(PKG)_VERSION       := 14.0-debug-hotfix1
+$(PKG)_CHECKSUM      := 195620dd64411ac86d1273b706c8b85fb81ad57d4028c2b00e9cf4e192f0603a
 $(PKG)_FILE          := armv7-only-llvm-mingw-linux-x86_64.tar.xz
 $(PKG)_URL           := https://github.com/armdevvel/llvm-mingw/releases/download/$($(PKG)_VERSION)/armv7-only-llvm-mingw-linux-x86_64.tar.xz
 $(PKG)_TARGETS       := $(BUILD)
