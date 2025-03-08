@@ -1,0 +1,31 @@
+--- a/Source/WebKit/win/Plugins/PluginViewWin.cpp	2022-04-07 02:14:08.073466388 -0400
++++ b/Source/WebKit/win/Plugins/PluginViewWin.cpp	2022-04-07 02:15:25.889247353 -0400
+@@ -137,8 +137,8 @@
+ typedef BOOL (WINAPI *PtrEndPaint)(HWND, const PAINTSTRUCT*);
+ 
+ #if OS(WINDOWS) && CPU(X86_64) && COMPILER(MSVC)
+-extern "C" HDC __stdcall _HBeginPaint(HWND hWnd, LPPAINTSTRUCT lpPaint);
+-extern "C" BOOL __stdcall _HEndPaint(HWND hWnd, const PAINTSTRUCT* lpPaint);
++extern "C" HDC __stdcall BeginPaint(HWND hWnd, LPPAINTSTRUCT lpPaint);
++extern "C" BOOL __stdcall EndPaint(HWND hWnd, const PAINTSTRUCT* lpPaint);
+ #endif
+ 
+ HDC WINAPI PluginView::hookedBeginPaint(HWND hWnd, PAINTSTRUCT* lpPaint)
+@@ -170,7 +170,7 @@
+     __asm   push    hWnd
+     __asm   call    beginPaint
+ #else
+-    return _HBeginPaint(hWnd, lpPaint);
++    return BeginPaint(hWnd, lpPaint);
+ #endif
+ }
+ 
+@@ -199,7 +199,7 @@
+     __asm   push    hWnd
+     __asm   call    endPaint
+ #else
+-    return _HEndPaint(hWnd, lpPaint);
++    return EndPaint(hWnd, lpPaint);
+ #endif
+ }
+ 

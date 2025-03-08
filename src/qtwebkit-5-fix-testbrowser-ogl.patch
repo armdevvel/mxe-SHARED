@@ -1,0 +1,29 @@
+diff --color -Naur a/Tools/QtTestBrowser/launcherwindow.cpp b/Tools/QtTestBrowser/launcherwindow.cpp
+--- a/Tools/QtTestBrowser/launcherwindow.cpp	2025-03-08 01:44:14.392404578 -0500
++++ b/Tools/QtTestBrowser/launcherwindow.cpp	2025-03-08 01:43:58.843173725 -0500
+@@ -170,12 +170,14 @@
+     } else {
+         WebViewGraphicsBased* view = new WebViewGraphicsBased(splitter);
+         m_view = view;
++#ifndef QT_NO_OPENGL
+         if (!m_windowOptions.useQOpenGLWidgetViewport)
+             toggleQGLWidgetViewport(m_windowOptions.useQGLWidgetViewport);
+ #ifdef QT_OPENGL_LIB
+         if (!m_windowOptions.useQGLWidgetViewport)
+             toggleQOpenGLWidgetViewport(m_windowOptions.useQOpenGLWidgetViewport);
+ #endif
++#endif
+         view->setPage(page());
+ 
+         connect(view, SIGNAL(currentFPSUpdated(int)), this, SLOT(updateFPS(int)));
+diff --color -Naur a/Tools/QtTestBrowser/launcherwindow.h b/Tools/QtTestBrowser/launcherwindow.h
+--- a/Tools/QtTestBrowser/launcherwindow.h	2025-03-08 01:44:14.392297247 -0500
++++ b/Tools/QtTestBrowser/launcherwindow.h	2025-03-08 01:43:58.843173725 -0500
+@@ -34,6 +34,7 @@
+ #define launcherwindow_h
+ 
+ #include <QtNetwork/QNetworkRequest>
++#include <QtGui/qtgui-config.h>
+ 
+ #ifndef QT_NO_OPENGL
+ #include <QtOpenGL/QGLWidget>
