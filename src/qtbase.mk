@@ -45,7 +45,7 @@ define $(PKG)_BUILD
             -pkg-config \
             -force-pkg-config \
             -no-use-gold-linker \
-            -release \
+            $(if $(BUILD_DEBUG), -debug,)$(if $(BUILD_RELEASE), -release,) \
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
