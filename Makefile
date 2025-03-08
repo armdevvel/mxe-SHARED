@@ -842,6 +842,8 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 # https://www.gnu.org/software/make/manual/html_node/Target_002dspecific.html
 build-only-$(1)_$(3): PKG = $(1)
 build-only-$(1)_$(3): TARGET = $(3)
+# debug specific variable for extra configuration in things like qt5
+build-only-$(1)_$(3): BUILD_$(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),DEBUG,RELEASE) = TRUE
 build-only-$(1)_$(3): BUILD_SHARED = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
 build-only-$(1)_$(3): $(if $(findstring win32,$(TARGET)),WIN32,POSIX)_THREADS = TRUE
