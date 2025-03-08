@@ -4,15 +4,18 @@ PKG             := qtwebkit
 $(PKG)_WEBSITE  := https://github.com/annulen/webkit
 $(PKG)_DESCR    := QtWebKit
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 5.212
-$(PKG)_CHECKSUM := 10cbdaba60aac79d27016aa05bae9ab3ec7b0aed4df163debfbf8fddd66adc14
-$(PKG)_SUBDIR   := qtwebkit-opensource-src-$($(PKG)_VERSION)
-$(PKG)_FILE     := qtwebkit-opensource-src-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://download.qt.io/snapshots/ci/qtwebkit/5.212/latest/src/submodules/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc icu4c libxml2 libxslt libwebp qtbase qtmultimedia qtquickcontrols \
+$(PKG)_VERSION  := 5.13.1
+$(PKG)_CHECKSUM := f688e039e2bdc06e2e46680f3ef57715e1b7d6ea69fd76899107605a8f371ea3
+$(PKG)_SUBDIR   := qtwebkit-everywhere-src-$($(PKG)_VERSION)
+$(PKG)_FILE     := qtwebkit-everywhere-src-$($(PKG)_VERSION).tar.xz
+$(PKG)_URL      := https://github.com/armdevvel/mxe-storage/raw/master/libraries/qt/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
+$(PKG)_DEPS     := cc libxml2 libxslt libwebp qtbase qtmultimedia qtquickcontrols \
                    qtsensors qtwebchannel sqlite
 
-define $(PKG)_BUILD_SHARED
+# Fedora's patch is used to fix a Ruby Annotation error in this build!
+# https://src.fedoraproject.org/rpms/qt5-qtwebkit/raw/rawhide/f/webkit-offlineasm-warnings-ruby27.patch
+
+define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
         -DCMAKE_INSTALL_PREFIX=$(PREFIX)/$(TARGET)/qt5 \
         -DCMAKE_CXX_FLAGS='-fpermissive' \
@@ -20,13 +23,20 @@ define $(PKG)_BUILD_SHARED
         -DPORT=Qt \
         -DENABLE_GEOLOCATION=OFF \
         -DENABLE_MEDIA_SOURCE=ON \
+        -DENABLE_OPENGL=OFF \
         -DENABLE_VIDEO=ON \
         -DENABLE_WEB_AUDIO=ON \
+        -DENABLE_WEBKIT2=OFF \
         -DUSE_GSTREAMER=OFF \
         -DUSE_MEDIA_FOUNDATION=OFF \
-        -DUSE_QT_MULTIMEDIA=ON
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 || $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1
-    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
+        -DUSE_QT_MULTIMEDIA=ON \
+        -DENABLE_JIT=OFF \
+        -DENABLE_API_TESTS=OFF \
+        -DENABLE_MINIBROWSER=OFF \
+        -G Ninja
+    $(SED) -i 's/-fno-keep-inline-dllexport/-liconv -lws2_32 -licuin -licuuc -licudt -llzma -lpthread -pthread -pthreads/g' '$(BUILD_DIR)/build.ninja'
+    ninja -C '$(BUILD_DIR)' -j '$(JOBS)' || ninja -C '$(BUILD_DIR)' -j '$(JOBS)'
+    ninja -C '$(BUILD_DIR)' install
 
     # build test manually
     # add $(BUILD_TYPE_SUFFIX) for debug builds - see qtbase.mk
