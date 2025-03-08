@@ -99,7 +99,7 @@ define $(PKG)_BUILD
         '$(1)/test-$(PKG)-pkgconfig/qrc_qt-test.cpp' \
         -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-pkgconfig.exe' \
         -I'$(1)/test-$(PKG)-pkgconfig' \
-        `'$(TARGET)-pkg-config' Qt5Widgets$(BUILD_TYPE_SUFFIX) --cflags --libs`
+        `'$(TARGET)-pkg-config' Qt5Widgets --cflags --libs`
 
     # setup cmake toolchain and test
     echo 'set(CMAKE_SYSTEM_PREFIX_PATH "$(PREFIX)/$(TARGET)/qt5" ${CMAKE_SYSTEM_PREFIX_PATH})' > '$(CMAKE_TOOLCHAIN_DIR)/$(PKG).cmake'
