@@ -19,8 +19,15 @@ define $(PKG)_BUILD
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 
+    $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_DLLS),)
+
     '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-assimp.exe' \
         `'$(TARGET)-pkg-config' assimp minizip --cflags --libs`
+endef
+
+define $(PKG)_BUILD_COPY_DLLS
+    # Debug builds save libraries to libassimpd.dll.a.
+    cp $(PREFIX)/$(TARGET)/lib/libassimpd.dll.a $(PREFIX)/$(TARGET)/lib/libassimp.dll.a
 endef

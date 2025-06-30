@@ -1,0 +1,12 @@
+diff '--color=auto' -Naur a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2025-06-30 18:15:12.625411371 -0400
++++ b/CMakeLists.txt	2025-06-30 18:14:51.318861299 -0400
+@@ -60,7 +60,7 @@
+ option(ASSIMP_ANDROID_JNIIOSYSTEM "Android JNI IOSystem support is active" OFF)
+ 
+ # Workaround to be able to deal with compiler bug "Too many sections" with mingw.
+-if( CMAKE_COMPILER_IS_MINGW )
++if( MINGW )
+   ADD_DEFINITIONS(-DASSIMP_BUILD_NO_IFC_IMPORTER )
+ endif()
+ 
