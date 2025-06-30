@@ -18,6 +18,7 @@ define $(PKG)_BUILD
 
     '$(PREFIX)/bin/cmake-configure-file' \
         -DLIBTYPE=$(if $(BUILD_SHARED),shared,static) \
+		-DBUILDTYPE=$(if $(BUILD_DEBUG),debug,release) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
 		-DSTRIP=$(if $(STRIP_LIB),true,false) \
@@ -29,6 +30,7 @@ define $(PKG)_BUILD
 
     '$(PREFIX)/bin/cmake-configure-file' \
         -DLIBTYPE=$(if $(BUILD_SHARED),shared,static) \
+		-DBUILDTYPE=$(if $(BUILD_DEBUG),debug,release) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
         -DBUILD=$(BUILD) \
@@ -39,7 +41,7 @@ define $(PKG)_BUILD
     '$(PREFIX)/bin/cmake-configure-file' \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
-        -DMESON_EXECUTABLE=$(PREFIX)/$(BUILD)/bin/meson \
+		-DMESON_EXECUTABLE=$(PREFIX)/$(BUILD)/bin/meson \
         -DMESON_CROSS_FILE='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile.meson' \
         -DINPUT='$(PWD)/src/meson-wrapper/conf/target-meson.in' \
         -DOUTPUT='$(PREFIX)/bin/$(TARGET)-meson'

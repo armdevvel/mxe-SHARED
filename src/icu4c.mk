@@ -38,9 +38,23 @@ define $(PKG)_BUILD_COMMON
         SHELL=$(SHELL) \
         LIBS='-lstdc++' \
         $($(PKG)_CONFIGURE_OPTS)
-        
+
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
+
+    $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_DLLS),)
+endef
+
+define $(PKG)_BUILD_COPY_DLLS
+    # Debug builds save libraries to libicu*d.dll.a.
+    # This causes issues with things like Qt's configure system.
+    # TODO: Fix Qt's configure system in the future to accept libicu*d.dll.a(?)
+    cp $(PREFIX)/$(TARGET)/lib/libicudtd.dll.a $(PREFIX)/$(TARGET)/lib/libicudt.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicutestd.dll.a $(PREFIX)/$(TARGET)/lib/libicutest.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuind.dll.a $(PREFIX)/$(TARGET)/lib/libicuin.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicutud.dll.a $(PREFIX)/$(TARGET)/lib/libicutu.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuiod.dll.a $(PREFIX)/$(TARGET)/lib/libicuio.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuucd.dll.a $(PREFIX)/$(TARGET)/lib/libicuuc.dll.a
 endef
 
 define $(PKG)_BUILD_TEST

@@ -25,7 +25,7 @@ includedir = 'include'
 libdir = 'lib'
 libexecdir = 'bin'
 prefix = '@PREFIX@/@TARGET@'
-buildtype = 'release'
+buildtype = '@BUILDTYPE@'
 default_library = '@LIBTYPE@'
 strip = @STRIP@
 

@@ -29,6 +29,7 @@ endef
 define $(PKG)_BUILD_SHARED
     $(MAKE) -C '$(1)' -f win32/Makefile.gcc \
         SHARED_MODE=1 \
+        $(if $(BUILD_DEBUG),DEBUG_MODE=1,) \
         STATICLIB= \
         BINARY_PATH='$(PREFIX)/$(TARGET)/bin' \
         INCLUDE_PATH='$(PREFIX)/$(TARGET)/include' \

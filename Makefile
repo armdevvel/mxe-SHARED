@@ -135,6 +135,8 @@ MXE_CONFIGURE_OPTS = \
     $(if $(BUILD_STATIC), \
         --enable-static --disable-shared , \
         --disable-static --enable-shared ) \
+    $(if $(findstring debug,$(TARGET)), \
+        --enable-debug ,) \
     $(MXE_DISABLE_DOC_OPTS)
 
 # CLang runtime library. Used to selectively extract missing intrinsic implementations

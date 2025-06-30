@@ -37,6 +37,7 @@ define $(PKG)_BUILD
 
     # MOREINFO shall we choose --api=... explicitly? In other words, is 3.x any better than 1.0.2?
     cd '$(1)' && CC='$(TARGET)-gcc' RC='$(TARGET)-windres' ./Configure \
+		$(if $(BUILD_DEBUG),-d,) \
         mingw-arm \
         zlib \
         $(if $(BUILD_STATIC),no-module no-,)shared \

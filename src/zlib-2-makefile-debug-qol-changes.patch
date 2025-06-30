@@ -1,0 +1,84 @@
+diff '--color=auto' -Naur a/win32/Makefile.gcc b/win32/Makefile.gcc
+--- a/win32/Makefile.gcc	2025-06-30 01:28:19.226434969 -0400
++++ b/win32/Makefile.gcc	2025-06-30 01:52:58.603755024 -0400
+@@ -34,17 +34,27 @@
+ #
+ SHARED_MODE=0
+ 
+-#LOC = -DZLIB_DEBUG -g
++#
++# Set to 1 if debug object needs to be installed
++#
++DEBUG_MODE=0
++
++OPT_FLAGS=
++ifeq ($(DEBUG_MODE), 1)
++	OPT_FLAGS=-DZLIB_DEBUG
++else
++	OPT_FLAGS=-O3
++endif
+ 
+ PREFIX =
+ CC = $(PREFIX)gcc
+-CFLAGS = $(LOC) -O3 -Wall
++CFLAGS = $(OPT_FLAGS) -Wall
+ 
+ AS = $(CC)
+-ASFLAGS = $(LOC) -Wall
++ASFLAGS = $(OPT_FLAGS) -Wall
+ 
+ LD = $(CC)
+-LDFLAGS = $(LOC)
++LDFLAGS = $(OPT_FLAGS)
+ 
+ AR = $(PREFIX)ar
+ ARFLAGS = rcs
+@@ -90,23 +100,33 @@
+ $(SHAREDLIB): win32/zlib.def $(OBJS) $(OBJA) zlibrc.o
+ 	$(CC) -shared -Wl,--out-implib,$(IMPLIB) $(LDFLAGS) \
+ 	-o $@ win32/zlib.def $(OBJS) $(OBJA) zlibrc.o
++ifeq ($(DEBUG_MODE), 0)
+ 	$(STRIP) $@
++endif
+ 
+-example.exe: example.o $(STATICLIB)
+-	$(LD) $(LDFLAGS) -o $@ example.o $(STATICLIB)
++example.exe: example.o $(STATICLIB) $(IMPLIB)
++	$(LD) $(LDFLAGS) -o $@ example.o $(STATICLIB) $(IMPLIB)
++ifeq ($(DEBUG_MODE), 0)
+ 	$(STRIP) $@
++endif
+ 
+-minigzip.exe: minigzip.o $(STATICLIB)
+-	$(LD) $(LDFLAGS) -o $@ minigzip.o $(STATICLIB)
++minigzip.exe: minigzip.o $(STATICLIB) $(IMPLIB)
++	$(LD) $(LDFLAGS) -o $@ minigzip.o $(STATICLIB) $(IMPLIB)
++ifeq ($(DEBUG_MODE), 0)
+ 	$(STRIP) $@
++endif
+ 
+ example_d.exe: example.o $(IMPLIB)
+ 	$(LD) $(LDFLAGS) -o $@ example.o $(IMPLIB)
++ifeq ($(DEBUG_MODE), 0)
+ 	$(STRIP) $@
++endif
+ 
+ minigzip_d.exe: minigzip.o $(IMPLIB)
+ 	$(LD) $(LDFLAGS) -o $@ minigzip.o $(IMPLIB)
++ifeq ($(DEBUG_MODE), 0)
+ 	$(STRIP) $@
++endif
+ 
+ example.o: test/example.c zlib.h zconf.h
+ 	$(CC) $(CFLAGS) -I. -c -o $@ test/example.c
+@@ -133,7 +153,9 @@
+ 	fi
+ 	-$(INSTALL) zlib.h '$(DESTDIR)$(INCLUDE_PATH)'
+ 	-$(INSTALL) zconf.h '$(DESTDIR)$(INCLUDE_PATH)'
+-	-$(INSTALL) $(STATICLIB) '$(DESTDIR)$(LIBRARY_PATH)'
++	-if [ "$(SHARED_MODE)" = "0" ]; then \
++		$(INSTALL) $(STATICLIB) '$(DESTDIR)$(LIBRARY_PATH)'; \
++	fi
+ 	sed \
+ 		-e 's|@prefix@|${prefix}|g' \
+ 		-e 's|@exec_prefix@|${exec_prefix}|g' \

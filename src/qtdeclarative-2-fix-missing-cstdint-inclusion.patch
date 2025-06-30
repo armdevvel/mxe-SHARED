@@ -1,0 +1,11 @@
+diff '--color=auto' -Naur a/src/qml/compiler/qv4compiler_p.h b/src/qml/compiler/qv4compiler_p.h
+--- a/src/qml/compiler/qv4compiler_p.h	2025-06-30 00:29:56.038600723 -0400
++++ b/src/qml/compiler/qv4compiler_p.h	2025-06-30 00:30:23.659851575 -0400
+@@ -50,6 +50,7 @@
+ // We mean it.
+ //
+ 
++#include <cstdint>
+ #include <QtCore/qstring.h>
+ #include <QtCore/qhash.h>
+ #include <QtCore/qstringlist.h>

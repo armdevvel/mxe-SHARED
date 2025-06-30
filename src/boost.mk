@@ -83,8 +83,11 @@ define $(PKG)_B2_CROSS_BUILD
         target-os=windows \
         threadapi=win32 \
         threading=multi \
-        variant=release \
         toolset=gcc-mxe \
+        $(if $(BUILD_DEBUG), \
+        debug-symbols=on variant=debug, \
+        variant=release \
+        ) \
         --layout=tagged \
         --disable-icu \
         $($(PKG)_WITH_LIBRARIES) \

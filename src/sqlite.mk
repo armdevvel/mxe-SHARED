@@ -21,7 +21,10 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-readline \
-        --enable-threadsafe \
-        CFLAGS="-Os -DSQLITE_ENABLE_COLUMN_METADATA"
-    $(MAKE) -C '$(1)' -j 1 install
+        --enable-threadsafe
+
+    # For some reason, using CFLAGS with --enable-debug BREAKS the library?
+    # It seems it gets ignored, so just using it with make instead sufices.
+    # TODO: Make sqlite not strip the executable during installation
+    $(MAKE) -C '$(1)' -j 1 CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA" install
 endef
