@@ -1,0 +1,1614 @@
+diff '--color=auto' -x '*.pyc' -Naur a/Source/JavaScriptCore/bytecode/StructureSet.h b/Source/JavaScriptCore/bytecode/StructureSet.h
+--- a/Source/JavaScriptCore/bytecode/StructureSet.h	2025-07-02 03:56:09.051400825 -0400
++++ b/Source/JavaScriptCore/bytecode/StructureSet.h	2025-07-02 03:56:08.250243923 -0400
+@@ -74,6 +74,8 @@
+     void filter(const DFG::AbstractValue&);
+ #endif // ENABLE(DFG_JIT)
+     
++
++    StructureSet& operator=(const StructureSet&) = default;
+     SpeculatedType speculationFromStructures() const;
+     ArrayModes arrayModesFromStructures() const;
+     
+diff '--color=auto' -x '*.pyc' -Naur a/Source/JavaScriptCore/debugger/Breakpoint.h b/Source/JavaScriptCore/debugger/Breakpoint.h
+--- a/Source/JavaScriptCore/debugger/Breakpoint.h	2025-07-02 03:56:09.060697615 -0400
++++ b/Source/JavaScriptCore/debugger/Breakpoint.h	2025-07-02 03:56:08.290398927 -0400
+@@ -71,6 +71,8 @@
+ 
+     static const unsigned unspecifiedColumn = UINT_MAX;
+ 
++    Breakpoint& operator=(const Breakpoint&) = default;
++
+ private:
+     Breakpoint* m_prev;
+     Breakpoint* m_next;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/JavaScriptCore/interpreter/AbstractPC.h b/Source/JavaScriptCore/interpreter/AbstractPC.h
+--- a/Source/JavaScriptCore/interpreter/AbstractPC.h	2025-07-02 03:56:09.060008613 -0400
++++ b/Source/JavaScriptCore/interpreter/AbstractPC.h	2025-07-02 03:56:08.233398785 -0400
+@@ -40,6 +40,9 @@
+         : m_pointer(0)
+         , m_mode(None)
+     {
++#if !ENABLE(JIT)
++        UNUSED_PARAM(m_pointer);
++#endif
+     }
+     
+     AbstractPC(VM&, ExecState*);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/JavaScriptCore/parser/ParserTokens.h b/Source/JavaScriptCore/parser/ParserTokens.h
+--- a/Source/JavaScriptCore/parser/ParserTokens.h	2025-07-02 03:56:09.146401063 -0400
++++ b/Source/JavaScriptCore/parser/ParserTokens.h	2025-07-02 03:56:08.313398985 -0400
+@@ -171,6 +171,7 @@
+     JSTextPosition(int _line, int _offset, int _lineStartOffset) : line(_line), offset(_offset), lineStartOffset(_lineStartOffset) { }
+     JSTextPosition(const JSTextPosition& other) : line(other.line), offset(other.offset), lineStartOffset(other.lineStartOffset) { }
+ 
++    JSTextPosition& operator=(const JSTextPosition&) = default;
+     JSTextPosition operator+(int adjustment) const { return JSTextPosition(line, offset + adjustment, lineStartOffset); }
+     JSTextPosition operator+(unsigned adjustment) const { return *this + static_cast<int>(adjustment); }
+     JSTextPosition operator-(int adjustment) const { return *this + (- adjustment); }
+@@ -200,12 +201,16 @@
+ 
+ struct JSTokenLocation {
+     JSTokenLocation() : line(0), lineStartOffset(0), startOffset(0) { }
+-    JSTokenLocation(const JSTokenLocation& location)
++    JSTokenLocation(const JSTokenLocation& location) = default;
++
++    JSTokenLocation& operator=(const JSTokenLocation& location)
+     {
+-        line = location.line;
+-        lineStartOffset = location.lineStartOffset;
+-        startOffset = location.startOffset;
+-        endOffset = location.endOffset;
++		line = location.line;
++		lineStartOffset = location.lineStartOffset;
++		startOffset = location.startOffset;
++		endOffset = location.endOffset;
++
++        return *this;
+     }
+ 
+     int line;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/JavaScriptCore/runtime/StringPrototype.cpp b/Source/JavaScriptCore/runtime/StringPrototype.cpp
+--- a/Source/JavaScriptCore/runtime/StringPrototype.cpp	2025-07-02 03:56:09.099541913 -0400
++++ b/Source/JavaScriptCore/runtime/StringPrototype.cpp	2025-07-02 03:56:08.285398914 -0400
+@@ -46,6 +46,7 @@
+ #include <algorithm>
+ #include <unicode/uconfig.h>
+ #include <unicode/unorm.h>
++#include <unicode/unorm2.h>
+ #include <unicode/ustring.h>
+ #include <wtf/ASCIICType.h>
+ #include <wtf/MathExtras.h>
+@@ -2008,10 +2009,10 @@
+     return JSValue::encode(JSStringIterator::create(exec, exec->callee()->globalObject()->stringIteratorStructure(), string));
+ }
+ 
+-static JSValue normalize(ExecState* exec, const UChar* source, size_t sourceLength, UNormalizationMode form)
++static JSValue normalize(ExecState* exec, const UChar* source, size_t sourceLength, const UNormalizer2* form)
+ {
+     UErrorCode status = U_ZERO_ERROR;
+-    int32_t normalizedStringLength = unorm_normalize(source, sourceLength, form, 0, nullptr, 0, &status);
++    int32_t normalizedStringLength = unorm2_normalize(form, source, sourceLength, nullptr, 0, &status);
+ 
+     if (U_FAILURE(status) && status != U_BUFFER_OVERFLOW_ERROR) {
+         // The behavior is not specified when normalize fails.
+@@ -2025,7 +2026,7 @@
+         return throwOutOfMemoryError(exec);
+ 
+     status = U_ZERO_ERROR;
+-    unorm_normalize(source, sourceLength, form, 0, buffer, normalizedStringLength, &status);
++    unorm2_normalize(form, source, sourceLength, buffer, normalizedStringLength, &status);
+     if (U_FAILURE(status))
+         return throwTypeError(exec);
+ 
+@@ -2041,7 +2042,8 @@
+     if (exec->hadException())
+         return JSValue::encode(jsUndefined());
+ 
+-    UNormalizationMode form = UNORM_NFC;
++    UErrorCode status = U_ZERO_ERROR;
++    const UNormalizer2* form;
+     // Verify that the argument is provided and is not undefined.
+     if (!exec->argument(0).isUndefined()) {
+         String formString = exec->uncheckedArgument(0).toString(exec)->value(exec);
+@@ -2049,15 +2051,19 @@
+             return JSValue::encode(jsUndefined());
+ 
+         if (formString == "NFC")
+-            form = UNORM_NFC;
++            form = unorm2_getNFCInstance(&status);
+         else if (formString == "NFD")
+-            form = UNORM_NFD;
++            form = unorm2_getNFDInstance(&status);
+         else if (formString == "NFKC")
+-            form = UNORM_NFKC;
++            form = unorm2_getNFKCInstance(&status);
+         else if (formString == "NFKD")
+-            form = UNORM_NFKD;
++            form = unorm2_getNFKDInstance(&status);
+         else
+             return throwVMError(exec, createRangeError(exec, ASCIILiteral("argument does not match any normalization form")));
++
++        // Todo... Fix my horrible debugging here.
++        if (U_FAILURE(status))
++            return throwVMError(exec, createRangeError(exec, ASCIILiteral("u_failure returned true")));
+     }
+ 
+     return JSValue::encode(normalize(exec, source.get().upconvertedCharacters(), source.length(), form));
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/bindings/js/SerializedScriptValue.cpp b/Source/WebCore/bindings/js/SerializedScriptValue.cpp
+--- a/Source/WebCore/bindings/js/SerializedScriptValue.cpp	2025-07-02 03:56:08.809400221 -0400
++++ b/Source/WebCore/bindings/js/SerializedScriptValue.cpp	2025-07-02 03:56:08.589399673 -0400
+@@ -2254,7 +2254,7 @@
+                 return jsNull();
+             }
+             IntSize imageSize(width, height);
+-            RELEASE_ASSERT(!length || imageSize.area() * 4 <= length);
++            RELEASE_ASSERT(!length || (unsigned)imageSize.area() * 4 <= length);
+             RefPtr<ImageData> result = ImageData::create(imageSize);
+             if (!result) {
+                 fail();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm b/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm
+--- a/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm	2025-07-02 03:56:08.819131532 -0400
++++ b/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm	2025-07-02 03:56:08.579399648 -0400
+@@ -1613,13 +1613,15 @@
+         my ($numMandatoryParams, $parametersCheck, @neededArguments) = GenerateFunctionParametersCheck($overload);
+         $leastNumMandatoryParams = $numMandatoryParams if ($numMandatoryParams < $leastNumMandatoryParams);
+ 
+-        foreach my $parameterIndex (@neededArguments) {
++        my $conditionalString = $codeGenerator->GenerateConditionalString($overload->signature);
++
++		foreach my $parameterIndex (@neededArguments) {
+             next if exists $fetchedArguments{$parameterIndex};
+             push(@implContent, "    JSValue arg$parameterIndex(state->argument($parameterIndex));\n");
++            push(@implContent, "#if !${conditionalString}\nUNUSED_PARAM(arg$parameterIndex);\n#endif\n") if $conditionalString;
+             $fetchedArguments{$parameterIndex} = 1;
+         }
+ 
+-        my $conditionalString = $codeGenerator->GenerateConditionalString($overload->signature);
+         push(@implContent, "#if ${conditionalString}\n") if $conditionalString;
+ 
+         push(@implContent, "    if ($parametersCheck)\n");
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/bridge/qt/qt_runtime.cpp b/Source/WebCore/bridge/qt/qt_runtime.cpp
+--- a/Source/WebCore/bridge/qt/qt_runtime.cpp	2025-07-02 03:56:08.979845390 -0400
++++ b/Source/WebCore/bridge/qt/qt_runtime.cpp	2025-07-02 03:56:08.354186815 -0400
+@@ -263,7 +263,7 @@
+             else
+                 break;
+         }
+-        if (list.count() != length)
++        if ((unsigned)list.count() != length)
+             list.clear();
+         else if (distance)
+             *distance = 5;
+@@ -1061,7 +1061,7 @@
+         }
+ 
+         // If the native method requires more arguments than what was passed from JavaScript
+-        if (argumentCount + 1 < static_cast<unsigned>(types.count())) {
++        if ((unsigned)(argumentCount + 1) < static_cast<unsigned>(types.count())) {
+             qMatchDebug() << "Match:too few args for" << method.methodSignature();
+             tooFewArgs.append(index);
+             continue;
+@@ -1086,7 +1086,7 @@
+         bool converted = true;
+         int matchDistance = 0;
+         for (unsigned i = 0; converted && i + 1 < static_cast<unsigned>(types.count()); ++i) {
+-            JSValueRef arg = i < argumentCount ? arguments[i] : JSValueMakeUndefined(context);
++            JSValueRef arg = i < (unsigned)argumentCount ? arguments[i] : JSValueMakeUndefined(context);
+ 
+             int argdistance = -1;
+             QVariant v = convertValueToQVariant(context, arg, types.at(i+1).typeId(), &argdistance, exception);
+@@ -1102,7 +1102,7 @@
+         qMatchDebug() << "Match: " << method.methodSignature() << (converted ? "converted":"failed to convert") << "distance " << matchDistance;
+ 
+         if (converted) {
+-            if ((argumentCount + 1 == static_cast<unsigned>(types.count()))
++            if (((unsigned)(argumentCount + 1) == static_cast<unsigned>(types.count()))
+                 && (matchDistance == 0)) {
+                 // perfect match, use this one
+                 chosenIndex = index;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/css/CSSGrammar.y.in b/Source/WebCore/css/CSSGrammar.y.in
+--- a/Source/WebCore/css/CSSGrammar.y.in	2025-07-02 03:56:09.020400748 -0400
++++ b/Source/WebCore/css/CSSGrammar.y.in	2025-07-02 03:56:08.451399328 -0400
+@@ -21,7 +21,7 @@
+  *
+  */
+ 
+-%pure-parser
++%define api.pure
+ 
+ %parse-param { CSSParser* parser }
+ %lex-param { CSSParser* parser }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/css/CSSParserValues.cpp b/Source/WebCore/css/CSSParserValues.cpp
+--- a/Source/WebCore/css/CSSParserValues.cpp	2025-07-02 03:56:09.026400763 -0400
++++ b/Source/WebCore/css/CSSParserValues.cpp	2025-07-02 03:56:08.439263144 -0400
+@@ -288,7 +288,7 @@
+     ASSERT_WITH_MESSAGE(!stringVector.isEmpty(), "No CSS Selector takes an empty argument list.");
+     auto argumentList = std::make_unique<Vector<AtomicString>>();
+     argumentList->reserveInitialCapacity(stringVector.size());
+-    for (const AtomicString& languageArgument : stringVector)
++    for (const AtomicString languageArgument : stringVector)
+         argumentList->append(languageArgument);
+     m_selector->setLangArgumentList(WTFMove(argumentList));
+ }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/css/CSSPrimitiveValue.cpp b/Source/WebCore/css/CSSPrimitiveValue.cpp
+--- a/Source/WebCore/css/CSSPrimitiveValue.cpp	2025-07-02 03:56:09.027400766 -0400
++++ b/Source/WebCore/css/CSSPrimitiveValue.cpp	2025-07-02 03:56:08.439263144 -0400
+@@ -571,7 +571,7 @@
+ 
+ template<> Length CSSPrimitiveValue::computeLength(const CSSToLengthConversionData& conversionData) const
+ {
+-    return Length(clampTo<float>(computeLengthDouble(conversionData), minValueForCssLength, maxValueForCssLength), Fixed);
++    return Length(clampTo<float>(computeLengthDouble(conversionData), minValueForCssLength, static_cast<float>(maxValueForCssLength)), Fixed);
+ }
+ 
+ template<> short CSSPrimitiveValue::computeLength(const CSSToLengthConversionData& conversionData) const
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/css/StyleBuilderConverter.h b/Source/WebCore/css/StyleBuilderConverter.h
+--- a/Source/WebCore/css/StyleBuilderConverter.h	2025-07-02 03:56:09.017400741 -0400
++++ b/Source/WebCore/css/StyleBuilderConverter.h	2025-07-02 03:56:08.439263144 -0400
+@@ -1013,7 +1013,7 @@
+     else if (primitiveValue.isLength())
+         wordSpacing = primitiveValue.computeLength<Length>(csstoLengthConversionDataWithTextZoomFactor(styleResolver));
+     else if (primitiveValue.isPercentage())
+-        wordSpacing = Length(clampTo<float>(primitiveValue.getDoubleValue(), minValueForCssLength, maxValueForCssLength), Percent);
++        wordSpacing = Length(clampTo<float>(primitiveValue.getDoubleValue(), minValueForCssLength, static_cast<float>(maxValueForCssLength)), Percent);
+     else if (primitiveValue.isNumber())
+         wordSpacing = Length(primitiveValue.getDoubleValue(), Fixed);
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/dom/RangeBoundaryPoint.h b/Source/WebCore/dom/RangeBoundaryPoint.h
+--- a/Source/WebCore/dom/RangeBoundaryPoint.h	2025-07-02 03:56:09.000400698 -0400
++++ b/Source/WebCore/dom/RangeBoundaryPoint.h	2025-07-02 03:56:08.326916635 -0400
+@@ -57,6 +57,8 @@
+     void invalidateOffset() const;
+     void ensureOffsetIsValid() const;
+ 
++    RangeBoundaryPoint& operator=(const RangeBoundaryPoint&) = default;
++
+ private:
+     static const int invalidOffset = -1;
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/editing/TextIterator.cpp b/Source/WebCore/editing/TextIterator.cpp
+--- a/Source/WebCore/editing/TextIterator.cpp	2025-07-02 03:56:08.983400656 -0400
++++ b/Source/WebCore/editing/TextIterator.cpp	2025-07-02 03:56:08.363399109 -0400
+@@ -1950,7 +1950,10 @@
+     buffer.resize(length);
+ 
+     UErrorCode status = U_ZERO_ERROR;
+-    size_t bufferSize = unorm_normalize(characters, length, UNORM_NFC, 0, buffer.data(), length, &status);
++    const UNormalizer2 *form = unorm2_getNFCInstance(&status);
++    ASSERT(U_SUCCESS(status));
++
++    size_t bufferSize = unorm2_normalize(form, characters, length, buffer.data(), length, &status);
+     ASSERT(status == U_ZERO_ERROR || status == U_STRING_NOT_TERMINATED_WARNING || status == U_BUFFER_OVERFLOW_ERROR);
+     ASSERT(bufferSize);
+ 
+@@ -1960,7 +1963,7 @@
+         return;
+ 
+     status = U_ZERO_ERROR;
+-    unorm_normalize(characters, length, UNORM_NFC, 0, buffer.data(), bufferSize, &status);
++    unorm2_normalize(form, characters, length, buffer.data(), bufferSize, &status);
+     ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
+ }
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/html/canvas/CanvasRenderingContext2D.cpp b/Source/WebCore/html/canvas/CanvasRenderingContext2D.cpp
+--- a/Source/WebCore/html/canvas/CanvasRenderingContext2D.cpp	2025-07-02 03:56:08.873400381 -0400
++++ b/Source/WebCore/html/canvas/CanvasRenderingContext2D.cpp	2025-07-02 03:56:08.575399638 -0400
+@@ -765,7 +765,7 @@
+     if (!state().hasInvertibleTransform)
+         return;
+ 
+-    if (!std::isfinite(tx) | !std::isfinite(ty))
++    if (!std::isfinite(tx) || !std::isfinite(ty))
+         return;
+ 
+     AffineTransform newTransform = state().transform;
+@@ -788,7 +788,7 @@
+     if (!state().hasInvertibleTransform)
+         return;
+ 
+-    if (!std::isfinite(m11) | !std::isfinite(m21) | !std::isfinite(dx) | !std::isfinite(m12) | !std::isfinite(m22) | !std::isfinite(dy))
++    if (!std::isfinite(m11) || !std::isfinite(m21) || !std::isfinite(dx) || !std::isfinite(m12) || !std::isfinite(m22) || !std::isfinite(dy))
+         return;
+ 
+     AffineTransform transform(m11, m12, m21, m22, dx, dy);
+@@ -813,7 +813,7 @@
+     if (!c)
+         return;
+ 
+-    if (!std::isfinite(m11) | !std::isfinite(m21) | !std::isfinite(dx) | !std::isfinite(m12) | !std::isfinite(m22) | !std::isfinite(dy))
++    if (!std::isfinite(m11) || !std::isfinite(m21) || !std::isfinite(dx) || !std::isfinite(m12) || !std::isfinite(m22) || !std::isfinite(dy))
+         return;
+ 
+     AffineTransform ctm = state().transform;
+@@ -921,7 +921,7 @@
+ 
+ static bool validateRectForCanvas(float& x, float& y, float& width, float& height)
+ {
+-    if (!std::isfinite(x) | !std::isfinite(y) | !std::isfinite(width) | !std::isfinite(height))
++    if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(width) || !std::isfinite(height))
+         return false;
+ 
+     if (!width && !height)
+@@ -2461,7 +2461,7 @@
+         return;
+     if (!state().hasInvertibleTransform)
+         return;
+-    if (!std::isfinite(x) | !std::isfinite(y))
++    if (!std::isfinite(x) || !std::isfinite(y))
+         return;
+     if (useMaxWidth && (!std::isfinite(maxWidth) || maxWidth <= 0))
+         return;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/loader/ResourceLoadObserver.cpp b/Source/WebCore/loader/ResourceLoadObserver.cpp
+--- a/Source/WebCore/loader/ResourceLoadObserver.cpp	2025-07-02 03:56:08.881400401 -0400
++++ b/Source/WebCore/loader/ResourceLoadObserver.cpp	2025-07-02 03:56:08.345705907 -0400
+@@ -248,7 +248,7 @@
+     auto encoder = KeyedEncoder::encoder();
+     encoder->encodeUInt32("originsVisited", m_resourceStatisticsMap.size());
+     
+-    encoder->encodeObjects("browsingStatistics", m_resourceStatisticsMap.begin(), m_resourceStatisticsMap.end(), [this](KeyedEncoder& encoderInner, const StatisticsValue& origin) {
++    encoder->encodeObjects("browsingStatistics", m_resourceStatisticsMap.begin(), m_resourceStatisticsMap.end(), [](KeyedEncoder& encoderInner, const StatisticsValue& origin) {
+         origin.value.encode(encoderInner, origin.key);
+     });
+     
+@@ -263,7 +263,7 @@
+     auto encoder = KeyedEncoder::encoder();
+     encoder->encodeUInt32("originsVisited", 1);
+     
+-    encoder->encodeObject(origin, resourceStatistics, [this, &origin](KeyedEncoder& encoder, const ResourceLoadStatistics& resourceStatistics) {
++    encoder->encodeObject(origin, resourceStatistics, [&origin](KeyedEncoder& encoder, const ResourceLoadStatistics& resourceStatistics) {
+         resourceStatistics.encode(encoder, origin);
+     });
+     
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/client/IDBObjectStoreImpl.h b/Source/WebCore/Modules/indexeddb/client/IDBObjectStoreImpl.h
+--- a/Source/WebCore/Modules/indexeddb/client/IDBObjectStoreImpl.h	2025-07-02 03:56:08.949615670 -0400
++++ b/Source/WebCore/Modules/indexeddb/client/IDBObjectStoreImpl.h	2025-07-02 03:56:08.524798225 -0400
+@@ -45,11 +45,11 @@
+ class IDBRequest;
+ class IDBTransaction;
+ 
+-class IDBObjectStore : public WebCore::IDBObjectStore, public ActiveDOMObject {
++class IDBObjectStore final : public WebCore::IDBObjectStore, public ActiveDOMObject {
+ public:
+     static Ref<IDBObjectStore> create(ScriptExecutionContext*, const IDBObjectStoreInfo&, IDBTransaction&);
+ 
+-    virtual ~IDBObjectStore() override final;
++    virtual ~IDBObjectStore() override;
+ 
+     // Implement the IDBObjectStore IDL
+     virtual const String name() const override final;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/client/IDBOpenDBRequestImpl.h b/Source/WebCore/Modules/indexeddb/client/IDBOpenDBRequestImpl.h
+--- a/Source/WebCore/Modules/indexeddb/client/IDBOpenDBRequestImpl.h	2025-07-02 03:56:08.950400573 -0400
++++ b/Source/WebCore/Modules/indexeddb/client/IDBOpenDBRequestImpl.h	2025-07-02 03:56:08.525399513 -0400
+@@ -40,12 +40,12 @@
+ 
+ class IDBConnectionToServer;
+ 
+-class IDBOpenDBRequest : public IDBRequest {
++class IDBOpenDBRequest final : public IDBRequest {
+ public:
+     static Ref<IDBOpenDBRequest> createDeleteRequest(IDBConnectionToServer&, ScriptExecutionContext*, const IDBDatabaseIdentifier&);
+     static Ref<IDBOpenDBRequest> createOpenRequest(IDBConnectionToServer&, ScriptExecutionContext*, const IDBDatabaseIdentifier&, uint64_t version);
+ 
+-    virtual ~IDBOpenDBRequest() override final;
++    virtual ~IDBOpenDBRequest() override;
+     
+     const IDBDatabaseIdentifier& databaseIdentifier() const { return m_databaseIdentifier; }
+     uint64_t version() const { return m_version; }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/client/IDBTransactionImpl.h b/Source/WebCore/Modules/indexeddb/client/IDBTransactionImpl.h
+--- a/Source/WebCore/Modules/indexeddb/client/IDBTransactionImpl.h	2025-07-02 03:56:08.950400573 -0400
++++ b/Source/WebCore/Modules/indexeddb/client/IDBTransactionImpl.h	2025-07-02 03:56:08.524798225 -0400
+@@ -57,12 +57,12 @@
+ class IDBOpenDBRequest;
+ class TransactionOperation;
+ 
+-class IDBTransaction : public WebCore::IDBTransaction {
++class IDBTransaction final : public WebCore::IDBTransaction {
+ public:
+     static Ref<IDBTransaction> create(IDBDatabase&, const IDBTransactionInfo&);
+     static Ref<IDBTransaction> create(IDBDatabase&, const IDBTransactionInfo&, IDBOpenDBRequest&);
+ 
+-    virtual ~IDBTransaction() override final;
++    virtual ~IDBTransaction() override;
+ 
+     // IDBTransaction IDL
+     virtual const String& mode() const override final;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/server/MemoryIDBBackingStore.h b/Source/WebCore/Modules/indexeddb/server/MemoryIDBBackingStore.h
+--- a/Source/WebCore/Modules/indexeddb/server/MemoryIDBBackingStore.h	2025-07-02 03:56:08.947701164 -0400
++++ b/Source/WebCore/Modules/indexeddb/server/MemoryIDBBackingStore.h	2025-07-02 03:56:08.524399511 -0400
+@@ -39,12 +39,12 @@
+ 
+ class MemoryObjectStore;
+ 
+-class MemoryIDBBackingStore : public IDBBackingStore {
++class MemoryIDBBackingStore final : public IDBBackingStore {
+ public:
+     static std::unique_ptr<MemoryIDBBackingStore> create(const IDBDatabaseIdentifier&);
+     
+     MemoryIDBBackingStore(const IDBDatabaseIdentifier&);
+-    virtual ~MemoryIDBBackingStore() override final;
++    virtual ~MemoryIDBBackingStore() override;
+ 
+     virtual IDBError getOrEstablishDatabaseInfo(IDBDatabaseInfo&) override final;
+     void setDatabaseInfo(const IDBDatabaseInfo&);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/server/SQLiteIDBBackingStore.h b/Source/WebCore/Modules/indexeddb/server/SQLiteIDBBackingStore.h
+--- a/Source/WebCore/Modules/indexeddb/server/SQLiteIDBBackingStore.h	2025-07-02 03:56:08.948400569 -0400
++++ b/Source/WebCore/Modules/indexeddb/server/SQLiteIDBBackingStore.h	2025-07-02 03:56:08.524399511 -0400
+@@ -45,11 +45,11 @@
+ 
+ class SQLiteIDBCursor;
+ 
+-class SQLiteIDBBackingStore : public IDBBackingStore {
++class SQLiteIDBBackingStore final : public IDBBackingStore {
+ public:
+     SQLiteIDBBackingStore(const IDBDatabaseIdentifier&, const String& databaseRootDirectory);
+     
+-    virtual ~SQLiteIDBBackingStore() override final;
++    virtual ~SQLiteIDBBackingStore() override;
+ 
+     virtual IDBError getOrEstablishDatabaseInfo(IDBDatabaseInfo&) override final;
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/server/UniqueIDBDatabase.cpp b/Source/WebCore/Modules/indexeddb/server/UniqueIDBDatabase.cpp
+--- a/Source/WebCore/Modules/indexeddb/server/UniqueIDBDatabase.cpp	2025-07-02 03:56:08.947701164 -0400
++++ b/Source/WebCore/Modules/indexeddb/server/UniqueIDBDatabase.cpp	2025-07-02 03:56:08.523399508 -0400
+@@ -1178,7 +1178,7 @@
+     RefPtr<UniqueIDBDatabase> self(this);
+     RefPtr<UniqueIDBDatabaseTransaction> refTransaction(&transaction);
+ 
+-    auto callback = [this, self, refTransaction](const IDBError& error) {
++    auto callback = [self, refTransaction](const IDBError& error) {
+         refTransaction->didActivateInBackingStore(error);
+     };
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/Modules/indexeddb/shared/IDBError.h b/Source/WebCore/Modules/indexeddb/shared/IDBError.h
+--- a/Source/WebCore/Modules/indexeddb/shared/IDBError.h	2025-07-02 03:56:08.951001445 -0400
++++ b/Source/WebCore/Modules/indexeddb/shared/IDBError.h	2025-07-02 03:56:08.522177187 -0400
+@@ -38,6 +38,7 @@
+     IDBError() { }
+     IDBError(ExceptionCode);
+     IDBError(ExceptionCode, const String& message);
++    IDBError(const IDBError&) = default;
+ 
+     IDBError& operator=(const IDBError&);
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/page/AutoscrollController.cpp b/Source/WebCore/page/AutoscrollController.cpp
+--- a/Source/WebCore/page/AutoscrollController.cpp	2025-07-02 03:56:09.041400800 -0400
++++ b/Source/WebCore/page/AutoscrollController.cpp	2025-07-02 03:56:08.316398992 -0400
+@@ -201,6 +201,8 @@
+     case AutoscrollForPanCanStop:
+         stopAutoscrollTimer();
+         break;
++    default:
++        break;
+     }
+ }
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/FileSystem.cpp b/Source/WebCore/platform/FileSystem.cpp
+--- a/Source/WebCore/platform/FileSystem.cpp	2025-07-02 03:56:08.934400533 -0400
++++ b/Source/WebCore/platform/FileSystem.cpp	2025-07-02 03:56:08.513449908 -0400
+@@ -160,6 +160,7 @@
+ {
+ #if OS(WINDOWS)
+     // FIXME: Implement mapping
++    UNUSED_PARAM(filePath);
+     success = false;
+ #else
+     CString fsRep = fileSystemRepresentation(filePath);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/filters/FEComposite.cpp b/Source/WebCore/platform/graphics/filters/FEComposite.cpp
+--- a/Source/WebCore/platform/graphics/filters/FEComposite.cpp	2025-07-02 03:56:08.915172997 -0400
++++ b/Source/WebCore/platform/graphics/filters/FEComposite.cpp	2025-07-02 03:56:08.488399421 -0400
+@@ -121,13 +121,6 @@
+     forceValidPreMultipliedPixels();
+ }
+     
+-static unsigned char clampByte(int c)
+-{
+-    unsigned char buff[] = { static_cast<unsigned char>(c), 255, 0 };
+-    unsigned uc = static_cast<unsigned>(c);
+-    return buff[!!(uc & ~0xff) + !!(uc & ~(~0u >> 1))];
+-}
+-
+ template <int b1, int b4>
+ static inline void computeArithmeticPixels(unsigned char* source, unsigned char* destination, int pixelArrayLength,
+                                     float k1, float k2, float k3, float k4)
+@@ -148,7 +141,10 @@
+         if (b4)
+             result += scaledK4;
+ 
+-        *destination = clampByte(result);
++        unsigned char buff[] = { static_cast<unsigned char>(result), 255, 0 };
++        unsigned uc = static_cast<unsigned>(result);
++
++        *destination = (buff[!!(uc & ~0xff) + !!(uc & ~(~0u >> 1))]);
+         ++source;
+         ++destination;
+     }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/FloatPoint3D.h b/Source/WebCore/platform/graphics/FloatPoint3D.h
+--- a/Source/WebCore/platform/graphics/FloatPoint3D.h	2025-07-02 03:56:08.919400496 -0400
++++ b/Source/WebCore/platform/graphics/FloatPoint3D.h	2025-07-02 03:56:08.497399443 -0400
+@@ -123,6 +123,8 @@
+     
+     float distanceTo(const FloatPoint3D& a) const;
+ 
++    FloatPoint3D& operator=(const FloatPoint3D&) = default;
++
+ private:
+     float m_x;
+     float m_y;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/Font.cpp b/Source/WebCore/platform/graphics/Font.cpp
+--- a/Source/WebCore/platform/graphics/Font.cpp	2025-07-02 03:56:08.919400496 -0400
++++ b/Source/WebCore/platform/graphics/Font.cpp	2025-07-02 03:56:08.498399446 -0400
+@@ -389,6 +389,7 @@
+     return CTFontTransformGlyphs(m_platformData.ctFont(), glyphs, reinterpret_cast<CGSize*>(advances), glyphCount, options);
+ #elif PLATFORM(QT)
+     QRawFont::LayoutFlags flags = enableKerning ? QRawFont::KernedAdvances : QRawFont::SeparateAdvances;
++    UNUSED_PARAM(requiresShaping);
+     return m_platformData.rawFont().advancesForGlyphIndexes(glyphs, advances, glyphCount, flags);
+ #else
+     UNUSED_PARAM(glyphs);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/GraphicsContext.cpp b/Source/WebCore/platform/graphics/GraphicsContext.cpp
+--- a/Source/WebCore/platform/graphics/GraphicsContext.cpp	2025-07-02 03:56:08.918400494 -0400
++++ b/Source/WebCore/platform/graphics/GraphicsContext.cpp	2025-07-02 03:56:08.496399441 -0400
+@@ -72,6 +72,8 @@
+ 
+     bool operator!=(const TextRunIterator& other) { return !operator==(other); }
+ 
++    TextRunIterator& operator=(const TextRunIterator&) = default;
++
+ private:
+     const TextRun* m_textRun;
+     unsigned m_offset;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/FontCacheQt.cpp b/Source/WebCore/platform/graphics/qt/FontCacheQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/FontCacheQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/FontCacheQt.cpp	2025-07-02 03:56:08.484399411 -0400
+@@ -83,7 +83,7 @@
+ 
+ Ref<Font> FontCache::lastResortFallbackFont(const FontDescription& fontDescription)
+ {
+-    const AtomicString fallbackFamily = QFont(/*fontDescription.firstFamily()*/).lastResortFamily(); // FIXME
++    const AtomicString fallbackFamily = QFont().defaultFamily(); // FIXME
+     FontPlatformData platformData(fontDescription, fallbackFamily);
+     return fontForPlatformData(platformData);
+ }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/FontCascadeQt.cpp b/Source/WebCore/platform/graphics/qt/FontCascadeQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/FontCascadeQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/FontCascadeQt.cpp	2025-07-02 03:56:08.484399411 -0400
+@@ -250,7 +250,7 @@
+     // word-spacing along with other options would be applied to. This is safe since the other
+     // formatting options does not affect spaces.
+     unsigned length = run.length();
+-    for (range.start = 0; range.start < length && treatAsSpace(run[range.start]); ++range.start) { }
++    for (range.start = 0; (unsigned)range.start < length && treatAsSpace(run[range.start]); ++range.start) { }
+     range.length = length - range.start;
+ 
+     if (m_wordSpacing && !run.spacingDisabled())
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/FontCustomPlatformDataQt.cpp b/Source/WebCore/platform/graphics/qt/FontCustomPlatformDataQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/FontCustomPlatformDataQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/FontCustomPlatformDataQt.cpp	2025-07-02 03:56:08.484399411 -0400
+@@ -30,6 +30,8 @@
+ 
+ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& description, bool bold, bool italic)
+ {
++    UNUSED_PARAM(bold);
++    UNUSED_PARAM(italic);
+     Q_ASSERT(m_rawFont.isValid());
+     int size = description.computedPixelSize();
+     m_rawFont.setPixelSize(qreal(size));
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/GlyphPageTreeNodeQt.cpp b/Source/WebCore/platform/graphics/qt/GlyphPageTreeNodeQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/GlyphPageTreeNodeQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/GlyphPageTreeNodeQt.cpp	2025-07-02 03:56:08.484170352 -0400
+@@ -38,7 +38,7 @@
+     bool haveGlyphs = false;
+ 
+     for (unsigned i = 0; i < GlyphPage::size; ++i) {
+-        Glyph glyph = (i < indexes.size()) ? indexes.at(i) : 0;
++        Glyph glyph = (i < (unsigned)indexes.size()) ? indexes.at(i) : 0;
+         if (!glyph)
+             setGlyphForIndex(i, 0);
+         else {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/GraphicsContextQt.cpp b/Source/WebCore/platform/graphics/qt/GraphicsContextQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/GraphicsContextQt.cpp	2025-07-02 03:56:08.913400481 -0400
++++ b/Source/WebCore/platform/graphics/qt/GraphicsContextQt.cpp	2025-07-02 03:56:08.485399413 -0400
+@@ -1280,6 +1280,8 @@
+ 
+ void GraphicsContext::pushTransparencyLayerInternal(const QRect &rect, qreal opacity, QPixmap& alphaMask)
+ {
++    UNUSED_PARAM(opacity);
++
+     QPainter* p = m_data->p();
+ 
+     QTransform deviceTransform = p->transform();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/ImageDecoderQt.cpp b/Source/WebCore/platform/graphics/qt/ImageDecoderQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/ImageDecoderQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/ImageDecoderQt.cpp	2025-07-02 03:56:08.484399411 -0400
+@@ -53,8 +53,11 @@
+     static QSet<QByteArray> whiteListSet;
+     if (whiteListSet.isEmpty()) {
+         QByteArray whiteListEnv = qgetenv("QTWEBKIT_IMAGEFORMAT_WHITELIST");
+-        if (!whiteListEnv.isEmpty())
+-            whiteListSet = QSet<QByteArray>::fromList(whiteListEnv.split(','));
++        if (!whiteListEnv.isEmpty()) {
++            // Nice.
++            QList<QByteArray> whiteListList = whiteListEnv.split(',');
++            whiteListSet = QSet<QByteArray>(whiteListList.begin(), whiteListList.end());
++        }
+ 
+         const char **formatIt  = s_formatWhiteList;
+         while (*formatIt) {
+@@ -238,7 +241,7 @@
+ 
+     if (reinterpret_cast<const uchar*>(image.constBits()) != reinterpret_cast<const uchar*>(buffer->getAddr(0, 0))) {
+         // The in-buffer was replaced during decoding with another, so copy into it manually.
+-        memcpy(buffer->getAddr(0, 0), image.constBits(),  image.byteCount());
++        memcpy(buffer->getAddr(0, 0), image.constBits(),  image.sizeInBytes());
+     }
+ 
+     if (image.isNull()) {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.cpp b/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.cpp
+--- a/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.cpp	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.cpp	2025-07-02 03:56:08.484399411 -0400
+@@ -648,6 +648,11 @@
+ 
+ void MediaPlayerPrivateQt::paintToTextureMapper(TextureMapper& textureMapper, const FloatRect& targetRect, const TransformationMatrix& matrix, float opacity)
+ {
++    // ???
++    UNUSED_PARAM(textureMapper);
++    UNUSED_PARAM(targetRect);
++    UNUSED_PARAM(matrix);
++    UNUSED_PARAM(opacity);
+ }
+ 
+ PlatformMedia MediaPlayerPrivateQt::platformMedia() const
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.h b/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.h
+--- a/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.h	2025-07-02 03:56:08.912400479 -0400
++++ b/Source/WebCore/platform/graphics/qt/MediaPlayerPrivateQt.h	2025-07-02 03:56:08.484170352 -0400
+@@ -146,7 +146,6 @@
+ 
+     IntSize m_currentSize;
+     IntSize m_naturalSize;
+-    bool m_isVisible;
+     bool m_isSeeking;
+     bool m_composited;
+     MediaPlayer::Preload m_preload;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/SurrogatePairAwareTextIterator.cpp b/Source/WebCore/platform/graphics/SurrogatePairAwareTextIterator.cpp
+--- a/Source/WebCore/platform/graphics/SurrogatePairAwareTextIterator.cpp	2025-07-02 03:56:08.921400501 -0400
++++ b/Source/WebCore/platform/graphics/SurrogatePairAwareTextIterator.cpp	2025-07-02 03:56:08.496399441 -0400
+@@ -24,6 +24,7 @@
+ #include "SurrogatePairAwareTextIterator.h"
+ 
+ #include <unicode/unorm.h>
++#include <unicode/unorm2.h>
+ 
+ namespace WebCore {
+ 
+@@ -80,8 +81,11 @@
+     if (u_getCombiningClass(m_characters[1]) == hiraganaKatakanaVoicingMarksCombiningClass) {
+         // Normalize into composed form using 3.2 rules.
+         UChar normalizedCharacters[2] = { 0, 0 };
+-        UErrorCode uStatus = U_ZERO_ERROR;  
+-        int32_t resultLength = unorm_normalize(m_characters, 2, UNORM_NFC, UNORM_UNICODE_3_2, &normalizedCharacters[0], 2, &uStatus);
++        UErrorCode uStatus = U_ZERO_ERROR;
++        const UNormalizer2 *form = unorm2_getNFCInstance(&uStatus);
++        ASSERT(U_SUCCESS(uStatus));
++
++        int32_t resultLength = unorm2_normalize(form, m_characters, 2, &normalizedCharacters[0], 2, &uStatus);
+         if (resultLength == 1 && !uStatus)
+             return normalizedCharacters[0];
+     }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/texmap/BitmapTextureImageBuffer.cpp b/Source/WebCore/platform/graphics/texmap/BitmapTextureImageBuffer.cpp
+--- a/Source/WebCore/platform/graphics/texmap/BitmapTextureImageBuffer.cpp	2025-07-02 03:56:08.927400516 -0400
++++ b/Source/WebCore/platform/graphics/texmap/BitmapTextureImageBuffer.cpp	2025-07-02 03:56:08.489434049 -0400
+@@ -62,6 +62,7 @@
+ void BitmapTextureImageBuffer::updateContents(TextureMapper&, GraphicsLayer* sourceLayer, const IntRect& targetRect, const IntPoint& sourceOffset, UpdateContentsFlag, float scale)
+ {
+     // QTFIXME: Handle scale, like BitmapTexture::updateContents
++    UNUSED_PARAM(scale);
+     GraphicsContext& context = m_image->context();
+ 
+     context.clearRect(targetRect);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/texmap/BitmapTexturePool.cpp b/Source/WebCore/platform/graphics/texmap/BitmapTexturePool.cpp
+--- a/Source/WebCore/platform/graphics/texmap/BitmapTexturePool.cpp	2025-07-02 03:56:08.927400516 -0400
++++ b/Source/WebCore/platform/graphics/texmap/BitmapTexturePool.cpp	2025-07-02 03:56:08.490399426 -0400
+@@ -116,10 +116,13 @@
+ 
+ RefPtr<BitmapTexture> BitmapTexturePool::createTexture(const BitmapTexture::Flags flags)
+ {
+-#if PLATFORM(QT) && USE(TEXTURE_MAPPER_GL)
++#if PLATFORM(QT)
++	UNUSED_PARAM(flags);
++#if USE(TEXTURE_MAPPER_GL)
+     if (!m_context3D)
+         return BitmapTextureImageBuffer::create();
+ #endif
++#endif
+ #if USE(TEXTURE_MAPPER_GL)
+     return adoptRef(new BitmapTextureGL(m_context3D, flags));
+ #else
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/texmap/TextureMapperAnimation.h b/Source/WebCore/platform/graphics/texmap/TextureMapperAnimation.h
+--- a/Source/WebCore/platform/graphics/texmap/TextureMapperAnimation.h	2025-07-02 03:56:08.926400514 -0400
++++ b/Source/WebCore/platform/graphics/texmap/TextureMapperAnimation.h	2025-07-02 03:56:08.490399426 -0400
+@@ -57,6 +57,7 @@
+     double pauseTime() const { return m_pauseTime; }
+     AnimationState state() const { return m_state; }
+ 
++    TextureMapperAnimation& operator=(const TextureMapperAnimation&) = default;
+ private:
+     void applyInternal(Client&, const AnimationValue& from, const AnimationValue& to, float progress);
+     double computeTotalRunningTime();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/graphics/texmap/TextureMapperImageBuffer.cpp b/Source/WebCore/platform/graphics/texmap/TextureMapperImageBuffer.cpp
+--- a/Source/WebCore/platform/graphics/texmap/TextureMapperImageBuffer.cpp	2025-07-02 03:56:08.928400518 -0400
++++ b/Source/WebCore/platform/graphics/texmap/TextureMapperImageBuffer.cpp	2025-07-02 03:56:08.489434049 -0400
+@@ -163,7 +163,7 @@
+     font.setStyleHint(QFont::TypeWriter);
+ 
+     QFontMetrics fontMetrics(font);
+-    int width = fontMetrics.width(counterString) + 4;
++    int width = fontMetrics.horizontalAdvance(counterString) + 4;
+     int height = fontMetrics.height();
+ 
+     IntSize size(width, height);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/network/CacheValidation.cpp b/Source/WebCore/platform/network/CacheValidation.cpp
+--- a/Source/WebCore/platform/network/CacheValidation.cpp	2025-07-02 03:56:08.891400427 -0400
++++ b/Source/WebCore/platform/network/CacheValidation.cpp	2025-07-02 03:56:08.476399391 -0400
+@@ -40,7 +40,7 @@
+     "connection",
+     "etag",
+     "keep-alive",
+-    "last-modified"
++    "last-modified",
+     "proxy-authenticate",
+     "proxy-connection",
+     "trailer",
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/network/qt/CookieJarQt.cpp b/Source/WebCore/platform/network/qt/CookieJarQt.cpp
+--- a/Source/WebCore/platform/network/qt/CookieJarQt.cpp	2025-07-02 03:56:08.892792814 -0400
++++ b/Source/WebCore/platform/network/qt/CookieJarQt.cpp	2025-07-02 03:56:08.477443230 -0400
+@@ -128,6 +128,7 @@
+ 
+ bool getRawCookies(const NetworkStorageSession& session, const URL& /*firstParty*/, const URL& /*url*/, Vector<Cookie>& rawCookies)
+ {
++    UNUSED_PARAM(session);
+     // FIXME: Not yet implemented
+     rawCookies.clear();
+     return false; // return true when implemented
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/DragDataQt.cpp b/Source/WebCore/platform/qt/DragDataQt.cpp
+--- a/Source/WebCore/platform/qt/DragDataQt.cpp	2025-07-02 03:56:08.938400543 -0400
++++ b/Source/WebCore/platform/qt/DragDataQt.cpp	2025-07-02 03:56:08.464399361 -0400
+@@ -116,6 +116,7 @@
+ bool DragData::containsURL(FilenameConversionPolicy filenamePolicy) const
+ {
+     // FIXME: Use filenamePolicy.
++    UNUSED_PARAM(filenamePolicy);
+     if (!m_platformDragData)
+         return false;
+     return m_platformDragData->hasUrls();
+@@ -124,6 +125,7 @@
+ String DragData::asURL(FilenameConversionPolicy filenamePolicy, String*) const
+ {
+     // FIXME: Use filenamePolicy.
++    UNUSED_PARAM(filenamePolicy);
+     if (!m_platformDragData)
+         return String();
+     QList<QUrl> urls = m_platformDragData->urls();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/FileSystemQt.cpp b/Source/WebCore/platform/qt/FileSystemQt.cpp
+--- a/Source/WebCore/platform/qt/FileSystemQt.cpp	2025-07-02 03:56:08.937394240 -0400
++++ b/Source/WebCore/platform/qt/FileSystemQt.cpp	2025-07-02 03:56:08.463399358 -0400
+@@ -81,7 +81,7 @@
+ bool getFileCreationTime(const String& path, time_t& result)
+ {
+     QFileInfo info(path);
+-    result = info.created().toTime_t();
++    result = info.birthTime().toTime_t();
+     return info.exists();
+ }
+ 
+@@ -233,7 +233,11 @@
+ {
+ #if defined(Q_OS_WIN)
+     ULARGE_INTEGER freeBytesToCaller;
+-    BOOL result = GetDiskFreeSpaceExW((LPCWSTR)path, &freeBytesToCaller, 0, 0);
++
++    int pathlen = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
++    wchar_t* resultPath = new wchar_t[pathlen];
++    MultiByteToWideChar(CP_UTF8, 0, path, -1, resultPath, pathlen);
++    BOOL result = GetDiskFreeSpaceExW(resultPath, &freeBytesToCaller, 0, 0);
+     if (!result)
+         return 0;
+     return static_cast<uint64_t>(freeBytesToCaller.QuadPart);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/RenderThemeQStyle.cpp b/Source/WebCore/platform/qt/RenderThemeQStyle.cpp
+--- a/Source/WebCore/platform/qt/RenderThemeQStyle.cpp	2025-07-02 03:56:08.937394240 -0400
++++ b/Source/WebCore/platform/qt/RenderThemeQStyle.cpp	2025-07-02 03:56:08.464399361 -0400
+@@ -652,6 +652,8 @@
+     case RadioPart:
+     case CheckboxPart:
+         option.state |= (isChecked(o) ? QStyleFacade::State_On : QStyleFacade::State_Off);
++    default:
++        break;
+     }
+ 
+     return result;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/RenderThemeQt.cpp b/Source/WebCore/platform/qt/RenderThemeQt.cpp
+--- a/Source/WebCore/platform/qt/RenderThemeQt.cpp	2025-07-02 03:56:08.938400543 -0400
++++ b/Source/WebCore/platform/qt/RenderThemeQt.cpp	2025-07-02 03:56:08.462556731 -0400
+@@ -280,7 +280,7 @@
+ {
+     // FIXME: Later we need a way to query the UI process for the dpi
+     const QFontMetrics fm(QGuiApplication::font());
+-    return fm.width(QLatin1Char('x'));
++    return fm.horizontalAdvance(QLatin1Char('x'));
+ }
+ 
+ void RenderThemeQt::setCheckboxSize(RenderStyle& style) const
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/ScrollbarThemeQStyle.cpp b/Source/WebCore/platform/qt/ScrollbarThemeQStyle.cpp
+--- a/Source/WebCore/platform/qt/ScrollbarThemeQStyle.cpp	2025-07-02 03:56:08.939400546 -0400
++++ b/Source/WebCore/platform/qt/ScrollbarThemeQStyle.cpp	2025-07-02 03:56:08.464399361 -0400
+@@ -65,6 +65,8 @@
+     case ForwardButtonStartPart:
+     case ForwardButtonEndPart:
+         return QStyleFacade::SC_ScrollBarAddLine;
++    default:
++        break;
+     }
+ 
+     return QStyleFacade::SC_None;
+@@ -86,8 +88,11 @@
+         return ForwardTrackPart;
+     case QStyleFacade::SC_ScrollBarAddLine:
+         return ForwardButtonStartPart;
++    default:
++        break;
+     }
+-    return NoPart;
++
++	return NoPart;
+ }
+ 
+ static QStyleFacadeOption initSliderStyleOption(Scrollbar& scrollbar, QObject* widget = 0)
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/qt/ThirdPartyCookiesQt.cpp b/Source/WebCore/platform/qt/ThirdPartyCookiesQt.cpp
+--- a/Source/WebCore/platform/qt/ThirdPartyCookiesQt.cpp	2025-07-02 03:56:08.938400543 -0400
++++ b/Source/WebCore/platform/qt/ThirdPartyCookiesQt.cpp	2025-07-02 03:56:08.462556731 -0400
+@@ -37,8 +37,8 @@
+ 
+ static bool urlsShareSameDomain(const QUrl& url, const QUrl& firstPartyUrl)
+ {
+-    QString firstPartyTLD = firstPartyUrl.topLevelDomain();
+-    QString requestTLD = url.topLevelDomain();
++    QString firstPartyTLD = firstPartyUrl.host();
++    QString requestTLD = url.host();
+ 
+     if (firstPartyTLD != requestTLD)
+         return false;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/SharedBuffer.cpp b/Source/WebCore/platform/SharedBuffer.cpp
+--- a/Source/WebCore/platform/SharedBuffer.cpp	2025-07-02 03:56:08.931400526 -0400
++++ b/Source/WebCore/platform/SharedBuffer.cpp	2025-07-02 03:56:08.509399473 -0400
+@@ -145,7 +145,7 @@
+ {
+     RefPtr<ArrayBuffer> arrayBuffer = ArrayBuffer::createUninitialized(static_cast<unsigned>(size()), sizeof(char));
+     if (!arrayBuffer) {
+-        WTFLogAlways("SharedBuffer::createArrayBuffer Unable to create buffer. Requested size was %d x %lu\n", size(), sizeof(char));
++        WTFLogAlways("SharedBuffer::createArrayBuffer Unable to create buffer. Requested size was %d x %u\n", size(), sizeof(char));
+         return nullptr;
+     }
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/text/LineEnding.cpp b/Source/WebCore/platform/text/LineEnding.cpp
+--- a/Source/WebCore/platform/text/LineEnding.cpp	2025-07-02 03:56:08.898400444 -0400
++++ b/Source/WebCore/platform/text/LineEnding.cpp	2025-07-02 03:56:08.478918554 -0400
+@@ -86,7 +86,7 @@
+         return m_buffer.data() + oldSize;
+     }
+ 
+-    virtual void copy(const CString& source)
++    virtual void copy(const CString& source) override
+     {
+         m_buffer.append(source.data(), source.length());
+     }
+@@ -155,6 +155,7 @@
+ 
+ namespace WebCore {
+ 
++#if !OS(WINDOWS)
+ // Normalize all line-endings to CR or LF.
+ static void normalizeToCROrLF(const CString& from, Vector<uint8_t>& result, bool toCR)
+ {
+@@ -205,6 +206,7 @@
+         }
+     }
+ }
++#endif
+ 
+ CString normalizeLineEndingsToCRLF(const CString& from)
+ {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/text/TextEncoding.cpp b/Source/WebCore/platform/text/TextEncoding.cpp
+--- a/Source/WebCore/platform/text/TextEncoding.cpp	2025-07-02 03:56:08.897400441 -0400
++++ b/Source/WebCore/platform/text/TextEncoding.cpp	2025-07-02 03:56:08.480399401 -0400
+@@ -31,6 +31,7 @@
+ #include "TextCodec.h"
+ #include "TextEncodingRegistry.h"
+ #include <unicode/unorm.h>
++#include <unicode/unorm2.h>
+ #include <wtf/StdLibExtras.h>
+ #include <wtf/text/CString.h>
+ #include <wtf/text/StringView.h>
+@@ -83,14 +84,20 @@
+     Vector<UChar> normalizedCharacters;
+ 
+     UErrorCode err = U_ZERO_ERROR;
+-    if (unorm_quickCheck(source, sourceLength, UNORM_NFC, &err) != UNORM_YES) {
++    const UNormalizer2* form = unorm2_getNFCInstance(&err);
++
++    // Is this the right thing to do? Bleh!
++    ASSERT(U_SUCCESS(err));
++
++    if (unorm2_quickCheck(form, source, sourceLength, &err) != UNORM_YES) {
+         // First try using the length of the original string, since normalization to NFC rarely increases length.
+         normalizedCharacters.grow(sourceLength);
+-        int32_t normalizedLength = unorm_normalize(source, sourceLength, UNORM_NFC, 0, normalizedCharacters.data(), sourceLength, &err);
++
++        int32_t normalizedLength = unorm2_normalize(form, source, sourceLength, normalizedCharacters.data(), sourceLength, &err);
+         if (err == U_BUFFER_OVERFLOW_ERROR) {
+             err = U_ZERO_ERROR;
+             normalizedCharacters.resize(normalizedLength);
+-            normalizedLength = unorm_normalize(source, sourceLength, UNORM_NFC, 0, normalizedCharacters.data(), normalizedLength, &err);
++            normalizedLength = unorm2_normalize(form, source, sourceLength, normalizedCharacters.data(), normalizedLength, &err);
+         }
+         ASSERT(U_SUCCESS(err));
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/Timer.cpp b/Source/WebCore/platform/Timer.cpp
+--- a/Source/WebCore/platform/Timer.cpp	2025-07-02 03:56:08.932400528 -0400
++++ b/Source/WebCore/platform/Timer.cpp	2025-07-02 03:56:08.508399471 -0400
+@@ -65,6 +65,7 @@
+ class TimerHeapReference {
+ public:
+     TimerHeapReference(TimerBase*& reference) : m_reference(reference) { }
++    TimerHeapReference(const TimerHeapReference&) = default;
+     operator TimerBase*() const { return m_reference; }
+     TimerHeapPointer operator&() const { return &m_reference; }
+     TimerHeapReference& operator=(TimerBase*);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/Widget.cpp b/Source/WebCore/platform/Widget.cpp
+--- a/Source/WebCore/platform/Widget.cpp	2025-07-02 03:56:08.935400536 -0400
++++ b/Source/WebCore/platform/Widget.cpp	2025-07-02 03:56:08.482332436 -0400
+@@ -140,6 +140,22 @@
+     return convertFromRootToContainingWindow(this, localPoint);
+ }
+ 
++#if COMPILER(CLANG) && CPU(ARM) && OS(WINDOWS)
++PlatformWidget Widget::platformWidget() const
++{
++    return m_widget;
++}
++
++void Widget::setPlatformWidget(PlatformWidget widget)
++{
++    if (widget != m_widget) {
++        releasePlatformWidget();
++        m_widget = widget;
++        retainPlatformWidget();
++    }
++}
++#endif
++
+ #if !PLATFORM(COCOA)
+ IntRect Widget::convertFromRootToContainingWindow(const Widget*, const IntRect& rect)
+ {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/Widget.h b/Source/WebCore/platform/Widget.h
+--- a/Source/WebCore/platform/Widget.h	2025-07-02 03:56:08.935400536 -0400
++++ b/Source/WebCore/platform/Widget.h	2025-07-02 03:56:08.510399476 -0400
+@@ -244,7 +244,7 @@
+ #endif
+ };
+ 
+-#if !PLATFORM(COCOA)
++#if !PLATFORM(COCOA) && (!COMPILER(CLANG) && !CPU(ARM) && !OS(WINDOWS))
+ 
+ inline PlatformWidget Widget::platformWidget() const
+ {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/platform/win/SystemInfo.cpp b/Source/WebCore/platform/win/SystemInfo.cpp
+--- a/Source/WebCore/platform/win/SystemInfo.cpp	2025-07-02 03:56:08.940400548 -0400
++++ b/Source/WebCore/platform/win/SystemInfo.cpp	2025-07-02 03:56:08.464985429 -0400
+@@ -97,6 +97,8 @@
+         return "Windows 98; Win 9x 4.90";
+     case WindowsNT4:
+         return "WinNT4.0";
++    default:
++        break;
+     }
+ 
+     const char* familyName = (version >= WindowsNT3) ? "Windows NT " : "Windows CE ";
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/rendering/mathml/RenderMathMLOperator.h b/Source/WebCore/rendering/mathml/RenderMathMLOperator.h
+--- a/Source/WebCore/rendering/mathml/RenderMathMLOperator.h	2025-07-02 03:56:08.795400187 -0400
++++ b/Source/WebCore/rendering/mathml/RenderMathMLOperator.h	2025-07-02 03:56:08.396399191 -0400
+@@ -121,6 +121,8 @@
+             }
+         }
+ 
++        StretchyData& operator=(const StretchyData&) = default;
++
+     private:
+         DrawMode m_mode;
+         // FIXME: For OpenType fonts with a MATH table all the glyphs are from the same font, so we would only need to store the glyph indices here.
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/rendering/RenderInline.cpp b/Source/WebCore/rendering/RenderInline.cpp
+--- a/Source/WebCore/rendering/RenderInline.cpp	2025-07-02 03:56:08.791400177 -0400
++++ b/Source/WebCore/rendering/RenderInline.cpp	2025-07-02 03:56:08.383399159 -0400
+@@ -314,7 +314,7 @@
+ static bool newChildIsInline(const RenderObject& newChild, const RenderInline& parent)
+ {
+     // inline parent generates inline-table.
+-    return newChild.isInline() | (parent.childRequiresTable(newChild) && parent.style().display() == INLINE);
++    return newChild.isInline() || (parent.childRequiresTable(newChild) && parent.style().display() == INLINE);
+ }
+ 
+ void RenderInline::addChildIgnoringContinuation(RenderObject* newChild, RenderObject* beforeChild)
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/rendering/style/BasicShapes.h b/Source/WebCore/rendering/style/BasicShapes.h
+--- a/Source/WebCore/rendering/style/BasicShapes.h	2025-07-02 03:56:08.804400209 -0400
++++ b/Source/WebCore/rendering/style/BasicShapes.h	2025-07-02 03:56:08.404399212 -0400
+@@ -106,6 +106,8 @@
+         return BasicShapeCenterCoordinate(TopLeft, m_computedLength.blend(other.m_computedLength, progress));
+     }
+     
++    BasicShapeCenterCoordinate& operator=(const BasicShapeCenterCoordinate&) = default;
++
+     bool operator==(const BasicShapeCenterCoordinate& other) const
+     {
+         return m_direction == other.m_direction
+@@ -163,6 +165,8 @@
+         return BasicShapeRadius(m_value.blend(other.value(), progress));
+     }
+     
++    BasicShapeRadius& operator=(const BasicShapeRadius&) = default;
++
+     bool operator==(const BasicShapeRadius& other) const
+     {
+         return m_value == other.m_value && m_type == other.m_type;
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/svg/SVGLength.h b/Source/WebCore/svg/SVGLength.h
+--- a/Source/WebCore/svg/SVGLength.h	2025-07-02 03:56:08.838400294 -0400
++++ b/Source/WebCore/svg/SVGLength.h	2025-07-02 03:56:08.435429882 -0400
+@@ -64,6 +64,7 @@
+     SVGLengthType unitType() const;
+     SVGLengthMode unitMode() const;
+ 
++    SVGLength& operator=(const SVGLength&) = default;
+     bool operator==(const SVGLength&) const;
+     bool operator!=(const SVGLength&) const;
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebCore/xml/XPathGrammar.y b/Source/WebCore/xml/XPathGrammar.y
+--- a/Source/WebCore/xml/XPathGrammar.y	2025-07-02 03:56:09.047400815 -0400
++++ b/Source/WebCore/xml/XPathGrammar.y	2025-07-02 03:56:08.364257958 -0400
+@@ -47,7 +47,7 @@
+ 
+ %}
+ 
+-%pure-parser
++%define api.pure
+ %lex-param { parser }
+ %parse-param { Parser& parser }
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/Api/qwebpluginfactory.cpp b/Source/WebKit/qt/Api/qwebpluginfactory.cpp
+--- a/Source/WebKit/qt/Api/qwebpluginfactory.cpp	2025-07-02 03:56:08.720400000 -0400
++++ b/Source/WebKit/qt/Api/qwebpluginfactory.cpp	2025-07-02 03:56:08.609399723 -0400
+@@ -131,6 +131,7 @@
+ QWebPluginFactory::QWebPluginFactory(QObject *parent)
+     : QObject(parent)
+ {
++    UNUSED_PARAM(d);
+ }
+ 
+ /*!
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp b/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp	2025-07-02 03:56:08.725400012 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp	2025-07-02 03:56:08.613399733 -0400
+@@ -12,7 +12,7 @@
+  *    notice, this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright
+  *    notice, this list of conditions and the following disclaimer in the
+- *    documentation and/or other materials provided with the distribution.
++ *    documentation andaor other materials provided with the distribution.
+  *
+  * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+@@ -626,6 +626,7 @@
+ 
+ void ChromeClientQt::attachRootGraphicsLayer(Frame* frame, GraphicsLayer* graphicsLayer)
+ {
++    UNUSED_PARAM(frame);
+     if (!m_textureMapperLayerClient)
+         m_textureMapperLayerClient = std::make_unique<TextureMapperLayerClientQt>(m_webPage->mainFrameAdapter());
+     m_textureMapperLayerClient->setRootGraphicsLayer(graphicsLayer);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp b/Source/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp	2025-07-02 03:56:08.723400007 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp	2025-07-02 03:56:08.611745111 -0400
+@@ -115,6 +115,7 @@
+ 
+ static QString drtPrintFrameUserGestureStatus(WebCore::Frame* frame)
+ {
++    UNUSED_PARAM(frame);
+     if (WebCore::ScriptController::processingUserGesture())
+         return QString::fromLatin1("Frame with user gesture \"%1\"").arg(QLatin1String("true"));
+     return QString::fromLatin1("Frame with user gesture \"%1\"").arg(QLatin1String("false"));
+@@ -574,6 +575,7 @@
+ 
+ bool FrameLoaderClientQt::canShowMIMETypeAsHTML(const String& MIMEType) const
+ {
++    UNUSED_PARAM(MIMEType);
+     notImplemented();
+     return false;
+ }
+@@ -802,6 +804,7 @@
+ 
+ void FrameLoaderClientQt::setMainDocumentError(WebCore::DocumentLoader* loader, const WebCore::ResourceError& error)
+ {
++    UNUSED_PARAM(loader);
+     if (!m_pluginView)
+         return;
+     m_pluginView->didFail(error);
+@@ -1062,6 +1065,7 @@
+ 
+ void FrameLoaderClientQt::dispatchDidFailLoading(WebCore::DocumentLoader* loader, unsigned long identifier, const WebCore::ResourceError& error)
+ {
++    UNUSED_PARAM(loader);
+     if (dumpResourceLoadCallbacks)
+         printf("%s - didFailLoadingWithError: %s\n",
+             (dumpAssignedUrls.contains(identifier) ? qPrintable(dumpAssignedUrls[identifier]) : "<unknown>"),
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/IconDatabaseClientQt.cpp b/Source/WebKit/qt/WebCoreSupport/IconDatabaseClientQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/IconDatabaseClientQt.cpp	2025-07-02 03:56:08.723400007 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/IconDatabaseClientQt.cpp	2025-07-02 03:56:08.613399733 -0400
+@@ -59,6 +59,7 @@
+ 
+ void IconDatabaseClientQt::didImportIconURLForPageURL(const String& url)
+ {
++    UNUSED_PARAM(url);
+ }
+ 
+ void IconDatabaseClientQt::didImportIconDataForPageURL(const String& url)
+@@ -68,6 +69,7 @@
+ 
+ void IconDatabaseClientQt::didChangeIconForPageURL(const String& url)
+ {
++    UNUSED_PARAM(url);
+ }
+ 
+ void IconDatabaseClientQt::didFinishURLImport()
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/PopupMenuQt.cpp b/Source/WebKit/qt/WebCoreSupport/PopupMenuQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/PopupMenuQt.cpp	2025-07-02 03:56:08.723400007 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/PopupMenuQt.cpp	2025-07-02 03:56:08.612399730 -0400
+@@ -90,6 +90,8 @@
+ 
+ void PopupMenuQt::show(const IntRect& rect, FrameView* view, int index)
+ {
++    UNUSED_PARAM(index);
++
+     if (!m_popupClient)
+         return;
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/ProgressTrackerClientQt.cpp b/Source/WebKit/qt/WebCoreSupport/ProgressTrackerClientQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/ProgressTrackerClientQt.cpp	2025-07-02 03:56:08.723400007 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/ProgressTrackerClientQt.cpp	2025-07-02 13:50:19.187807422 -0400
+@@ -56,6 +56,9 @@
+ {
+     QWebFrameAdapter* frame = QWebFrameAdapter::kit(&originatingProgressFrame);
+     ASSERT(m_webPage == frame->pageAdapter);
++#ifdef NDEBUG
++    UNUSED_PARAM(frame);
++#endif
+ 
+     static_cast<FrameLoaderClientQt&>(originatingProgressFrame.loader().client()).originatingLoadStarted();
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/QWebFrameAdapter.cpp b/Source/WebKit/qt/WebCoreSupport/QWebFrameAdapter.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/QWebFrameAdapter.cpp	2025-07-02 03:56:08.725400012 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/QWebFrameAdapter.cpp	2025-07-02 03:56:08.613399733 -0400
+@@ -498,7 +498,10 @@
+     if (!frame->view() || !frame->contentRenderer())
+         return;
+ 
+-    QVector<QRect> vector = clip.rects();
++    QVector<QRect> vector;
++    for (const QRect& rect : clip) {
++        vector.push_back(rect);
++    }
+     if (vector.isEmpty())
+         return;
+ 
+@@ -549,7 +552,10 @@
+         return;
+     QPainter* painter = context.platformContext();
+     WebCore::FrameView* view = frame->view();
+-    QVector<QRect> vector = clip.rects();
++    QVector<QRect> vector;
++    for (const QRect& rect : clip) {
++        vector.push_back(rect);
++    }
+     for (int i = 0; i < vector.size(); ++i) {
+         const QRect& clipRect = vector.at(i);
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/SearchPopupMenuQt.cpp b/Source/WebKit/qt/WebCoreSupport/SearchPopupMenuQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/SearchPopupMenuQt.cpp	2025-07-02 03:56:08.723319747 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/SearchPopupMenuQt.cpp	2025-07-02 03:56:08.611745111 -0400
+@@ -36,10 +36,12 @@
+ 
+ void SearchPopupMenuQt::saveRecentSearches(const WTF::AtomicString& name, const Vector<RecentSearch>&)
+ {
++    UNUSED_PARAM(name);
+ }
+ 
+ void SearchPopupMenuQt::loadRecentSearches(const WTF::AtomicString& name, Vector<RecentSearch>&)
+ {
++    UNUSED_PARAM(name);
+ }
+ 
+ bool SearchPopupMenuQt::enabled()
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp b/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp	2025-07-02 03:56:08.723400007 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp	2025-07-02 03:56:08.611745111 -0400
+@@ -50,6 +50,7 @@
+ 
+ void TextureMapperLayerClientQt::markForSync(bool scheduleSync)
+ {
++    UNUSED_PARAM(scheduleSync);
+     if (m_syncTimer.isActive())
+         return;
+     m_syncTimer.startOneShot(0);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WebCoreSupport/WebEventConversion.cpp b/Source/WebKit/qt/WebCoreSupport/WebEventConversion.cpp
+--- a/Source/WebKit/qt/WebCoreSupport/WebEventConversion.cpp	2025-07-02 03:56:08.724400009 -0400
++++ b/Source/WebKit/qt/WebCoreSupport/WebEventConversion.cpp	2025-07-02 03:56:08.612399730 -0400
+@@ -184,6 +184,8 @@
+     case QEvent::TouchCancel:
+         m_type = PlatformEvent::TouchCancel;
+         break;
++    default:
++        break;
+     }
+ 
+     const QList<QTouchEvent::TouchPoint>& points = event->touchPoints();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WidgetApi/qwebpage.cpp b/Source/WebKit/qt/WidgetApi/qwebpage.cpp
+--- a/Source/WebKit/qt/WidgetApi/qwebpage.cpp	2025-07-02 03:56:08.721533801 -0400
++++ b/Source/WebKit/qt/WidgetApi/qwebpage.cpp	2025-07-02 03:56:08.610110645 -0400
+@@ -49,13 +49,13 @@
+ #include <QBitArray>
+ #include <QClipboard>
+ #include <QColorDialog>
+-#include <QDesktopWidget>
+ #include <QDragEnterEvent>
+ #include <QDragLeaveEvent>
+ #include <QDragMoveEvent>
+ #include <QDropEvent>
+ #include <QFileDialog>
+ #include <QGestureEvent>
++#include <QGuiApplication>
+ #include <QInputDialog>
+ #include <QLabel>
+ #include <QMenu>
+@@ -2080,18 +2080,23 @@
+ 
+ static QSize queryDeviceSizeForScreenContainingWidget(const QWidget* widget)
+ {
+-    QDesktopWidget* desktop = QApplication::desktop();
+-    if (!desktop)
+-        return QSize();
+-
+     QSize size;
+ 
+     if (widget) {
+         // Returns the available geometry of the screen which contains widget.
+         // NOTE: this must be the the full screen size including any fixed status areas etc.
+-        size = desktop->availableGeometry(widget).size();
++        // ARM NOTE: Ugh.
++        while (widget) {
++            auto widgetHandle = widget->windowHandle();
++            if (widgetHandle != nullptr) {
++                size = widgetHandle->screen()->size();
++            }
++            else {
++                widget = widget->parentWidget();
++            }
++        }
+     } else
+-        size = desktop->availableGeometry().size();
++        size = QGuiApplication::primaryScreen()->size();
+ 
+     // This must be in portrait mode, adjust if not.
+     if (size.width() > size.height()) {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WidgetSupport/FullScreenVideoWidget.cpp b/Source/WebKit/qt/WidgetSupport/FullScreenVideoWidget.cpp
+--- a/Source/WebKit/qt/WidgetSupport/FullScreenVideoWidget.cpp	2025-07-02 03:56:08.725966066 -0400
++++ b/Source/WebKit/qt/WidgetSupport/FullScreenVideoWidget.cpp	2025-07-02 03:56:08.614539070 -0400
+@@ -30,9 +30,10 @@
+ 
+ #include <QApplication>
+ #include <QCloseEvent>
+-#include <QDesktopWidget>
++#include <QGuiApplication>
+ #include <QKeyEvent>
+ #include <QMediaPlayer>
++#include <QScreen>
+ 
+ static const int gHideMouseCursorDelay = 3000;
+ 
+@@ -50,7 +51,7 @@
+     setWindowModality(Qt::ApplicationModal);
+     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+ 
+-    setGeometry(QApplication::desktop()->screenGeometry());
++    setGeometry(QGuiApplication::primaryScreen()->geometry());
+ 
+     m_cursorTimer.setSingleShot(true);
+     connect(&m_cursorTimer, SIGNAL(timeout()), this, SLOT(hideCursor()));
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/qt/WidgetSupport/QStyleFacadeImp.cpp b/Source/WebKit/qt/WidgetSupport/QStyleFacadeImp.cpp
+--- a/Source/WebKit/qt/WidgetSupport/QStyleFacadeImp.cpp	2025-07-02 03:56:08.726400015 -0400
++++ b/Source/WebKit/qt/WidgetSupport/QStyleFacadeImp.cpp	2025-07-02 03:56:08.614539070 -0400
+@@ -131,6 +131,8 @@
+ 
+     switch (sc) {
+         FOR_EACH_SUBCONTROL(CONVERT_SUBCONTROL, SEMICOLON);
++        default:
++            break;
+     }
+     Q_UNREACHABLE();
+     return QStyleFacade::SC_None;
+@@ -406,7 +408,7 @@
+         // we simulate one square animating across the progress bar.
+         style()->drawControl(QStyle::CE_ProgressBarGroove, &option, painter, widget);
+         int chunkWidth = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &option);
+-        QColor color = (option.palette.highlight() == option.palette.background()) ? option.palette.color(QPalette::Active, QPalette::Highlight) : option.palette.color(QPalette::Highlight);
++        QColor color = (option.palette.highlight() == option.palette.window()) ? option.palette.color(QPalette::Active, QPalette::Highlight) : option.palette.color(QPalette::Highlight);
+         if (option.direction == Qt::RightToLeft)
+             painter->fillRect(option.rect.right() - chunkWidth  - animationProgress * option.rect.width(), 0, chunkWidth, option.rect.height(), color);
+         else
+@@ -465,7 +467,7 @@
+         opt.styleObject = 0;
+     }
+ 
+-    painter->fillRect(opt.rect, opt.palette.background());
++    painter->fillRect(opt.rect, opt.palette.window());
+ 
+     const QPoint topLeft = opt.rect.topLeft();
+     painter->translate(topLeft);
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WebKit/win/Plugins/PluginViewWin.cpp b/Source/WebKit/win/Plugins/PluginViewWin.cpp
+--- a/Source/WebKit/win/Plugins/PluginViewWin.cpp	2025-07-02 03:56:08.718878942 -0400
++++ b/Source/WebKit/win/Plugins/PluginViewWin.cpp	2025-07-02 03:56:08.607749238 -0400
+@@ -212,7 +212,8 @@
+ 
+     pProc = reinterpret_cast<BYTE*>(reinterpret_cast<ptrdiff_t>(GetProcAddress(hMod, proc)));
+ 
+-#if COMPILER(GCC) || defined(_M_IX86)
++// TODO: Actually figure this out rather than rely on x86_32's method. Temporary fix to get rid of the warnings.
++#if COMPILER(GCC) || COMPILER(CLANG) && CPU(ARM) || defined(_M_IX86)
+     if (pProc[0] != 0xB8)
+         return;
+ 
+@@ -576,6 +577,7 @@
+ 
+ void PluginView::paintWindowedPluginIntoContext(GraphicsContext& context, const IntRect& rect)
+ {
++    UNUSED_PARAM(rect);
+ #if !USE(WINGDI)
+     ASSERT(m_isWindowed);
+     ASSERT(context.shouldIncludeChildWindows());
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/Assertions.h b/Source/WTF/wtf/Assertions.h
+--- a/Source/WTF/wtf/Assertions.h	2025-07-02 03:56:09.228401267 -0400
++++ b/Source/WTF/wtf/Assertions.h	2025-07-02 03:56:08.599399698 -0400
+@@ -87,7 +87,7 @@
+ #define WTF_PRETTY_FUNCTION __FUNCTION__
+ #endif
+ 
+-#if COMPILER(MINGW)
++#if COMPILER(MINGW) && !CPU(ARM)
+ /* By default MinGW emits warnings when C99 format attributes are used, even if __USE_MINGW_ANSI_STDIO is defined */
+ #define WTF_ATTRIBUTE_PRINTF(formatStringArgument, extraArguments) __attribute__((__format__(gnu_printf, formatStringArgument, extraArguments)))
+ #elif COMPILER(GCC_OR_CLANG) && !defined(__OBJC__)
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/CheckedArithmetic.h b/Source/WTF/wtf/CheckedArithmetic.h
+--- a/Source/WTF/wtf/CheckedArithmetic.h	2025-07-02 03:56:09.226401262 -0400
++++ b/Source/WTF/wtf/CheckedArithmetic.h	2025-07-02 03:56:08.601399703 -0400
+@@ -456,6 +456,13 @@
+     {
+     }
+ 
++    Checked(const Checked& rhs)
++        : m_value(rhs.m_value)
++    {
++        if (rhs.hasOverflowed())
++            this->overflowed();
++    }
++
+     Checked(ResultOverflowedTag)
+         : m_value(0)
+     {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/DateMath.cpp b/Source/WTF/wtf/DateMath.cpp
+--- a/Source/WTF/wtf/DateMath.cpp	2025-07-02 03:56:09.228401267 -0400
++++ b/Source/WTF/wtf/DateMath.cpp	2025-07-02 03:56:08.593399683 -0400
+@@ -122,6 +122,7 @@
+     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}
+ };
+ 
++#if !CPU(ARM) && !OS(WINDOWS)
+ static inline void getLocalTime(const time_t* localTime, struct tm* localTM)
+ {
+ #if COMPILER(MINGW)
+@@ -132,6 +133,7 @@
+     localtime_r(localTime, localTM);
+ #endif
+ }
++#endif
+ 
+ bool isLeapYear(int year)
+ {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/MathExtras.h b/Source/WTF/wtf/MathExtras.h
+--- a/Source/WTF/wtf/MathExtras.h	2025-07-02 03:56:09.224401257 -0400
++++ b/Source/WTF/wtf/MathExtras.h	2025-07-02 03:56:08.601399703 -0400
+@@ -311,7 +311,7 @@
+         value = 0;
+     else {
+         // -2^{64} < fmodValue < 2^{64}.
+-        double fmodValue = fmod(trunc(d), std::numeric_limits<unsigned long long>::max() + 1.0);
++        double fmodValue = fmod(trunc(d), static_cast<double>(std::numeric_limits<unsigned long long>::max()) + 1.0);
+         if (fmodValue >= 0) {
+             // 0 <= fmodValue < 2^{64}.
+             // 0 <= value < 2^{64}. This cast causes no loss.
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/MediaTime.cpp b/Source/WTF/wtf/MediaTime.cpp
+--- a/Source/WTF/wtf/MediaTime.cpp	2025-07-02 03:56:09.232425459 -0400
++++ b/Source/WTF/wtf/MediaTime.cpp	2025-07-02 03:56:08.592399680 -0400
+@@ -89,7 +89,7 @@
+         return invalidTime();
+     if (std::isinf(floatTime))
+         return std::signbit(floatTime) ? negativeInfiniteTime() : positiveInfiniteTime();
+-    if (floatTime > std::numeric_limits<int64_t>::max())
++    if (floatTime > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         return positiveInfiniteTime();
+     if (floatTime < std::numeric_limits<int64_t>::min())
+         return negativeInfiniteTime();
+@@ -105,12 +105,12 @@
+         return invalidTime();
+     if (std::isinf(floatTime))
+         return std::signbit(floatTime) ? negativeInfiniteTime() : positiveInfiniteTime();
+-    if (floatTime > std::numeric_limits<int64_t>::max())
++    if (floatTime > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         return positiveInfiniteTime();
+     if (floatTime < std::numeric_limits<int64_t>::min())
+         return negativeInfiniteTime();
+ 
+-    while (floatTime * timeScale > std::numeric_limits<int64_t>::max())
++    while (floatTime * timeScale > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         timeScale /= 2;
+     return MediaTime(static_cast<int64_t>(floatTime * timeScale), timeScale, Valid);
+ }
+@@ -121,7 +121,7 @@
+         return invalidTime();
+     if (std::isinf(doubleTime))
+         return std::signbit(doubleTime) ? negativeInfiniteTime() : positiveInfiniteTime();
+-    if (doubleTime > std::numeric_limits<int64_t>::max())
++    if (doubleTime > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         return positiveInfiniteTime();
+     if (doubleTime < std::numeric_limits<int64_t>::min())
+         return negativeInfiniteTime();
+@@ -137,12 +137,12 @@
+         return invalidTime();
+     if (std::isinf(doubleTime))
+         return std::signbit(doubleTime) ? negativeInfiniteTime() : positiveInfiniteTime();
+-    if (doubleTime > std::numeric_limits<int64_t>::max())
++    if (doubleTime > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         return positiveInfiniteTime();
+     if (doubleTime < std::numeric_limits<int64_t>::min())
+         return negativeInfiniteTime();
+ 
+-    while (doubleTime * timeScale > std::numeric_limits<int64_t>::max())
++    while (doubleTime * timeScale > static_cast<double>(std::numeric_limits<int64_t>::max()))
+         timeScale /= 2;
+     return MediaTime(static_cast<int64_t>(doubleTime * timeScale), timeScale, Valid);
+ }
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/OSAllocatorWin.cpp b/Source/WTF/wtf/OSAllocatorWin.cpp
+--- a/Source/WTF/wtf/OSAllocatorWin.cpp	2025-07-02 03:56:09.230401272 -0400
++++ b/Source/WTF/wtf/OSAllocatorWin.cpp	2025-07-02 03:56:08.596399691 -0400
+@@ -74,7 +74,9 @@
+     if (!bytes)
+         return;
+     // Silence warning about using MEM_DECOMMIT instead of MEM_RELEASE:
++#if !COMPILER(CLANG)
+ #pragma warning(suppress: 6250)
++#endif
+     bool result = VirtualFree(address, bytes, MEM_DECOMMIT);
+     if (!result)
+         CRASH();
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/PageBlock.h b/Source/WTF/wtf/PageBlock.h
+--- a/Source/WTF/wtf/PageBlock.h	2025-07-02 03:56:09.228401267 -0400
++++ b/Source/WTF/wtf/PageBlock.h	2025-07-02 03:56:08.601399703 -0400
+@@ -44,6 +44,7 @@
+     size_t size() const { return m_size; }
+ 
+     operator bool() const { return !!m_realBase; }
++	PageBlock& operator=(const PageBlock&) = default;
+ 
+     bool contains(void* containedBase, size_t containedSize)
+     {
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/StackBounds.cpp b/Source/WTF/wtf/StackBounds.cpp
+--- a/Source/WTF/wtf/StackBounds.cpp	2025-07-02 03:56:09.230401272 -0400
++++ b/Source/WTF/wtf/StackBounds.cpp	2025-07-02 03:56:08.592272407 -0400
+@@ -119,7 +119,7 @@
+ 
+ void StackBounds::initialize()
+ {
+-    MEMORY_BASIC_INFORMATION stackOrigin = { 0 };
++    MEMORY_BASIC_INFORMATION stackOrigin { };
+     VirtualQuery(&stackOrigin, &stackOrigin, sizeof(stackOrigin));
+     // stackOrigin.AllocationBase points to the reserved stack memory base address.
+ 
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/ThreadingWin.cpp b/Source/WTF/wtf/ThreadingWin.cpp
+--- a/Source/WTF/wtf/ThreadingWin.cpp	2025-07-02 03:56:09.232425459 -0400
++++ b/Source/WTF/wtf/ThreadingWin.cpp	2025-07-02 03:56:08.598748668 -0400
+@@ -128,6 +128,7 @@
+ {
+ #if COMPILER(MINGW)
+     // FIXME: Implement thread name setting with MingW.
++    UNUSED_PARAM(MS_VC_EXCEPTION);
+     UNUSED_PARAM(szThreadName);
+ #else
+     THREADNAME_INFO info;
+@@ -209,6 +210,9 @@
+ 
+ ThreadIdentifier createThreadInternal(ThreadFunction entryPoint, void* data, const char* threadName)
+ {
++#if COMPILER(CLANG) && CPU(ARM) && OS(WINDOWS)
++    UNUSED_PARAM(threadName);
++#endif
+     unsigned threadIdentifier = 0;
+     ThreadIdentifier threadID = 0;
+     auto invocation = std::make_unique<ThreadFunctionInvocation>(entryPoint, data);
+@@ -293,7 +297,9 @@
+     ++m_mutex.m_recursionCount;
+ }
+     
++#if !COMPILER(CLANG)
+ #pragma warning(suppress: 26115)
++#endif
+ bool Mutex::tryLock()
+ {
+     // This method is modeled after the behavior of pthread_mutex_trylock,
+diff '--color=auto' -x '*.pyc' -Naur a/Source/WTF/wtf/win/WorkQueueWin.cpp b/Source/WTF/wtf/win/WorkQueueWin.cpp
+--- a/Source/WTF/wtf/win/WorkQueueWin.cpp	2025-07-02 03:56:09.223534570 -0400
++++ b/Source/WTF/wtf/win/WorkQueueWin.cpp	2025-07-02 13:49:43.072379357 -0400
+@@ -35,7 +35,11 @@
+ void WorkQueue::handleCallback(void* context, BOOLEAN timerOrWaitFired)
+ {
+     ASSERT_ARG(context, context);
++#ifndef NDEBUG
+     ASSERT_ARG(timerOrWaitFired, !timerOrWaitFired);
++#else
++    ASSERT_UNUSED(timerOrWaitFired, timerOrWaitFired);
++#endif
+ 
+     WorkItemWin* item = static_cast<WorkItemWin*>(context);
+     RefPtr<WorkQueue> queue = item->queue();
+@@ -100,6 +104,9 @@
+ 
+ void WorkQueue::platformInitialize(const char* name, Type, QOS)
+ {
++#if COMPILER(CLANG) && CPU(ARM) && OS(WINDOWS)
++    UNUSED_PARAM(name);
++#endif
+     m_isWorkThreadRegistered = 0;
+     m_timerQueue = ::CreateTimerQueue();
+     ASSERT_WITH_MESSAGE(m_timerQueue, "::CreateTimerQueue failed with error %lu", ::GetLastError());
+@@ -219,7 +226,7 @@
+     }
+ 
+     // The timer callback will handle destroying context.
+-    context.release().leakRef();
++    (void)context.release().leakRef();
+ }
+ 
+ void WorkQueue::unregisterWaitAndDestroyItemSoon(PassRefPtr<HandleWorkItem> item)
+@@ -241,6 +248,9 @@
+     // make a blocking call to ::UnregisterWaitEx.
+     if (!::UnregisterWaitEx(item->waitHandle(), INVALID_HANDLE_VALUE)) {
+         DWORD error = ::GetLastError();
++#if COMPILER(CLANG) && CPU(ARM) && OS(WINDOWS)
++        UNUSED_PARAM(error);
++#endif
+         ASSERT_NOT_REACHED();
+     }
+ 
+@@ -261,6 +271,9 @@
+     HANDLE waitHandle;
+     if (!::RegisterWaitForSingleObject(&waitHandle, handle, handleCallback, handleItem.get(), INFINITE, WT_EXECUTEDEFAULT)) {
+         DWORD error = ::GetLastError();
++#if COMPILER(CLANG) && CPU(ARM) && OS(WINDOWS)
++        UNUSED_PARAM(error);
++#endif
+         ASSERT_NOT_REACHED();
+     }
+     handleItem->setWaitHandle(waitHandle);

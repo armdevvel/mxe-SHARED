@@ -34,9 +34,10 @@ define $(PKG)_BUILD
         -DENABLE_API_TESTS=OFF \
         -DENABLE_MINIBROWSER=OFF \
         -G Ninja
-    $(SED) -i 's/-fno-keep-inline-dllexport/-liconv -lws2_32 -licuin -licuuc -licudt -llzma -lpthread -pthread -pthreads/g' '$(BUILD_DIR)/build.ninja'
     ninja -C '$(BUILD_DIR)' -j '$(JOBS)' || ninja -C '$(BUILD_DIR)' -j '$(JOBS)'
     ninja -C '$(BUILD_DIR)' install
+
+    $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_LIBRARIES),)
 
     # build test manually
     # add $(BUILD_TYPE_SUFFIX) for debug builds - see qtbase.mk
@@ -51,4 +52,10 @@ define $(PKG)_BUILD
      printf 'test-$(PKG).exe\r\n'; \
      printf 'cmd\r\n';) \
      > '$(PREFIX)/$(TARGET)/bin/test-$(PKG).bat'
+endef
+
+define $(PKG)_BUILD_COPY_LIBRARIES
+    # Debug builds save libraries to libQt5*d.a.
+    cp $(PREFIX)/$(TARGET)/qt5/lib/libQt5WebKitd.a $(PREFIX)/$(TARGET)/qt5/lib/libQt5WebKit.a
+    cp $(PREFIX)/$(TARGET)/qt5/lib/libQt5WebKitWidgetsd.a $(PREFIX)/$(TARGET)/qt5/lib/libQt5WebKitWidgets.a
 endef
