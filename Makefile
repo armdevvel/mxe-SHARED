@@ -150,6 +150,10 @@ MXE_EASYSTRIP_SH = \
     mkdir -p '$(PREFIX)/$(TARGET)/bin/stripped-executables' && \
         $(SHELL) $(PWD)/mxe.easystrip.sh '$(PREFIX)/$(TARGET)/bin' '$(TARGET)'
 
+MXE_EASYSTRIP_QT = \
+    mkdir -p '$(PREFIX)/$(TARGET)/qt5/bin/stripped-executables' && \
+        $(SHELL) $(PWD)/mxe.easystrip.sh '$(PREFIX)/$(TARGET)/qt5/bin' '$(TARGET)'
+
 MXE_INTRINSIC_SH = \
     cd $(BUILD_DIR) && \
         BUILD_DIR=$(BUILD_DIR) \
@@ -816,6 +820,9 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
                     $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(MXE_TRIPLETS)),$(3)), \
                         && $(MXE_EASYSTRIP_SH)  \
+                        $(if $(findstring qt,'$(1)'), \
+                            && $(MXE_EASYSTRIP_QT) \
+                        ) \
                     ) \
 	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
