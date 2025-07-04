@@ -5,11 +5,11 @@ include src/qt/qt6/qt6-conf.mk
 PKG := qt6-qtimageformats
 $(eval $(QT6_METADATA))
 
-$(PKG)_CHECKSUM := fc5f999ae0779a67d5507956d4dd315386eb81cf6ccba632de039bb9eee11707
+$(PKG)_CHECKSUM := ebe9f238daaf9bb752c7233edadf4af33fc4fa30d914936812b6410d3af1577c
 $(PKG)_DEPS     := cc qt6-conf qt6-qtbase jasper libmng libwebp tiff
 
 QT6_PREFIX   = '$(PREFIX)/$(TARGET)/$(MXE_QT6_ID)'
-QT6_QT_CMAKE = '$(QT6_PREFIX)/bin/qt-cmake-private' \
+QT6_QT_CMAKE = '$(QT6_PREFIX)/$(if $(findstring mingw,$(TARGET)),bin,libexec)/qt-cmake-private' \
                    -DCMAKE_INSTALL_PREFIX='$(QT6_PREFIX)'
 
 define $(PKG)_BUILD

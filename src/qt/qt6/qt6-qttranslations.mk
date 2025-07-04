@@ -3,11 +3,11 @@
 PKG := qt6-qttranslations
 $(eval $(QT6_METADATA))
 
-$(PKG)_CHECKSUM := bbe0291502c2604b72fef730e1935bd22f8b921d8c473250f298a723b2a9c496
+$(PKG)_CHECKSUM := 9761a1a555f447cdeba79fdec6a705dee8a7882ac10c12e85f49467ddd01a741
 $(PKG)_DEPS     := cc qt6-qtbase qt6-qttools
 
 QT6_PREFIX   = '$(PREFIX)/$(TARGET)/$(MXE_QT6_ID)'
-QT6_QT_CMAKE = '$(QT6_PREFIX)/bin/qt-cmake-private' \
+QT6_QT_CMAKE = '$(QT6_PREFIX)/$(if $(findstring mingw,$(TARGET)),bin,libexec)/qt-cmake-private' \
                    -DCMAKE_INSTALL_PREFIX='$(QT6_PREFIX)'
 
 define $(PKG)_BUILD

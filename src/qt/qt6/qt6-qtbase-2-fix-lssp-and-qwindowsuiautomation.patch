@@ -1,0 +1,415 @@
+diff '--color=auto' -Naur a/mkspecs/win32-clang-g++/qmake.conf b/mkspecs/win32-clang-g++/qmake.conf
+--- a/mkspecs/win32-clang-g++/qmake.conf	2025-07-04 03:49:17.383122969 -0400
++++ b/mkspecs/win32-clang-g++/qmake.conf	2025-07-04 03:50:50.246417320 -0400
+@@ -24,6 +24,7 @@
+ QMAKE_LINK              = $${CROSS_COMPILE}clang++
+ QMAKE_LINK_C            = $${CROSS_COMPILE}clang
+ 
++QMAKE_LIBS             += -lssp 
+ QMAKE_CFLAGS_LTCG       = -flto=thin
+ QMAKE_CXXFLAGS_LTCG     = $$QMAKE_CFLAGS_LTCG
+ QMAKE_CFLAGS_LTCG_FATOBJECTS = -flto
+diff '--color=auto' -Naur a/src/concurrent/CMakeLists.txt b/src/concurrent/CMakeLists.txt
+--- a/src/concurrent/CMakeLists.txt	2025-07-04 03:49:17.925251859 -0400
++++ b/src/concurrent/CMakeLists.txt	2025-07-04 03:48:31.740078791 -0400
+@@ -42,6 +42,10 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Concurrent CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+ qt_internal_extend_target(Concurrent CONDITION MSVC AND (TEST_architecture_arch STREQUAL "i386")
+     LINK_OPTIONS
+         "/BASE:0x66000000"
+diff '--color=auto' -Naur a/src/corelib/CMakeLists.txt b/src/corelib/CMakeLists.txt
+--- a/src/corelib/CMakeLists.txt	2025-07-04 03:49:18.109254182 -0400
++++ b/src/corelib/CMakeLists.txt	2025-07-04 03:48:31.816669778 -0400
+@@ -596,6 +596,7 @@
+         version
+         winmm
+         ws2_32
++        ssp
+     PUBLIC_LIBRARIES
+         mpr
+         userenv
+diff '--color=auto' -Naur a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+--- a/src/gui/CMakeLists.txt	2025-07-04 03:49:18.231255722 -0400
++++ b/src/gui/CMakeLists.txt	2025-07-04 03:48:31.860518587 -0400
+@@ -835,6 +835,7 @@
+ qt_internal_extend_target(Gui CONDITION MINGW AND WIN32
+     LIBRARIES
+         uuid
++        ssp
+ )
+ 
+ # Only enable the Pixman draw-helpers on platforms that support the GAS syntax of their asm files
+diff '--color=auto' -Naur a/src/network/CMakeLists.txt b/src/network/CMakeLists.txt
+--- a/src/network/CMakeLists.txt	2025-07-04 03:49:17.444570190 -0400
++++ b/src/network/CMakeLists.txt	2025-07-04 03:48:31.547666382 -0400
+@@ -81,6 +81,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Network CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Network CONDITION QT_FEATURE_private_tests
+     SOURCES
+         access/qnetworkaccessdebugpipebackend.cpp access/qnetworkaccessdebugpipebackend_p.h
+diff '--color=auto' -Naur a/src/opengl/CMakeLists.txt b/src/opengl/CMakeLists.txt
+--- a/src/opengl/CMakeLists.txt	2025-07-04 03:49:17.730249397 -0400
++++ b/src/opengl/CMakeLists.txt	2025-07-04 03:48:31.664667859 -0400
+@@ -57,6 +57,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(OpenGL CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(OpenGL CONDITION APPLE
+     NO_UNITY_BUILD_SOURCES
+         qopenglversionfunctionsfactory.cpp
+diff '--color=auto' -Naur a/src/openglwidgets/CMakeLists.txt b/src/openglwidgets/CMakeLists.txt
+--- a/src/openglwidgets/CMakeLists.txt	2025-07-04 03:49:17.473825017 -0400
++++ b/src/openglwidgets/CMakeLists.txt	2025-07-04 03:48:31.557270534 -0400
+@@ -21,3 +21,8 @@
+         Qt::OpenGL
+         Qt::Widgets
+ )
++
++qt_internal_extend_target(OpenGLWidgets CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/generic/tuiotouch/CMakeLists.txt b/src/plugins/generic/tuiotouch/CMakeLists.txt
+--- a/src/plugins/generic/tuiotouch/CMakeLists.txt	2025-07-04 03:49:17.697453270 -0400
++++ b/src/plugins/generic/tuiotouch/CMakeLists.txt	2025-07-04 03:48:31.650500776 -0400
+@@ -25,3 +25,11 @@
+         Qt::GuiPrivate
+         Qt::Network
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QTuioTouchPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/gif/CMakeLists.txt b/src/plugins/imageformats/gif/CMakeLists.txt
+--- a/src/plugins/imageformats/gif/CMakeLists.txt	2025-07-04 03:49:17.704393166 -0400
++++ b/src/plugins/imageformats/gif/CMakeLists.txt	2025-07-04 03:48:31.653658149 -0400
+@@ -15,3 +15,11 @@
+         Qt::Gui
+         Qt::GuiPrivate
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QGifPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/ico/CMakeLists.txt b/src/plugins/imageformats/ico/CMakeLists.txt
+--- a/src/plugins/imageformats/ico/CMakeLists.txt	2025-07-04 03:49:17.703288781 -0400
++++ b/src/plugins/imageformats/ico/CMakeLists.txt	2025-07-04 03:48:31.653197298 -0400
+@@ -17,3 +17,11 @@
+         Qt::Gui
+     NO_UNITY_BUILD
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QICOPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/jpeg/CMakeLists.txt b/src/plugins/imageformats/jpeg/CMakeLists.txt
+--- a/src/plugins/imageformats/jpeg/CMakeLists.txt	2025-07-04 03:49:17.703800337 -0400
++++ b/src/plugins/imageformats/jpeg/CMakeLists.txt	2025-07-04 03:48:31.653403568 -0400
+@@ -27,3 +27,11 @@
+ if(WIN32 AND NOT BUILD_SHARED_LIBS)
+     qt_update_ignore_pch_source(QJpegPlugin "qjpeghandler.cpp")
+ endif()
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QJpegPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/networkinformation/networklistmanager/CMakeLists.txt b/src/plugins/networkinformation/networklistmanager/CMakeLists.txt
+--- a/src/plugins/networkinformation/networklistmanager/CMakeLists.txt	2025-07-04 03:49:17.705111152 -0400
++++ b/src/plugins/networkinformation/networklistmanager/CMakeLists.txt	2025-07-04 03:48:31.653994123 -0400
+@@ -23,3 +23,11 @@
+ # Don't repeat the target name in AUTOGEN_BUILD_DIR to work around issues with overlong paths.
+ set_property(TARGET QNLMNIPlugin PROPERTY
+     AUTOGEN_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/autogen")
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QNLMNIPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/platforms/direct2d/CMakeLists.txt b/src/plugins/platforms/direct2d/CMakeLists.txt
+--- a/src/plugins/platforms/direct2d/CMakeLists.txt	2025-07-04 03:49:17.648561340 -0400
++++ b/src/plugins/platforms/direct2d/CMakeLists.txt	2025-07-04 03:48:31.629253562 -0400
+@@ -80,6 +80,7 @@
+         comdlg32
+         d3d9
+         runtimeobject
++        ssp
+ )
+ 
+ # Resources:
+diff '--color=auto' -Naur a/src/plugins/platforms/minimal/CMakeLists.txt b/src/plugins/platforms/minimal/CMakeLists.txt
+--- a/src/plugins/platforms/minimal/CMakeLists.txt	2025-07-04 03:49:17.617388621 -0400
++++ b/src/plugins/platforms/minimal/CMakeLists.txt	2025-07-04 03:48:31.616171957 -0400
+@@ -27,6 +27,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QMinimalIntegrationPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QMinimalIntegrationPlugin CONDITION QT_FEATURE_freetype
+     LIBRARIES
+         WrapFreetype::WrapFreetype
+diff '--color=auto' -Naur a/src/plugins/platforms/offscreen/CMakeLists.txt b/src/plugins/platforms/offscreen/CMakeLists.txt
+--- a/src/plugins/platforms/offscreen/CMakeLists.txt	2025-07-04 03:49:17.658577635 -0400
++++ b/src/plugins/platforms/offscreen/CMakeLists.txt	2025-07-04 03:48:31.633714255 -0400
+@@ -26,6 +26,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QOffscreenIntegrationPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QOffscreenIntegrationPlugin CONDITION QT_FEATURE_opengl AND QT_FEATURE_xlib AND NOT QT_FEATURE_opengles2
+     SOURCES
+         qoffscreenintegration_x11.cpp qoffscreenintegration_x11.h
+diff '--color=auto' -Naur a/src/plugins/platforms/windows/CMakeLists.txt b/src/plugins/platforms/windows/CMakeLists.txt
+--- a/src/plugins/platforms/windows/CMakeLists.txt	2025-07-04 03:49:17.618751766 -0400
++++ b/src/plugins/platforms/windows/CMakeLists.txt	2025-07-04 03:48:31.616805143 -0400
+@@ -67,6 +67,7 @@
+         comdlg32
+         d3d9
+         runtimeobject
++        ssp
+ )
+ 
+ # Resources:
+diff '--color=auto' -Naur a/src/plugins/platforms/windows/uiautomation/qwindowsuiautomation.h b/src/plugins/platforms/windows/uiautomation/qwindowsuiautomation.h
+--- a/src/plugins/platforms/windows/uiautomation/qwindowsuiautomation.h	2025-07-04 03:49:17.630248135 -0400
++++ b/src/plugins/platforms/windows/uiautomation/qwindowsuiautomation.h	2025-07-04 03:48:31.620667304 -0400
+@@ -7,7 +7,7 @@
+ #include <QtGui/qtguiglobal.h>
+ #if QT_CONFIG(accessibility)
+ 
+-#include <uiautomation.h>
++#include <mingw-contrib/uiautomation/uiautomation.h>
+ 
+ #ifndef Q_CC_MSVC
+ // MinGW's headers were missing these, but have since added an incomplete set
+diff '--color=auto' -Naur a/src/plugins/sqldrivers/mysql/CMakeLists.txt b/src/plugins/sqldrivers/mysql/CMakeLists.txt
+--- a/src/plugins/sqldrivers/mysql/CMakeLists.txt	2025-07-04 03:49:17.711229075 -0400
++++ b/src/plugins/sqldrivers/mysql/CMakeLists.txt	2025-07-04 03:48:31.656293856 -0400
+@@ -23,3 +23,8 @@
+ )
+ 
+ qt_internal_force_macos_intel_arch(QMYSQLDriverPlugin)
++
++qt_internal_extend_target(QMYSQLDriverPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/sqldrivers/odbc/CMakeLists.txt b/src/plugins/sqldrivers/odbc/CMakeLists.txt
+--- a/src/plugins/sqldrivers/odbc/CMakeLists.txt	2025-07-04 03:49:17.708166362 -0400
++++ b/src/plugins/sqldrivers/odbc/CMakeLists.txt	2025-07-04 03:48:31.655297685 -0400
+@@ -27,6 +27,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QODBCDriverPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QODBCDriverPlugin CONDITION UNIX
+     DEFINES
+         UNICODE
+diff '--color=auto' -Naur a/src/plugins/sqldrivers/sqlite/CMakeLists.txt b/src/plugins/sqldrivers/sqlite/CMakeLists.txt
+--- a/src/plugins/sqldrivers/sqlite/CMakeLists.txt	2025-07-04 03:49:17.711866619 -0400
++++ b/src/plugins/sqldrivers/sqlite/CMakeLists.txt	2025-07-04 03:48:31.656627897 -0400
+@@ -25,6 +25,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QSQLiteDriverPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QSQLiteDriverPlugin CONDITION QT_FEATURE_system_sqlite
+     LIBRARIES
+         SQLite::SQLite3
+diff '--color=auto' -Naur a/src/plugins/styles/modernwindows/CMakeLists.txt b/src/plugins/styles/modernwindows/CMakeLists.txt
+--- a/src/plugins/styles/modernwindows/CMakeLists.txt	2025-07-04 03:49:17.715052937 -0400
++++ b/src/plugins/styles/modernwindows/CMakeLists.txt	2025-07-04 03:48:31.658021959 -0400
+@@ -25,3 +25,11 @@
+         Qt::GuiPrivate
+         Qt::WidgetsPrivate
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QModernWindowsStylePlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/tls/certonly/CMakeLists.txt b/src/plugins/tls/certonly/CMakeLists.txt
+--- a/src/plugins/tls/certonly/CMakeLists.txt	2025-07-04 03:49:17.716565593 -0400
++++ b/src/plugins/tls/certonly/CMakeLists.txt	2025-07-04 03:48:31.658590714 -0400
+@@ -18,3 +18,11 @@
+     LIBRARIES
+         Qt::NetworkPrivate
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QTlsBackendCertOnlyPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/tls/openssl/CMakeLists.txt b/src/plugins/tls/openssl/CMakeLists.txt
+--- a/src/plugins/tls/openssl/CMakeLists.txt	2025-07-04 03:49:17.718475851 -0400
++++ b/src/plugins/tls/openssl/CMakeLists.txt	2025-07-04 03:48:31.659368252 -0400
+@@ -28,6 +28,14 @@
+     set_target_properties(QTlsBackendOpenSSLPlugin PROPERTIES UNITY_BUILD OFF)
+ endif()
+ 
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QTlsBackendOpenSSLPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QTlsBackendOpenSSLPlugin CONDITION QT_FEATURE_dtls
+     SOURCES
+         qdtls_openssl.cpp qdtls_openssl_p.h
+diff '--color=auto' -Naur a/src/plugins/tls/schannel/CMakeLists.txt b/src/plugins/tls/schannel/CMakeLists.txt
+--- a/src/plugins/tls/schannel/CMakeLists.txt	2025-07-04 03:49:17.720563553 -0400
++++ b/src/plugins/tls/schannel/CMakeLists.txt	2025-07-04 03:48:31.660179354 -0400
+@@ -32,3 +32,11 @@
+     DEFINES
+         QT_NO_CAST_FROM_ASCII
+ )
++
++## Scopes:
++#####################################################################
++
++qt_internal_extend_target(QSchannelBackendPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/printsupport/CMakeLists.txt b/src/printsupport/CMakeLists.txt
+--- a/src/printsupport/CMakeLists.txt	2025-07-04 03:49:17.931717069 -0400
++++ b/src/printsupport/CMakeLists.txt	2025-07-04 03:48:31.743107350 -0400
+@@ -50,6 +50,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(PrintSupport CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(PrintSupport CONDITION MACOS
+     SOURCES
+         platform/macos/qcocoaprintdevice.mm platform/macos/qcocoaprintdevice_p.h
+diff '--color=auto' -Naur a/src/sql/CMakeLists.txt b/src/sql/CMakeLists.txt
+--- a/src/sql/CMakeLists.txt	2025-07-04 03:49:17.474235111 -0400
++++ b/src/sql/CMakeLists.txt	2025-07-04 03:48:31.557666508 -0400
+@@ -42,6 +42,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Sql CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Sql CONDITION MSVC AND (TEST_architecture_arch STREQUAL "i386")
+     LINK_OPTIONS
+         "/BASE:0x62000000"
+diff '--color=auto' -Naur a/src/testlib/CMakeLists.txt b/src/testlib/CMakeLists.txt
+--- a/src/testlib/CMakeLists.txt	2025-07-04 03:49:17.944252099 -0400
++++ b/src/testlib/CMakeLists.txt	2025-07-04 03:48:31.748448206 -0400
+@@ -100,6 +100,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Test CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Test CONDITION QT_FEATURE_itemmodeltester
+     SOURCES
+         qabstractitemmodeltester.cpp qabstractitemmodeltester.h
+diff '--color=auto' -Naur a/src/tools/bootstrap/CMakeLists.txt b/src/tools/bootstrap/CMakeLists.txt
+--- a/src/tools/bootstrap/CMakeLists.txt	2025-07-04 03:49:17.957749290 -0400
++++ b/src/tools/bootstrap/CMakeLists.txt	2025-07-04 03:48:31.753821553 -0400
+@@ -223,6 +223,7 @@
+ qt_internal_extend_target(Bootstrap CONDITION MINGW AND WIN32
+     PUBLIC_LIBRARIES
+         uuid
++        lssp
+ )
+ 
+ target_link_libraries(Bootstrap PRIVATE PlatformCommonInternal)
+diff '--color=auto' -Naur a/src/widgets/CMakeLists.txt b/src/widgets/CMakeLists.txt
+--- a/src/widgets/CMakeLists.txt	2025-07-04 03:49:17.481033189 -0400
++++ b/src/widgets/CMakeLists.txt	2025-07-04 03:48:31.560553003 -0400
+@@ -381,6 +381,7 @@
+         dwmapi
+         shell32
+         uxtheme
++        ssp
+ )
+ 
+ qt_internal_extend_target(Widgets CONDITION QT_FEATURE_graphicseffect
+diff '--color=auto' -Naur a/src/xml/CMakeLists.txt b/src/xml/CMakeLists.txt
+--- a/src/xml/CMakeLists.txt	2025-07-04 03:49:18.238255811 -0400
++++ b/src/xml/CMakeLists.txt	2025-07-04 03:48:31.862033147 -0400
+@@ -30,6 +30,11 @@
+         compat/removed_api.cpp
+ )
+ 
++qt_internal_extend_target(Xml CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Xml CONDITION MSVC AND (TEST_architecture_arch STREQUAL "i386")
+     LINK_OPTIONS
+         "/BASE:0x61000000"

@@ -5,19 +5,19 @@ PKG             := qt6-$(PKG_BASENAME)
 $(PKG)_WEBSITE  := https://www.qt.io/
 $(PKG)_DESCR    := Qt6
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 6.4.2
-$(PKG)_CHECKSUM := a88bc6cedbb34878a49a622baa79cace78cfbad4f95fdbd3656ddb21c705525d
+$(PKG)_VERSION  := 6.9.1
+$(PKG)_CHECKSUM := 40caedbf83cc9a1959610830563565889878bc95f115868bbf545d1914acf28e
 $(PKG)_SUBDIR   := $(PKG_BASENAME)-everywhere-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG_BASENAME)-everywhere-src-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://download.qt.io/official_releases/qt/6.4/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
+$(PKG)_URL      := https://download.qt.io/archive/qt/6.9/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
-$(PKG)_DEPS     := cc freetype harfbuzz jpeg libpng mesa pcre2 sqlite zlib zstd $(BUILD)~$(PKG) \
+$(PKG)_DEPS     := cc freetype harfbuzz jpeg libpng mariadb-connector-c mingw-contrib openssl pcre2 sqlite zlib zstd $(BUILD)~$(PKG) \
                    $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_OO_DEPS_$(BUILD) := ninja
 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- https://download.qt.io/official_releases/qt/6.4/ | \
+    $(WGET) -q -O- https://download.qt.io/official_releases/qt/6.9/ | \
     $(SED) -n 's,.*href="\(6\.[0-9]\.[^/]*\)/".*,\1,p' | \
     grep -iv -- '-rc' | \
     $(SORT) -V | \
@@ -36,7 +36,7 @@ define $(PKG)_BUILD
         -DQT_HOST_PATH='$(PREFIX)/$(BUILD)/$(MXE_QT6_ID)' \
         -DQT_QMAKE_DEVICE_OPTIONS='CROSS_COMPILE=$(TARGET)-;PKG_CONFIG=$(TARGET)-pkg-config' \
         -DPKG_CONFIG_EXECUTABLE='$(PREFIX)/bin/$(TARGET)-pkg-config' \
-        -DQT_QMAKE_TARGET_MKSPEC=win32-g++ \
+        -DQT_QMAKE_TARGET_MKSPEC=win32-clang-g++ \
         -DQT_BUILD_EXAMPLES=OFF \
         -DQT_BUILD_TESTS=OFF \
         -DBUILD_WITH_PCH=OFF \
@@ -47,11 +47,16 @@ define $(PKG)_BUILD
         -DFEATURE_glib=OFF \
         -DFEATURE_system_harfbuzz=ON \
         -DFEATURE_icu=$(CMAKE_SHARED_BOOL) \
-        -DFEATURE_opengl_dynamic=ON \
-        -DFEATURE_openssl=OFF \
+        -DINPUT_opengl=no \
+        -DFEATURE_openssl=ON \
+        -DFEATURE_openssl_linked=ON \
+        -DOPENSSL_USE_STATIC_LIBS=FALSE \
         -DFEATURE_system_pcre2=ON \
         -DFEATURE_pkg_config=ON \
-        -DFEATURE_sql_mysql=OFF \
+        -DFEATURE_sql_mysql=ON \
+        -DMySQL_INCLUDE_DIR='$(PREFIX)/$(TARGET)/include/mariadb' \
+        -DMySQL_LIBRARY_DIR='$(PREFIX)/$(TARGET)/lib/mariadb' \
+        -DMySQL_LIBRARY=$(if $(BUILD_STATIC),"`$(TARGET)-pkg-config --libs libmariadb`",'$(PREFIX)/$(TARGET)/lib/mariadb/libmariadb.a') \
         -DFEATURE_sql_odbc=ON \
         -DFEATURE_sql_psql=OFF \
         -DFEATURE_system_sqlite=ON \
@@ -74,11 +79,15 @@ define $(PKG)_BUILD_$(BUILD)
     rm -rf '$(PREFIX)/$(TARGET)/$(MXE_QT6_ID)'
     '$(TARGET)-cmake' -S '$(SOURCE_DIR)' -B '$(BUILD_DIR)' \
         -G Ninja \
+        -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DCMAKE_CC_COMPILER='$(BUILD_CC)' \
+        -DCMAKE_CXX_COMPILER='$(BUILD_CXX)' \
         -DCMAKE_INSTALL_PREFIX='$(PREFIX)/$(TARGET)/$(MXE_QT6_ID)' \
         -DQT_BUILD_{TESTS,EXAMPLES}=OFF \
         -DBUILD_WITH_PCH=OFF \
         -DFEATURE_{eventfd,glib,harfbuzz,icu,opengl,openssl,zstd}=OFF \
-        -DFEATURE_sql_{db2,ibase,mysql,oci,odbc,psql,sqlite}=OFF
+        -DFEATURE_sql_{db2,ibase,mysql,oci,odbc,psql,sqlite}=OFF \
+        $(PKG_CMAKE_OPTS)
     '$(TARGET)-cmake' --build '$(BUILD_DIR)' -j '$(JOBS)'
     '$(TARGET)-cmake' --install '$(BUILD_DIR)'
 endef
