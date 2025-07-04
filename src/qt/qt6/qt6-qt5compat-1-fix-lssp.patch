@@ -1,0 +1,15 @@
+diff '--color=auto' -Naur a/src/core5/CMakeLists.txt b/src/core5/CMakeLists.txt
+--- a/src/core5/CMakeLists.txt	2025-07-04 04:32:26.324043525 -0400
++++ b/src/core5/CMakeLists.txt	2025-07-04 04:32:43.417394440 -0400
+@@ -42,6 +42,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Core5Compat CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Core5Compat CONDITION QT_FEATURE_textcodec
+     SOURCES
+         codecs/qlatincodec.cpp codecs/qlatincodec_p.h
