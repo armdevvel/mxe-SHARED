@@ -1,0 +1,15 @@
+diff '--color=auto' -Naur a/src/shadertools/CMakeLists.txt b/src/shadertools/CMakeLists.txt
+--- a/src/shadertools/CMakeLists.txt	2025-07-04 04:26:56.173695238 -0400
++++ b/src/shadertools/CMakeLists.txt	2025-07-04 04:28:17.220896937 -0400
+@@ -42,6 +42,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(ShaderTools CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 2:.:.:shadertools.pro:NOT EXISTS _ss_[QT_HOST_DATA]/.qmake.cache:
+ # LIBLOC = "$$shadowed($$dirname _QMAKE_CONF_)" "/lib"
+ 
