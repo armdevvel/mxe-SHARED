@@ -28,6 +28,6 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --disable-nls \
         --disable-python
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' CFLAGS="-std=c17"
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install
 endef
