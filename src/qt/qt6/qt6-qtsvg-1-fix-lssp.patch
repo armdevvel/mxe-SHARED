@@ -1,0 +1,54 @@
+diff '--color=auto' -Naur a/src/plugins/iconengines/svgiconengine/CMakeLists.txt b/src/plugins/iconengines/svgiconengine/CMakeLists.txt
+--- a/src/plugins/iconengines/svgiconengine/CMakeLists.txt	2025-07-05 01:08:52.805395369 -0400
++++ b/src/plugins/iconengines/svgiconengine/CMakeLists.txt	2025-07-05 01:09:11.918425475 -0400
+@@ -18,3 +18,8 @@
+         Qt::GuiPrivate
+         Qt::Svg
+ )
++
++qt_internal_extend_target(QSvgIconPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/svg/CMakeLists.txt b/src/plugins/imageformats/svg/CMakeLists.txt
+--- a/src/plugins/imageformats/svg/CMakeLists.txt	2025-07-05 01:08:52.806619593 -0400
++++ b/src/plugins/imageformats/svg/CMakeLists.txt	2025-07-05 01:09:27.575467022 -0400
+@@ -16,3 +16,8 @@
+         Qt::Gui
+         Qt::SvgPrivate
+ )
++
++qt_internal_extend_target(QSvgPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/svg/CMakeLists.txt b/src/svg/CMakeLists.txt
+--- a/src/svg/CMakeLists.txt	2025-07-05 01:08:52.812374777 -0400
++++ b/src/svg/CMakeLists.txt	2025-07-05 01:09:40.957502531 -0400
+@@ -51,6 +51,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Svg CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Svg CONDITION QT_FEATURE_cssparser
+     SOURCES
+         qsvgcsshandler.cpp qsvgcsshandler_p.h
+diff '--color=auto' -Naur a/src/svgwidgets/CMakeLists.txt b/src/svgwidgets/CMakeLists.txt
+--- a/src/svgwidgets/CMakeLists.txt	2025-07-05 01:08:52.816610557 -0400
++++ b/src/svgwidgets/CMakeLists.txt	2025-07-05 01:09:54.164537576 -0400
+@@ -35,6 +35,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(SvgWidgets CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(SvgWidgets CONDITION MSVC AND (TEST_architecture_arch STREQUAL "i386")
+     LINK_OPTIONS
+         "/BASE:0x66000000"

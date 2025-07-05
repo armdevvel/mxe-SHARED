@@ -1,0 +1,30 @@
+diff '--color=auto' -Naur a/src/charts/CMakeLists.txt b/src/charts/CMakeLists.txt
+--- a/src/charts/CMakeLists.txt	2025-07-05 01:00:24.258818841 -0400
++++ b/src/charts/CMakeLists.txt	2025-07-05 01:02:53.584265231 -0400
+@@ -146,6 +146,11 @@
+         QT_NO_CONTEXTLESS_CONNECT
+ )
+ 
++qt_internal_extend_target(Charts CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Charts CONDITION QT_FEATURE_opengl
+     SOURCES
+         glwidget.cpp glwidget_p.h
+diff '--color=auto' -Naur a/src/chartsqml2/CMakeLists.txt b/src/chartsqml2/CMakeLists.txt
+--- a/src/chartsqml2/CMakeLists.txt	2025-07-05 01:00:24.278692349 -0400
++++ b/src/chartsqml2/CMakeLists.txt	2025-07-05 01:02:31.020194048 -0400
+@@ -41,6 +41,11 @@
+         Qt::Quick
+ )
+ 
++qt_internal_extend_target(ChartsQml CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(ChartsQml CONDITION QT_FEATURE_opengl
+     SOURCES
+         declarativeopenglrendernode.cpp declarativeopenglrendernode_p.h

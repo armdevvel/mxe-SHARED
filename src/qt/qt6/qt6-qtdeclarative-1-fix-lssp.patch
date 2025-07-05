@@ -1,0 +1,897 @@
+diff '--color=auto' -Naur a/src/core/CMakeLists.txt b/src/core/CMakeLists.txt
+--- a/src/core/CMakeLists.txt	2025-07-05 10:31:00.879745094 -0400
++++ b/src/core/CMakeLists.txt	2025-07-05 11:23:54.544163723 -0400
+@@ -26,6 +26,11 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QmlCore CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QmlCore CONDITION QT_FEATURE_settings
+     SOURCES
+         qqmlsettings_p.h
+diff '--color=auto' -Naur a/src/effects/CMakeLists.txt b/src/effects/CMakeLists.txt
+--- a/src/effects/CMakeLists.txt	2025-07-05 10:31:01.060431549 -0400
++++ b/src/effects/CMakeLists.txt	2025-07-05 11:23:54.701172965 -0400
+@@ -44,6 +44,11 @@
+         "data/BlurItem.qml"
+ )
+ 
++qt_internal_extend_target(QuickEffects CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QuickEffects CONDITION MSVC
+     DEFINES
+         _CRT_SECURE_NO_WARNINGS
+diff '--color=auto' -Naur a/src/imports/tooling/CMakeLists.txt b/src/imports/tooling/CMakeLists.txt
+--- a/src/imports/tooling/CMakeLists.txt	2025-07-05 10:31:01.169345500 -0400
++++ b/src/imports/tooling/CMakeLists.txt	2025-07-05 11:23:54.791973681 -0400
+@@ -25,3 +25,8 @@
+     PAST_MAJOR_VERSIONS 1
+     QML_FILES ${qml_files}
+ )
++
++qt_internal_extend_target(quicktooling CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/labs/animation/CMakeLists.txt b/src/labs/animation/CMakeLists.txt
+--- a/src/labs/animation/CMakeLists.txt	2025-07-05 10:31:01.180644508 -0400
++++ b/src/labs/animation/CMakeLists.txt	2025-07-05 11:23:54.801319983 -0400
+@@ -17,3 +17,8 @@
+         Qt::QmlPrivate
+         Qt::QuickPrivate
+     )
++
++qt_internal_extend_target(LabsAnimation CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/labs/folderlistmodel/CMakeLists.txt b/src/labs/folderlistmodel/CMakeLists.txt
+--- a/src/labs/folderlistmodel/CMakeLists.txt	2025-07-05 10:31:01.176416770 -0400
++++ b/src/labs/folderlistmodel/CMakeLists.txt	2025-07-05 11:23:54.797748457 -0400
+@@ -20,3 +20,8 @@
+         Qt::QmlPrivate
+         Qt::QmlModelsPrivate
+     )
++
++qt_internal_extend_target(LabsFolderListModel CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/labs/models/CMakeLists.txt b/src/labs/models/CMakeLists.txt
+--- a/src/labs/models/CMakeLists.txt	2025-07-05 10:31:01.176794492 -0400
++++ b/src/labs/models/CMakeLists.txt	2025-07-05 11:23:54.798050939 -0400
+@@ -17,6 +17,11 @@
+         QtQml.Models/auto
+     )
+ 
++qt_internal_extend_target(LabsQmlModels CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(LabsQmlModels CONDITION QT_FEATURE_qml_table_model
+     SOURCES
+         qqmltablemodel.cpp qqmltablemodel_p.h
+diff '--color=auto' -Naur a/src/labs/platform/CMakeLists.txt b/src/labs/platform/CMakeLists.txt
+--- a/src/labs/platform/CMakeLists.txt	2025-07-05 10:31:01.177349804 -0400
++++ b/src/labs/platform/CMakeLists.txt	2025-07-05 11:23:54.798804557 -0400
+@@ -34,6 +34,11 @@
+         Qt::QuickTemplates2Private
+ )
+ 
++qt_internal_extend_target(LabsPlatform CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(LabsPlatform
+     CONDITION
+         QT_FEATURE_systemtrayicon
+diff '--color=auto' -Naur a/src/labs/settings/CMakeLists.txt b/src/labs/settings/CMakeLists.txt
+--- a/src/labs/settings/CMakeLists.txt	2025-07-05 10:31:01.180411277 -0400
++++ b/src/labs/settings/CMakeLists.txt	2025-07-05 11:23:54.801130683 -0400
+@@ -15,3 +15,8 @@
+          Qt::Core
+          Qt::Qml
+      )
++
++qt_internal_extend_target(LabsSettings CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/labs/sharedimage/CMakeLists.txt b/src/labs/sharedimage/CMakeLists.txt
+--- a/src/labs/sharedimage/CMakeLists.txt	2025-07-05 10:31:01.180867999 -0400
++++ b/src/labs/sharedimage/CMakeLists.txt	2025-07-05 11:23:54.801566084 -0400
+@@ -21,6 +21,16 @@
+         Qt::QuickPrivate
+     )
+ 
++qt_internal_extend_target(LabsSharedImage CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
++qt_internal_extend_target(sharedimageplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ # We need to do additional initialization, so we have to provide our own
+ # plugin class rather than using the generated one
+ qt_internal_extend_target(sharedimageplugin
+diff '--color=auto' -Naur a/src/labs/wavefrontmesh/CMakeLists.txt b/src/labs/wavefrontmesh/CMakeLists.txt
+--- a/src/labs/wavefrontmesh/CMakeLists.txt	2025-07-05 10:31:01.181239061 -0400
++++ b/src/labs/wavefrontmesh/CMakeLists.txt	2025-07-05 11:23:54.801885876 -0400
+@@ -18,3 +18,8 @@
+         Qt::GuiPrivate
+         Qt::QuickPrivate
+     )
++
++qt_internal_extend_target(LabsWavefrontMesh CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/particles/CMakeLists.txt b/src/particles/CMakeLists.txt
+--- a/src/particles/CMakeLists.txt	2025-07-05 10:31:00.880500168 -0400
++++ b/src/particles/CMakeLists.txt	2025-07-05 11:23:54.546832714 -0400
+@@ -208,6 +208,11 @@
+         8
+ )
+ 
++qt_internal_extend_target(QuickParticlesPrivate CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QuickParticlesPrivate CONDITION MSVC
+     DEFINES
+         _CRT_SECURE_NO_WARNINGS
+diff '--color=auto' -Naur a/src/plugins/qmllint/quick/CMakeLists.txt b/src/plugins/qmllint/quick/CMakeLists.txt
+--- a/src/plugins/qmllint/quick/CMakeLists.txt	2025-07-05 10:31:01.052749147 -0400
++++ b/src/plugins/qmllint/quick/CMakeLists.txt	2025-07-05 11:23:54.694335315 -0400
+@@ -12,3 +12,8 @@
+     LIBRARIES
+         Qt::QmlCompilerPrivate
+ )
++
++qt_internal_extend_target(QmlLintQuickPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_debugger/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_debugger/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_debugger/CMakeLists.txt	2025-07-05 10:31:01.057221436 -0400
++++ b/src/plugins/qmltooling/qmldbg_debugger/CMakeLists.txt	2025-07-05 11:23:54.698804188 -0400
+@@ -26,5 +26,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QQmlDebuggerServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_debugger.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qqmldebuggerservice.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_inspector/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_inspector/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_inspector/CMakeLists.txt	2025-07-05 10:31:01.057433948 -0400
++++ b/src/plugins/qmltooling/qmldbg_inspector/CMakeLists.txt	2025-07-05 11:23:54.699276856 -0400
+@@ -27,5 +27,10 @@
+         Qt::QuickPrivate
+ )
+ 
++qt_internal_extend_target(QQmlInspectorServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_inspector.pro:<TRUE>:
+ # OTHER_FILES = "qqmlinspectorservice.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_local/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_local/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_local/CMakeLists.txt	2025-07-05 10:31:01.058719182 -0400
++++ b/src/plugins/qmltooling/qmldbg_local/CMakeLists.txt	2025-07-05 11:23:54.699693348 -0400
+@@ -17,5 +17,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QLocalClientConnectionFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_local.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qlocalclientconnection.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_messages/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_messages/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_messages/CMakeLists.txt	2025-07-05 10:31:01.058873513 -0400
++++ b/src/plugins/qmltooling/qmldbg_messages/CMakeLists.txt	2025-07-05 11:23:54.699818659 -0400
+@@ -20,5 +20,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QDebugMessageServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_messages.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qdebugmessageservice.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_native/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_native/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_native/CMakeLists.txt	2025-07-05 10:31:01.059192594 -0400
++++ b/src/plugins/qmltooling/qmldbg_native/CMakeLists.txt	2025-07-05 11:23:54.700084730 -0400
+@@ -19,5 +19,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QQmlNativeDebugConnectorFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_native.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qqmlnativedebugconnector.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_nativedebugger/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_nativedebugger/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_nativedebugger/CMakeLists.txt	2025-07-05 10:31:01.059410205 -0400
++++ b/src/plugins/qmltooling/qmldbg_nativedebugger/CMakeLists.txt	2025-07-05 11:23:54.700243611 -0400
+@@ -20,5 +20,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QQmlNativeDebugServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_nativedebugger.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qqmlnativedebugservice.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_preview/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_preview/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_preview/CMakeLists.txt	2025-07-05 10:31:01.054870016 -0400
++++ b/src/plugins/qmltooling/qmldbg_preview/CMakeLists.txt	2025-07-05 11:23:54.696804181 -0400
+@@ -33,6 +33,11 @@
+ #### Keys ignored in scope 1:.:.:qmldbg_preview.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qqmlpreviewservice.json"
+ 
++qt_internal_extend_target(QQmlPreviewServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QQmlPreviewServiceFactoryPlugin CONDITION QT_FEATURE_translation
+     SOURCES
+         proxytranslator.cpp proxytranslator.h
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_profiler/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_profiler/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_profiler/CMakeLists.txt	2025-07-05 10:31:01.055729549 -0400
++++ b/src/plugins/qmltooling/qmldbg_profiler/CMakeLists.txt	2025-07-05 11:23:54.697247777 -0400
+@@ -23,5 +23,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QQmlProfilerServiceFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_profiler.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qqmlprofilerservice.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_quickprofiler/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_quickprofiler/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_quickprofiler/CMakeLists.txt	2025-07-05 10:31:01.056387292 -0400
++++ b/src/plugins/qmltooling/qmldbg_quickprofiler/CMakeLists.txt	2025-07-05 11:23:54.697730730 -0400
+@@ -23,5 +23,10 @@
+         Qt::QuickPrivate
+ )
+ 
++qt_internal_extend_target(QQuickProfilerAdapterFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_quickprofiler.pro:<TRUE>:
+ # OTHER_FILES = "qquickprofileradapter.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_server/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_server/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_server/CMakeLists.txt	2025-07-05 10:31:01.056652753 -0400
++++ b/src/plugins/qmltooling/qmldbg_server/CMakeLists.txt	2025-07-05 11:23:54.697984331 -0400
+@@ -19,5 +19,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QQmlDebugServerFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_server.pro:<TRUE>:
+ # OTHER_FILES = "qqmldebugserver.json"
+diff '--color=auto' -Naur a/src/plugins/qmltooling/qmldbg_tcp/CMakeLists.txt b/src/plugins/qmltooling/qmldbg_tcp/CMakeLists.txt
+--- a/src/plugins/qmltooling/qmldbg_tcp/CMakeLists.txt	2025-07-05 10:31:01.056793134 -0400
++++ b/src/plugins/qmltooling/qmldbg_tcp/CMakeLists.txt	2025-07-05 11:23:54.698139812 -0400
+@@ -18,5 +18,10 @@
+         Qt::QmlPrivate
+ )
+ 
++qt_internal_extend_target(QTcpServerConnectionFactoryPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ #### Keys ignored in scope 1:.:.:qmldbg_tcp.pro:<TRUE>:
+ # OTHER_FILES = "$$PWD/qtcpserverconnection.json"
+diff '--color=auto' -Naur a/src/qml/CMakeLists.txt b/src/qml/CMakeLists.txt
+--- a/src/qml/CMakeLists.txt	2025-07-05 10:31:01.073310054 -0400
++++ b/src/qml/CMakeLists.txt	2025-07-05 11:23:54.712804240 -0400
+@@ -527,6 +527,11 @@
+ qt_declarative_generate_reg_exp_jit_tables(Qml)
+ # special case end
+ 
++qt_internal_extend_target(Qml CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Qml CONDITION QT_FEATURE_qml_network
+     SOURCES
+         qml/qqmltypeloadernetworkreplyproxy.cpp qml/qqmltypeloadernetworkreplyproxy_p.h
+diff '--color=auto' -Naur a/src/qmlcompiler/CMakeLists.txt b/src/qmlcompiler/CMakeLists.txt
+--- a/src/qmlcompiler/CMakeLists.txt	2025-07-05 10:31:01.182874688 -0400
++++ b/src/qmlcompiler/CMakeLists.txt	2025-07-05 11:23:54.805804583 -0400
+@@ -74,3 +74,8 @@
+ qt_internal_add_docs(QmlCompiler
+     doc/qtqmlcompiler.qdocconf
+ )
++
++qt_internal_extend_target(QmlCompiler CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/qmllocalstorage/CMakeLists.txt b/src/qmllocalstorage/CMakeLists.txt
+--- a/src/qmllocalstorage/CMakeLists.txt	2025-07-05 10:31:01.061501474 -0400
++++ b/src/qmllocalstorage/CMakeLists.txt	2025-07-05 11:23:54.702045779 -0400
+@@ -16,3 +16,8 @@
+         Qt::QmlPrivate
+         Qt::Sql
+     )
++
++qt_internal_extend_target(QmlLocalStorage CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/qmlmeta/CMakeLists.txt b/src/qmlmeta/CMakeLists.txt
+--- a/src/qmlmeta/CMakeLists.txt	2025-07-05 10:31:01.100618649 -0400
++++ b/src/qmlmeta/CMakeLists.txt	2025-07-05 11:23:54.734539714 -0400
+@@ -68,6 +68,11 @@
+ #     ^
+ _qt_internal_add_qml_static_plugin_dependency(qmlplugin modelsplugin)
+ 
++qt_internal_extend_target(QmlMeta CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QmlMeta CONDITION QT_FEATURE_qml_animation
+     SOURCES
+         types/qqmltimer.cpp types/qqmltimer_p.h
+diff '--color=auto' -Naur a/src/qmlmodels/CMakeLists.txt b/src/qmlmodels/CMakeLists.txt
+--- a/src/qmlmodels/CMakeLists.txt	2025-07-05 10:31:01.166366508 -0400
++++ b/src/qmlmodels/CMakeLists.txt	2025-07-05 11:23:54.789065458 -0400
+@@ -32,6 +32,10 @@
+         Qt::QmlPrivate
+     )
+ 
++qt_internal_extend_target(QmlModels CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+ qt_internal_extend_target(QmlModels CONDITION QT_FEATURE_qml_itemmodel
+     SOURCES
+         qqmlmodelindexvaluetype.cpp qqmlmodelindexvaluetype_p.h
+diff '--color=auto' -Naur a/src/qmlnetwork/CMakeLists.txt b/src/qmlnetwork/CMakeLists.txt
+--- a/src/qmlnetwork/CMakeLists.txt	2025-07-05 10:31:01.064526497 -0400
++++ b/src/qmlnetwork/CMakeLists.txt	2025-07-05 11:23:54.704498580 -0400
+@@ -16,6 +16,11 @@
+         Qt::Qml
+     )
+ 
++qt_internal_extend_target(QmlNetwork CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QmlNetwork CONDITION QT_FEATURE_qml_ssl
+     SOURCES
+         ssl/qqmlsslnamespace_p.h ssl/qqmlsslsocketnamespace_p.h
+diff '--color=auto' -Naur a/src/qmltest/CMakeLists.txt b/src/qmltest/CMakeLists.txt
+--- a/src/qmltest/CMakeLists.txt	2025-07-05 10:31:01.102550018 -0400
++++ b/src/qmltest/CMakeLists.txt	2025-07-05 11:23:54.736409313 -0400
+@@ -51,6 +51,11 @@
+         Qt::TestPrivate
+ )
+ 
++qt_internal_extend_target(QuickTest CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QuickTest CONDITION QT_FEATURE_qml_debug
+     DEFINES
+         QT_QML_DEBUG_NO_WARNING
+diff '--color=auto' -Naur a/src/qmlworkerscript/CMakeLists.txt b/src/qmlworkerscript/CMakeLists.txt
+--- a/src/qmlworkerscript/CMakeLists.txt	2025-07-05 10:31:01.052042134 -0400
++++ b/src/qmlworkerscript/CMakeLists.txt	2025-07-05 11:23:54.693679592 -0400
+@@ -55,6 +55,11 @@
+         Qt::QmlPrivate
+     )
+ 
++qt_internal_extend_target(QmlWorkerScript CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QmlWorkerScript CONDITION disassembler AND ((TEST_architecture_arch STREQUAL "i386") OR (TEST_architecture_arch STREQUAL "x86_64"))
+     DEFINES
+         WTF_USE_UDIS86=1
+diff '--color=auto' -Naur a/src/qmlxmllistmodel/CMakeLists.txt b/src/qmlxmllistmodel/CMakeLists.txt
+--- a/src/qmlxmllistmodel/CMakeLists.txt	2025-07-05 10:31:01.101115491 -0400
++++ b/src/qmlxmllistmodel/CMakeLists.txt	2025-07-05 11:23:54.735021607 -0400
+@@ -26,3 +26,8 @@
+ qt_internal_add_docs(QmlXmlListModel
+     doc/qtqmlxmllistmodel.qdocconf
+ )
++
++qt_internal_extend_target(QmlXmlListModel CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quick/CMakeLists.txt b/src/quick/CMakeLists.txt
+--- a/src/quick/CMakeLists.txt	2025-07-05 10:31:01.113434141 -0400
++++ b/src/quick/CMakeLists.txt	2025-07-05 11:23:54.746357637 -0400
+@@ -509,6 +509,11 @@
+         "scenegraph/shaders_ng/shapecurve_tf_derivatives.vert.qsb"
+ )
+ 
++qt_internal_extend_target(Quick CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Quick CONDITION QT_FEATURE_qml_network
+     LIBRARIES
+         Qt::Network
+diff '--color=auto' -Naur a/src/quickcontrols/basic/CMakeLists.txt b/src/quickcontrols/basic/CMakeLists.txt
+--- a/src/quickcontrols/basic/CMakeLists.txt	2025-07-05 10:31:00.886929735 -0400
++++ b/src/quickcontrols/basic/CMakeLists.txt	2025-07-05 11:23:54.552803650 -0400
+@@ -194,6 +194,11 @@
+         qtquickcontrols2basicstyleplugin.cpp
+ )
+ 
++qt_internal_extend_target(QuickControls2Basic CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2basicstyleplugin
+     LIBRARIES
+         Qt::QuickControls2Private
+diff '--color=auto' -Naur a/src/quickcontrols/basic/impl/CMakeLists.txt b/src/quickcontrols/basic/impl/CMakeLists.txt
+--- a/src/quickcontrols/basic/impl/CMakeLists.txt	2025-07-05 10:31:00.890777501 -0400
++++ b/src/quickcontrols/basic/impl/CMakeLists.txt	2025-07-05 11:23:54.554113457 -0400
+@@ -27,3 +27,8 @@
+         Qt::QuickPrivate
+         Qt::QuickTemplates2Private
+ )
++
++qt_internal_extend_target(QuickControls2BasicStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/CMakeLists.txt b/src/quickcontrols/CMakeLists.txt
+--- a/src/quickcontrols/CMakeLists.txt	2025-07-05 10:31:00.883803772 -0400
++++ b/src/quickcontrols/CMakeLists.txt	2025-07-05 11:23:54.549340436 -0400
+@@ -46,6 +46,11 @@
+         Qt::Quick
+ )
+ 
++qt_internal_extend_target(QuickControls2 CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2plugin
+     SOURCES
+         qtquickcontrols2plugin.cpp
+@@ -62,6 +67,11 @@
+         qmldir
+ )
+ 
++qt_internal_extend_target(qtquickcontrols2plugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ if(QT_FEATURE_quick_designer)
+     add_subdirectory(designer)
+ endif()
+diff '--color=auto' -Naur a/src/quickcontrols/fluentwinui3/CMakeLists.txt b/src/quickcontrols/fluentwinui3/CMakeLists.txt
+--- a/src/quickcontrols/fluentwinui3/CMakeLists.txt	2025-07-05 10:31:01.003433762 -0400
++++ b/src/quickcontrols/fluentwinui3/CMakeLists.txt	2025-07-05 11:23:54.653804023 -0400
+@@ -92,6 +92,11 @@
+         Qt::QuickTemplates2Private
+ )
+ 
++qt_internal_extend_target(qtquickcontrols2fluentwinui3styleplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ _qt_internal_add_qml_static_plugin_dependency(qtquickcontrols2fluentwinui3styleplugin
+                                               qtquickcontrols2fluentwinui3styleimplplugin)
+ 
+diff '--color=auto' -Naur a/src/quickcontrols/fluentwinui3/impl/CMakeLists.txt b/src/quickcontrols/fluentwinui3/impl/CMakeLists.txt
+--- a/src/quickcontrols/fluentwinui3/impl/CMakeLists.txt	2025-07-05 10:31:01.024368537 -0400
++++ b/src/quickcontrols/fluentwinui3/impl/CMakeLists.txt	2025-07-05 11:23:54.668804078 -0400
+@@ -40,3 +40,8 @@
+         Qt::QuickPrivate
+         Qt::QuickTemplates2Private
+ )
++
++qt_internal_extend_target(QuickControls2FluentWinUI3StyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/fusion/CMakeLists.txt b/src/quickcontrols/fusion/CMakeLists.txt
+--- a/src/quickcontrols/fusion/CMakeLists.txt	2025-07-05 10:31:00.891075462 -0400
++++ b/src/quickcontrols/fusion/CMakeLists.txt	2025-07-05 11:23:54.555803661 -0400
+@@ -129,6 +129,11 @@
+         qtquickcontrols2fusionstyleplugin.cpp
+ )
+ 
++qt_internal_extend_target(QuickControls2Fusion CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2fusionstyleplugin
+     LIBRARIES
+         Qt::QuickControls2Private
+diff '--color=auto' -Naur a/src/quickcontrols/fusion/impl/CMakeLists.txt b/src/quickcontrols/fusion/impl/CMakeLists.txt
+--- a/src/quickcontrols/fusion/impl/CMakeLists.txt	2025-07-05 10:31:00.894165045 -0400
++++ b/src/quickcontrols/fusion/impl/CMakeLists.txt	2025-07-05 11:23:54.556803665 -0400
+@@ -39,3 +39,8 @@
+         Qt::QuickPrivate
+         Qt::QuickTemplates2Private
+ )
++
++qt_internal_extend_target(QuickControls2FusionStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/imagine/CMakeLists.txt b/src/quickcontrols/imagine/CMakeLists.txt
+--- a/src/quickcontrols/imagine/CMakeLists.txt	2025-07-05 10:31:00.921226260 -0400
++++ b/src/quickcontrols/imagine/CMakeLists.txt	2025-07-05 11:23:54.582533634 -0400
+@@ -121,6 +121,11 @@
+         qtquickcontrols2imaginestyleplugin.cpp
+ )
+ 
++qt_internal_extend_target(QuickControls2Imagine CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2imaginestyleplugin
+     LIBRARIES
+         Qt::QuickControls2Private
+diff '--color=auto' -Naur a/src/quickcontrols/imagine/impl/CMakeLists.txt b/src/quickcontrols/imagine/impl/CMakeLists.txt
+--- a/src/quickcontrols/imagine/impl/CMakeLists.txt	2025-07-05 10:31:00.983008332 -0400
++++ b/src/quickcontrols/imagine/impl/CMakeLists.txt	2025-07-05 11:23:54.634890869 -0400
+@@ -40,3 +40,8 @@
+     FILES
+         "shaders/OpacityMask.frag"
+ )
++
++qt_internal_extend_target(QuickControls2ImagineStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/material/CMakeLists.txt b/src/quickcontrols/material/CMakeLists.txt
+--- a/src/quickcontrols/material/CMakeLists.txt	2025-07-05 10:31:00.894858288 -0400
++++ b/src/quickcontrols/material/CMakeLists.txt	2025-07-05 11:23:54.558803672 -0400
+@@ -132,6 +132,11 @@
+         qtquickcontrols2materialstyleplugin.cpp
+ )
+ 
++qt_internal_extend_target(QuickControls2Material CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2materialstyleplugin
+     LIBRARIES
+         Qt::QuickControls2Private
+diff '--color=auto' -Naur a/src/quickcontrols/material/impl/CMakeLists.txt b/src/quickcontrols/material/impl/CMakeLists.txt
+--- a/src/quickcontrols/material/impl/CMakeLists.txt	2025-07-05 10:31:00.897797901 -0400
++++ b/src/quickcontrols/material/impl/CMakeLists.txt	2025-07-05 11:23:54.560803680 -0400
+@@ -47,3 +47,8 @@
+         Qt::QuickPrivate
+         Qt::QuickTemplates2Private
+ )
++
++qt_internal_extend_target(QuickControls2MaterialStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/universal/CMakeLists.txt b/src/quickcontrols/universal/CMakeLists.txt
+--- a/src/quickcontrols/universal/CMakeLists.txt	2025-07-05 10:31:00.983200322 -0400
++++ b/src/quickcontrols/universal/CMakeLists.txt	2025-07-05 11:23:54.635803956 -0400
+@@ -130,6 +130,11 @@
+         qtquickcontrols2universalstyleplugin.cpp
+ )
+ 
++qt_internal_extend_target(QuickControls2Universal CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2universalstyleplugin
+     LIBRARIES
+         Qt::QuickControls2Private
+diff '--color=auto' -Naur a/src/quickcontrols/universal/impl/CMakeLists.txt b/src/quickcontrols/universal/impl/CMakeLists.txt
+--- a/src/quickcontrols/universal/impl/CMakeLists.txt	2025-07-05 10:31:00.986404216 -0400
++++ b/src/quickcontrols/universal/impl/CMakeLists.txt	2025-07-05 11:23:54.637777381 -0400
+@@ -36,3 +36,8 @@
+         Qt::QuickPrivate
+         Qt::QuickTemplates2Private
+ )
++
++qt_internal_extend_target(QuickControls2UniversalStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrols/windows/CMakeLists.txt b/src/quickcontrols/windows/CMakeLists.txt
+--- a/src/quickcontrols/windows/CMakeLists.txt	2025-07-05 10:31:01.024881579 -0400
++++ b/src/quickcontrols/windows/CMakeLists.txt	2025-07-05 11:23:54.670469498 -0400
+@@ -70,6 +70,11 @@
+         Qt::QuickTemplates2Private
+ )
+ 
++qt_internal_extend_target(qtquickcontrols2windowsstyleplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ add_subdirectory(impl)
+ 
+ # Native style is a dependency of the Windows style.
+diff '--color=auto' -Naur a/src/quickcontrols/windows/impl/CMakeLists.txt b/src/quickcontrols/windows/impl/CMakeLists.txt
+--- a/src/quickcontrols/windows/impl/CMakeLists.txt	2025-07-05 10:31:01.026660226 -0400
++++ b/src/quickcontrols/windows/impl/CMakeLists.txt	2025-07-05 11:23:54.670864689 -0400
+@@ -20,3 +20,8 @@
+         QT_NO_CAST_FROM_ASCII
+         QT_NO_CAST_TO_ASCII
+ )
++
++qt_internal_extend_target(QuickControls2WindowsStyleImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickcontrolsimpl/CMakeLists.txt b/src/quickcontrolsimpl/CMakeLists.txt
+--- a/src/quickcontrolsimpl/CMakeLists.txt	2025-07-05 10:31:01.181394861 -0400
++++ b/src/quickcontrolsimpl/CMakeLists.txt	2025-07-05 11:23:54.802804572 -0400
+@@ -46,6 +46,11 @@
+         Qt::Quick
+     )
+ 
++qt_internal_extend_target(QuickControls2Impl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QuickControls2Impl CONDITION QT_FEATURE_quick_listview AND QT_FEATURE_quick_pathview
+     SOURCES
+         qquicktumblerview.cpp qquicktumblerview_p.h
+diff '--color=auto' -Naur a/src/quickcontrolstestutils/CMakeLists.txt b/src/quickcontrolstestutils/CMakeLists.txt
+--- a/src/quickcontrolstestutils/CMakeLists.txt	2025-07-05 10:31:01.186673664 -0400
++++ b/src/quickcontrolstestutils/CMakeLists.txt	2025-07-05 11:23:54.806699007 -0400
+@@ -33,6 +33,10 @@
+         Qt::QuickDialogs2QuickImplPrivate
+ )
+ 
++qt_internal_extend_target(QuickControlsTestUtilsPrivate CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+ 
+ # This is used by both C++ and QML tests, so we need it to be a library and a QML plugin,
+ # hence qt_internal_add_qml_module. We use it in addition to qt_internal_add_module,
+diff '--color=auto' -Naur a/src/quickdialogs/quickdialogs/CMakeLists.txt b/src/quickdialogs/quickdialogs/CMakeLists.txt
+--- a/src/quickdialogs/quickdialogs/CMakeLists.txt	2025-07-05 10:31:01.186895675 -0400
++++ b/src/quickdialogs/quickdialogs/CMakeLists.txt	2025-07-05 11:23:54.806936598 -0400
+@@ -55,3 +55,8 @@
+ qt_internal_add_docs(QuickDialogs2
+     doc/qtquickdialogs.qdocconf
+ )
++
++qt_internal_extend_target(QuickDialogs2 CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickdialogs/quickdialogsquickimpl/CMakeLists.txt b/src/quickdialogs/quickdialogsquickimpl/CMakeLists.txt
+--- a/src/quickdialogs/quickdialogsquickimpl/CMakeLists.txt	2025-07-05 10:31:01.188104630 -0400
++++ b/src/quickdialogs/quickdialogsquickimpl/CMakeLists.txt	2025-07-05 11:23:54.813041846 -0400
+@@ -284,3 +284,8 @@
+         "shaders/SaturationLightness.frag"
+     SILENT
+ )
++
++qt_internal_extend_target(QuickDialogs2QuickImpl CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickdialogs/quickdialogsutils/CMakeLists.txt b/src/quickdialogs/quickdialogsutils/CMakeLists.txt
+--- a/src/quickdialogs/quickdialogsutils/CMakeLists.txt	2025-07-05 10:31:01.197357349 -0400
++++ b/src/quickdialogs/quickdialogsutils/CMakeLists.txt	2025-07-05 11:23:54.816727702 -0400
+@@ -25,3 +25,8 @@
+     PUBLIC_LIBRARIES
+         Qt::Core
+     )
++
++qt_internal_extend_target(QuickDialogs2Utils CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quicklayouts/CMakeLists.txt b/src/quicklayouts/CMakeLists.txt
+--- a/src/quicklayouts/CMakeLists.txt	2025-07-05 10:31:01.042015621 -0400
++++ b/src/quicklayouts/CMakeLists.txt	2025-07-05 11:23:54.684804137 -0400
+@@ -25,3 +25,8 @@
+         Qt::QuickPrivate
+         Qt::Qml
+     )
++
++qt_internal_extend_target(QuickLayouts CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quicknativestyle/CMakeLists.txt b/src/quicknativestyle/CMakeLists.txt
+--- a/src/quicknativestyle/CMakeLists.txt	2025-07-05 10:31:01.044905543 -0400
++++ b/src/quicknativestyle/CMakeLists.txt	2025-07-05 11:23:54.687394493 -0400
+@@ -91,6 +91,11 @@
+         Qt::QuickTemplates2Private
+ )
+ 
++qt_internal_extend_target(qtquickcontrols2nativestyleplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtquickcontrols2nativestyleplugin CONDITION QT_FEATURE_quick_treeview
+     SOURCES
+         items/qquickstyleitemtreeindicator.cpp items/qquickstyleitemtreeindicator.h
+diff '--color=auto' -Naur a/src/quickshapes/CMakeLists.txt b/src/quickshapes/CMakeLists.txt
+--- a/src/quickshapes/CMakeLists.txt	2025-07-05 10:31:01.101410693 -0400
++++ b/src/quickshapes/CMakeLists.txt	2025-07-05 11:23:54.735328478 -0400
+@@ -29,6 +29,11 @@
+         Qt::QuickPrivate
+     )
+ 
++qt_internal_extend_target(QuickShapesPrivate CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ # We need to do additional initialization, so we have to provide our own
+ # plugin class rather than using the generated one
+ qt_internal_extend_target(qmlshapesplugin
+diff '--color=auto' -Naur a/src/quicktemplates/CMakeLists.txt b/src/quicktemplates/CMakeLists.txt
+--- a/src/quicktemplates/CMakeLists.txt	2025-07-05 10:31:01.164434316 -0400
++++ b/src/quicktemplates/CMakeLists.txt	2025-07-05 11:23:54.787804517 -0400
+@@ -130,6 +130,11 @@
+         Qt::Quick
+     )
+ 
++qt_internal_extend_target(QuickTemplates2 CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QuickTemplates2 CONDITION TARGET Qt::QmlModels
+     LIBRARIES
+         Qt::QmlModelsPrivate
+diff '--color=auto' -Naur a/src/quickvectorimage/CMakeLists.txt b/src/quickvectorimage/CMakeLists.txt
+--- a/src/quickvectorimage/CMakeLists.txt	2025-07-05 10:31:01.048803490 -0400
++++ b/src/quickvectorimage/CMakeLists.txt	2025-07-05 11:23:54.690782639 -0400
+@@ -22,6 +22,11 @@
+         Qt::SvgPrivate
+ )
+ 
++qt_internal_extend_target(QuickVectorImageGeneratorPrivate CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_add_qml_module(QuickVectorImage
+     URI "QtQuick.VectorImage"
+     VERSION "${PROJECT_VERSION}"
+@@ -35,3 +40,8 @@
+         Qt::QuickVectorImageGeneratorPrivate
+         Qt::SvgPrivate
+ )
++
++qt_internal_extend_target(QuickVectorImage CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/quickwidgets/CMakeLists.txt b/src/quickwidgets/CMakeLists.txt
+--- a/src/quickwidgets/CMakeLists.txt	2025-07-05 10:31:01.059868187 -0400
++++ b/src/quickwidgets/CMakeLists.txt	2025-07-05 11:23:54.700708133 -0400
+@@ -40,3 +40,8 @@
+         qaccessiblequickwidget.cpp qaccessiblequickwidget_p.h
+         qaccessiblequickwidgetfactory.cpp qaccessiblequickwidgetfactory_p.h
+ )
++
++qt_internal_extend_target(QuickWidgets CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/tools/qml/CMakeLists.txt b/tools/qml/CMakeLists.txt
+--- a/tools/qml/CMakeLists.txt	2025-07-05 10:31:01.199176657 -0400
++++ b/tools/qml/CMakeLists.txt	2025-07-05 11:23:54.818363490 -0400
+@@ -34,6 +34,11 @@
+         resources/qml-64.png
+ )
+ 
++qt_internal_extend_target(qml_tool CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qml_tool CONDITION TARGET Qt::Gui
+     PUBLIC_LIBRARIES
+         Qt::Gui
+diff '--color=auto' -Naur a/tools/qmleasing/CMakeLists.txt b/tools/qmleasing/CMakeLists.txt
+--- a/tools/qmleasing/CMakeLists.txt	2025-07-05 10:31:01.202073339 -0400
++++ b/tools/qmleasing/CMakeLists.txt	2025-07-05 11:23:54.820963891 -0400
+@@ -25,6 +25,11 @@
+         uic
+ )
+ 
++qt_internal_extend_target(qmleasing CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ set_target_properties(qmleasing PROPERTIES WIN32_EXECUTABLE FALSE)
+ 
+ # Resources:
+diff '--color=auto' -Naur a/tools/qmlpreview/CMakeLists.txt b/tools/qmlpreview/CMakeLists.txt
+--- a/tools/qmlpreview/CMakeLists.txt	2025-07-05 10:31:01.203882867 -0400
++++ b/tools/qmlpreview/CMakeLists.txt	2025-07-05 11:23:54.822499938 -0400
+@@ -17,6 +17,12 @@
+         Qt::Network
+         Qt::QmlDebugPrivate
+ )
++
++qt_internal_extend_target(qmlpreview CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+ 
+ set_target_properties(qmlpreview PROPERTIES WIN32_EXECUTABLE FALSE)
+diff '--color=auto' -Naur a/tools/qmlscene/CMakeLists.txt b/tools/qmlscene/CMakeLists.txt
+--- a/tools/qmlscene/CMakeLists.txt	2025-07-05 10:31:01.204598760 -0400
++++ b/tools/qmlscene/CMakeLists.txt	2025-07-05 11:23:54.823263991 -0400
+@@ -22,6 +22,11 @@
+ 
+ set_target_properties(qmlscene PROPERTIES WIN32_EXECUTABLE FALSE)
+ 
++qt_internal_extend_target(qmlscene CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qmlscene CONDITION TARGET Qt::Widgets
+     PUBLIC_LIBRARIES
+         Qt::Widgets
