@@ -1,0 +1,90 @@
+diff '--color=auto' -Naur a/src/plugins/imageformats/icns/CMakeLists.txt b/src/plugins/imageformats/icns/CMakeLists.txt
+--- a/src/plugins/imageformats/icns/CMakeLists.txt	2025-07-05 11:46:54.590404945 -0400
++++ b/src/plugins/imageformats/icns/CMakeLists.txt	2025-07-05 11:53:22.443423399 -0400
+@@ -18,3 +18,8 @@
+         Qt::Core
+         Qt::Gui
+ )
++
++qt_internal_extend_target(QICNSPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/jp2/CMakeLists.txt b/src/plugins/imageformats/jp2/CMakeLists.txt
+--- a/src/plugins/imageformats/jp2/CMakeLists.txt	2025-07-05 11:46:54.590724755 -0400
++++ b/src/plugins/imageformats/jp2/CMakeLists.txt	2025-07-05 11:53:22.443634620 -0400
+@@ -16,3 +16,8 @@
+         Qt::Core
+         Qt::Gui
+ )
++
++qt_internal_extend_target(QJp2Plugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/mng/CMakeLists.txt b/src/plugins/imageformats/mng/CMakeLists.txt
+--- a/src/plugins/imageformats/mng/CMakeLists.txt	2025-07-05 11:46:54.592336803 -0400
++++ b/src/plugins/imageformats/mng/CMakeLists.txt	2025-07-05 11:53:22.443984032 -0400
+@@ -16,3 +16,8 @@
+         Qt::Core
+         Qt::Gui
+ )
++
++qt_internal_extend_target(QMngPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/tga/CMakeLists.txt b/src/plugins/imageformats/tga/CMakeLists.txt
+--- a/src/plugins/imageformats/tga/CMakeLists.txt	2025-07-05 11:46:54.593822459 -0400
++++ b/src/plugins/imageformats/tga/CMakeLists.txt	2025-07-05 11:53:22.444462224 -0400
+@@ -16,3 +16,8 @@
+         Qt::Core
+         Qt::Gui
+ )
++
++qt_internal_extend_target(QTgaPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/tiff/CMakeLists.txt b/src/plugins/imageformats/tiff/CMakeLists.txt
+--- a/src/plugins/imageformats/tiff/CMakeLists.txt	2025-07-05 11:46:54.594616322 -0400
++++ b/src/plugins/imageformats/tiff/CMakeLists.txt	2025-07-05 11:53:22.444714915 -0400
+@@ -28,6 +28,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QTiffPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QTiffPlugin CONDITION QT_FEATURE_system_tiff
+     LIBRARIES
+         TIFF::TIFF
+diff '--color=auto' -Naur a/src/plugins/imageformats/wbmp/CMakeLists.txt b/src/plugins/imageformats/wbmp/CMakeLists.txt
+--- a/src/plugins/imageformats/wbmp/CMakeLists.txt	2025-07-05 11:46:54.595286145 -0400
++++ b/src/plugins/imageformats/wbmp/CMakeLists.txt	2025-07-05 11:53:22.444922816 -0400
+@@ -15,3 +15,8 @@
+         Qt::Core
+         Qt::Gui
+ )
++
++qt_internal_extend_target(QWbmpPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/imageformats/webp/CMakeLists.txt b/src/plugins/imageformats/webp/CMakeLists.txt
+--- a/src/plugins/imageformats/webp/CMakeLists.txt	2025-07-05 11:46:54.588710977 -0400
++++ b/src/plugins/imageformats/webp/CMakeLists.txt	2025-07-05 11:53:22.442862547 -0400
+@@ -21,6 +21,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(QWebpPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(QWebpPlugin CONDITION QT_FEATURE_system_webp
+     LIBRARIES
+         WrapWebP::WrapWebP
