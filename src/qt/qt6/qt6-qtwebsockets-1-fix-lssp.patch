@@ -1,0 +1,27 @@
+diff '--color=auto' -Naur a/src/imports/qmlwebsockets/CMakeLists.txt b/src/imports/qmlwebsockets/CMakeLists.txt
+--- a/src/imports/qmlwebsockets/CMakeLists.txt	2025-07-05 11:41:58.345323070 -0400
++++ b/src/imports/qmlwebsockets/CMakeLists.txt	2025-07-05 11:42:50.634893227 -0400
+@@ -23,3 +23,8 @@
+         Qt::WebSockets
+     NO_GENERATE_CPP_EXPORTS
+ )
++
++qt_internal_extend_target(qmlwebsockets CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/websockets/CMakeLists.txt b/src/websockets/CMakeLists.txt
+--- a/src/websockets/CMakeLists.txt	2025-07-05 11:41:58.345736432 -0400
++++ b/src/websockets/CMakeLists.txt	2025-07-05 11:42:50.635325214 -0400
+@@ -39,6 +39,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(WebSockets CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(WebSockets CONDITION WASM
+     SOURCES
+         qwebsocket_wasm_p.cpp
