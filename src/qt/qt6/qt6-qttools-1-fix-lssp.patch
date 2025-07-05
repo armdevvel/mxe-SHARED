@@ -1,0 +1,217 @@
+diff '--color=auto' -Naur a/src/assistant/help/CMakeLists.txt b/src/assistant/help/CMakeLists.txt
+--- a/src/assistant/help/CMakeLists.txt	2025-07-05 12:39:13.570810012 -0400
++++ b/src/assistant/help/CMakeLists.txt	2025-07-05 12:48:07.164416563 -0400
+@@ -45,6 +45,11 @@
+     NO_GENERATE_CPP_EXPORTS
+ )
+ 
++qt_internal_extend_target(Help CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_add_ui(Help
+     SOURCES
+         qfilternamedialog.ui
+diff '--color=auto' -Naur a/src/designer/src/components/lib/CMakeLists.txt b/src/designer/src/components/lib/CMakeLists.txt
+--- a/src/designer/src/components/lib/CMakeLists.txt	2025-07-05 12:39:13.694482544 -0400
++++ b/src/designer/src/components/lib/CMakeLists.txt	2025-07-05 12:48:07.195668898 -0400
+@@ -356,6 +356,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(DesignerComponentsPrivate CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(DesignerComponentsPrivate CONDITION NOT QT_BUILD_SHARED_LIBS
+     DEFINES
+         QT_DESIGNER_STATIC
+diff '--color=auto' -Naur a/src/designer/src/designer/CMakeLists.txt b/src/designer/src/designer/CMakeLists.txt
+--- a/src/designer/src/designer/CMakeLists.txt	2025-07-05 12:39:13.613411335 -0400
++++ b/src/designer/src/designer/CMakeLists.txt	2025-07-05 12:48:07.174416588 -0400
+@@ -87,6 +87,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(designer CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(designer CONDITION TARGET Qt::PrintSupport
+     PUBLIC_LIBRARIES
+         Qt::PrintSupport
+diff '--color=auto' -Naur a/src/designer/src/lib/CMakeLists.txt b/src/designer/src/lib/CMakeLists.txt
+--- a/src/designer/src/lib/CMakeLists.txt	2025-07-05 12:39:13.655662246 -0400
++++ b/src/designer/src/lib/CMakeLists.txt	2025-07-05 12:48:07.183879678 -0400
+@@ -391,6 +391,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(Designer CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(Designer CONDITION TARGET Qt::OpenGLWidgets
+     PUBLIC_LIBRARIES
+         Qt::OpenGLWidgets
+diff '--color=auto' -Naur a/src/designer/src/plugins/qquickwidget/CMakeLists.txt b/src/designer/src/plugins/qquickwidget/CMakeLists.txt
+--- a/src/designer/src/plugins/qquickwidget/CMakeLists.txt	2025-07-05 12:39:13.611252786 -0400
++++ b/src/designer/src/plugins/qquickwidget/CMakeLists.txt	2025-07-05 12:48:07.173004952 -0400
+@@ -18,6 +18,11 @@
+         Qt::Widgets
+ )
+ 
++qt_internal_extend_target(QQuickWidgetPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ # Resources:
+ set(qquickwidget_plugin_resource_files
+     "images/qquickwidget.png"
+diff '--color=auto' -Naur a/src/linguist/lconvert/CMakeLists.txt b/src/linguist/lconvert/CMakeLists.txt
+--- a/src/linguist/lconvert/CMakeLists.txt	2025-07-05 12:39:13.307026168 -0400
++++ b/src/linguist/lconvert/CMakeLists.txt	2025-07-05 12:48:07.086117924 -0400
+@@ -28,4 +28,10 @@
+     LIBRARIES
+         Qt::CorePrivate
+ )
++
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+diff '--color=auto' -Naur a/src/linguist/lprodump/CMakeLists.txt b/src/linguist/lprodump/CMakeLists.txt
+--- a/src/linguist/lprodump/CMakeLists.txt	2025-07-05 12:39:13.365478209 -0400
++++ b/src/linguist/lprodump/CMakeLists.txt	2025-07-05 12:48:07.094829873 -0400
+@@ -54,6 +54,11 @@
+         ${proparser_resource_files}
+ )
+ 
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(${target_name} CONDITION WIN32
+     SOURCES
+         ../shared/registry.cpp
+diff '--color=auto' -Naur a/src/linguist/lrelease/CMakeLists.txt b/src/linguist/lrelease/CMakeLists.txt
+--- a/src/linguist/lrelease/CMakeLists.txt	2025-07-05 12:39:13.365857211 -0400
++++ b/src/linguist/lrelease/CMakeLists.txt	2025-07-05 12:48:07.094921813 -0400
+@@ -36,4 +36,10 @@
+         "${QT_CMAKE_EXPORT_NAMESPACE}LinguistToolsMacros.cmake"
+     # special case end
+ )
++
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+diff '--color=auto' -Naur a/src/linguist/lrelease-pro/CMakeLists.txt b/src/linguist/lrelease-pro/CMakeLists.txt
+--- a/src/linguist/lrelease-pro/CMakeLists.txt	2025-07-05 12:39:13.302412758 -0400
++++ b/src/linguist/lrelease-pro/CMakeLists.txt	2025-07-05 12:48:07.084758719 -0400
+@@ -19,4 +19,10 @@
+     INCLUDE_DIRECTORIES
+         ../shared
+ )
++
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+diff '--color=auto' -Naur a/src/linguist/lupdate/CMakeLists.txt b/src/linguist/lupdate/CMakeLists.txt
+--- a/src/linguist/lupdate/CMakeLists.txt	2025-07-05 12:39:13.302950671 -0400
++++ b/src/linguist/lupdate/CMakeLists.txt	2025-07-05 12:48:07.084994610 -0400
+@@ -58,6 +58,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(${target_name} CONDITION TARGET Qt::QmlPrivate
+     SOURCES
+         qdeclarative.cpp
+diff '--color=auto' -Naur a/src/linguist/lupdate-pro/CMakeLists.txt b/src/linguist/lupdate-pro/CMakeLists.txt
+--- a/src/linguist/lupdate-pro/CMakeLists.txt	2025-07-05 12:39:13.307345209 -0400
++++ b/src/linguist/lupdate-pro/CMakeLists.txt	2025-07-05 12:48:07.086220664 -0400
+@@ -19,4 +19,10 @@
+     INCLUDE_DIRECTORIES
+         ../shared
+ )
++
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+diff '--color=auto' -Naur a/src/qtattributionsscanner/CMakeLists.txt b/src/qtattributionsscanner/CMakeLists.txt
+--- a/src/qtattributionsscanner/CMakeLists.txt	2025-07-05 12:39:13.950122803 -0400
++++ b/src/qtattributionsscanner/CMakeLists.txt	2025-07-05 12:48:07.274483540 -0400
+@@ -23,4 +23,10 @@
+         QT_NO_CAST_FROM_ASCII
+         QT_NO_CAST_TO_ASCII
+ )
++
++qt_internal_extend_target(${target_name} CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_return_unless_building_tools()
+diff '--color=auto' -Naur a/src/qtdiag/CMakeLists.txt b/src/qtdiag/CMakeLists.txt
+--- a/src/qtdiag/CMakeLists.txt	2025-07-05 12:39:13.301512284 -0400
++++ b/src/qtdiag/CMakeLists.txt	2025-07-05 12:48:07.084556168 -0400
+@@ -22,6 +22,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(qtdiag CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(qtdiag CONDITION QT_FEATURE_opengl
+     PUBLIC_LIBRARIES
+         Qt::OpenGL
+diff '--color=auto' -Naur a/src/qtplugininfo/CMakeLists.txt b/src/qtplugininfo/CMakeLists.txt
+--- a/src/qtplugininfo/CMakeLists.txt	2025-07-05 12:39:13.366313423 -0400
++++ b/src/qtplugininfo/CMakeLists.txt	2025-07-05 12:48:07.095057193 -0400
+@@ -12,3 +12,8 @@
+ set_target_properties(qtplugininfo PROPERTIES
+     WIN32_EXECUTABLE FALSE
+ )
++
++qt_internal_extend_target(qtplugininfo CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/uitools/CMakeLists.txt b/src/uitools/CMakeLists.txt
+--- a/src/uitools/CMakeLists.txt	2025-07-05 12:39:13.947005989 -0400
++++ b/src/uitools/CMakeLists.txt	2025-07-05 12:48:07.273855478 -0400
+@@ -35,6 +35,11 @@
+ ## Scopes:
+ #####################################################################
+ 
++qt_internal_extend_target(UiTools CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(UiTools CONDITION TARGET Qt::OpenGLWidgets
+     PUBLIC_LIBRARIES
+         Qt::OpenGLWidgets
