@@ -1,0 +1,135 @@
+diff '--color=auto' -Naur a/src/components/CMakeLists.txt b/src/components/CMakeLists.txt
+--- a/src/components/CMakeLists.txt	2025-07-07 18:24:38.562436928 -0400
++++ b/src/components/CMakeLists.txt	2025-07-07 18:38:35.343799864 -0400
+@@ -59,3 +59,8 @@
+         Qt::VirtualKeyboardSettings
+     NO_GENERATE_CPP_EXPORTS
+ )
++
++qt_internal_extend_target(qtvkbcomponentsplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugin/CMakeLists.txt b/src/plugin/CMakeLists.txt
+--- a/src/plugin/CMakeLists.txt	2025-07-07 18:24:33.026439167 -0400
++++ b/src/plugin/CMakeLists.txt	2025-07-07 18:38:35.325671630 -0400
+@@ -33,3 +33,8 @@
+     LIBRARIES
+         imm32
+ )
++
++qt_internal_extend_target(QVirtualKeyboardPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/hangul/CMakeLists.txt b/src/plugins/hangul/CMakeLists.txt
+--- a/src/plugins/hangul/CMakeLists.txt	2025-07-07 18:24:34.896724759 -0400
++++ b/src/plugins/hangul/CMakeLists.txt	2025-07-07 18:38:35.328519491 -0400
+@@ -46,3 +46,8 @@
+     FILES
+         ${qmake_virtualkeyboard_hangul_layouts_resource_files}
+ )
++
++qt_internal_extend_target(qtvkbhangulplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/openwnn/CMakeLists.txt b/src/plugins/openwnn/CMakeLists.txt
+--- a/src/plugins/openwnn/CMakeLists.txt	2025-07-07 18:24:34.899819301 -0400
++++ b/src/plugins/openwnn/CMakeLists.txt	2025-07-07 18:38:35.329705325 -0400
+@@ -48,3 +48,8 @@
+     FILES
+         ${qmake_virtualkeyboard_openwnn_layouts_resource_files}
+ )
++
++qt_internal_extend_target(qtvkbopenwnnplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/pinyin/CMakeLists.txt b/src/plugins/pinyin/CMakeLists.txt
+--- a/src/plugins/pinyin/CMakeLists.txt	2025-07-07 18:24:33.026891119 -0400
++++ b/src/plugins/pinyin/CMakeLists.txt	2025-07-07 18:38:35.325871661 -0400
+@@ -72,3 +72,8 @@
+         PATTERN "*.dat"
+     )
+ endif()
++
++qt_internal_extend_target(qtvkbpinyinplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/tcime/CMakeLists.txt b/src/plugins/tcime/CMakeLists.txt
+--- a/src/plugins/tcime/CMakeLists.txt	2025-07-07 18:24:38.174404828 -0400
++++ b/src/plugins/tcime/CMakeLists.txt	2025-07-07 18:38:35.331671303 -0400
+@@ -72,3 +72,8 @@
+         PATTERN "*.dat"
+     )
+ endif()
++
++qt_internal_extend_target(qtvkbtcimeplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/thai/CMakeLists.txt b/src/plugins/thai/CMakeLists.txt
+--- a/src/plugins/thai/CMakeLists.txt	2025-07-07 18:24:38.549151887 -0400
++++ b/src/plugins/thai/CMakeLists.txt	2025-07-07 18:38:35.336661502 -0400
+@@ -50,3 +50,8 @@
+     LIBRARIES
+         Qt::HunspellInputMethodPrivate
+ )
++
++qt_internal_extend_target(qtvkbthaiplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/settings/CMakeLists.txt b/src/settings/CMakeLists.txt
+--- a/src/settings/CMakeLists.txt	2025-07-07 18:24:32.618189960 -0400
++++ b/src/settings/CMakeLists.txt	2025-07-07 18:38:35.316644595 -0400
+@@ -42,6 +42,11 @@
+     message("No Qt multimmedia, no sounds.")
+ endif ()
+ 
++qt_internal_extend_target(VirtualKeyboardSettings CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(VirtualKeyboardSettings CONDITION QT_FEATURE_vkb_no_builtin_style
+     DEFINES
+         QT_VIRTUALKEYBOARD_DEFAULT_STYLE=""
+diff '--color=auto' -Naur a/src/styles/CMakeLists.txt b/src/styles/CMakeLists.txt
+--- a/src/styles/CMakeLists.txt	2025-07-07 18:24:32.618607972 -0400
++++ b/src/styles/CMakeLists.txt	2025-07-07 18:38:35.316799782 -0400
+@@ -50,3 +50,8 @@
+         Qt::Svg
+     NO_GENERATE_CPP_EXPORTS
+ )
++
++qt_internal_extend_target(qtvkbstylesplugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/virtualkeyboard/CMakeLists.txt b/src/virtualkeyboard/CMakeLists.txt
+--- a/src/virtualkeyboard/CMakeLists.txt	2025-07-07 18:24:32.627323135 -0400
++++ b/src/virtualkeyboard/CMakeLists.txt	2025-07-07 18:38:35.321799797 -0400
+@@ -67,6 +67,11 @@
+         Qt::GuiPrivate
+ )
+ 
++qt_internal_extend_target(VirtualKeyboard CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(VirtualKeyboard CONDITION QT_FEATURE_vkb_desktop
+     SOURCES
+         desktopinputpanel.cpp desktopinputpanel_p.h
+@@ -123,3 +128,8 @@
+ qt_internal_add_docs(VirtualKeyboard
+     doc/qtvirtualkeyboard.qdocconf
+ )
++
++qt_internal_extend_target(VirtualKeyboardQml CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
