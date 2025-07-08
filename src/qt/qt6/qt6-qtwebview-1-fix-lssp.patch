@@ -1,0 +1,30 @@
+diff '--color=auto' -Naur a/src/quick/CMakeLists.txt b/src/quick/CMakeLists.txt
+--- a/src/quick/CMakeLists.txt	2025-07-08 13:45:23.330915167 -0400
++++ b/src/quick/CMakeLists.txt	2025-07-08 13:47:37.725911207 -0400
+@@ -28,6 +28,11 @@
+         Qt::WebViewPrivate
+ )
+ 
++qt_internal_extend_target(WebViewQuick CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+  # TODO: QTBUG-86533 workaround, PUBLIC_LIBRARIES should be moved to LIBRARIES.
+ qt_internal_extend_target(WebViewQuick CONDITION TARGET Qt::OpenGL
+     PUBLIC_LIBRARIES
+diff '--color=auto' -Naur a/src/webview/CMakeLists.txt b/src/webview/CMakeLists.txt
+--- a/src/webview/CMakeLists.txt	2025-07-08 13:45:23.331299619 -0400
++++ b/src/webview/CMakeLists.txt	2025-07-08 13:47:37.726223087 -0400
+@@ -31,6 +31,11 @@
+     NO_GENERATE_CPP_EXPORTS
+ )
+ 
++qt_internal_extend_target(WebView CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_extend_target(WebView CONDITION WIN32 AND TARGET Qt::WebEngineQuick
+     PUBLIC_LIBRARIES
+         Qt::WebEngineQuick
