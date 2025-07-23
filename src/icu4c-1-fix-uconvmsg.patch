@@ -1,0 +1,28 @@
+diff '--color=auto' -Naur a/source/extra/uconv/uconv.cpp b/source/extra/uconv/uconv.cpp
+--- a/source/extra/uconv/uconv.cpp	2025-07-19 02:37:45.833330614 -0400
++++ b/source/extra/uconv/uconv.cpp	2025-07-19 02:39:09.836058152 -0400
+@@ -65,7 +65,11 @@
+ /* below from the README */
+ #include "unicode/utypes.h"
+ #include "unicode/udata.h"
+-U_CFUNC char uconvmsg_dat[];
++#if U_PLATFORM == U_PF_MINGW
++    U_CFUNC char _uconvmsg_dat[];
++#else
++    U_CFUNC char uconvmsg_dat[];
++#endif
+ #endif
+ 
+ #define DEFAULT_BUFSZ   4096
+@@ -90,7 +94,11 @@
+ 
+         /* Set up our static data - if any */
+ #if defined(UCONVMSG_LINK) && U_PLATFORM != U_PF_OS390 /* On z/OS, this is failing. */
++        #if U_PLATFORM == U_PF_MINGW
++        udata_setAppData(UCONVMSG, (const void*) _uconvmsg_dat, &err);
++        #else
+         udata_setAppData(UCONVMSG, (const void*) uconvmsg_dat, &err);
++        #endif
+         if (U_FAILURE(err)) {
+           fprintf(stderr, "%s: warning, problem installing our static resource bundle data uconvmsg: %s - trying anyways.\n",
+                   pname, u_errorName(err));

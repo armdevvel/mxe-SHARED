@@ -4,13 +4,13 @@ PKG             := icu4c
 $(PKG)_WEBSITE  := https://github.com/unicode-org/icu
 $(PKG)_DESCR    := ICU4C
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 68.2
+$(PKG)_VERSION  := 69.1
 $(PKG)_MAJOR    := icu.tar.gz
-$(PKG)_CHECKSUM := 8764da8c85d8479f816cfc894aea227d98f5b40a9be55db5fd903fdd46806f88
+$(PKG)_CHECKSUM := 4cba7b7acd1d3c42c44bb0c14be6637098c7faf2b330ce876bc5f3b915d09745
 $(PKG)_GH_CONF  := unicode-org/icu/releases/latest,release-,,,-
 $(PKG)_SUBDIR   := icu
-$(PKG)_URL      := https://github.com/armdevvel/icu4c/releases/download/v68.2/icu68.tar.gz
-$(PKG)_DEPS     := cc $(BUILD)~$(PKG) pe-util
+$(PKG)_URL      := $($(PKG)_WEBSITE)/releases/download/release-$(subst .,-,$($(PKG)_VERSION))/icu4c-$(subst .,_,$($(PKG)_VERSION))-src.tgz
+$(PKG)_DEPS     := cc $(BUILD)~$(PKG)
 
 $(PKG)_TARGETS       := $(BUILD) $(MXE_TARGETS)
 $(PKG)_DEPS_$(BUILD) :=
@@ -29,10 +29,12 @@ endef
 
 define $(PKG)_BUILD_COMMON
     rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'*'.{a,dll,dll.a})
+    $(if $(BUILD_DEBUG), rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'*'.pdb),)
     $(SED) -i 's/-Wl,-Bsymbolic/ /g' '$(SOURCE_DIR)/source/config/mh-mingw'
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/source/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --with-cross-build='$(PREFIX)/$(BUILD)/$(PKG)' \
+        $(if $(BUILD_DEBUG), --enable-debug --enable-tracing --disable-release,)$(if $(BUILD_RELEASE), --enable-release --disable-debug,) \
         --enable-icu-config=no \
         CXXFLAGS='--std=gnu++0x' \
         SHELL=$(SHELL) \
@@ -55,6 +57,9 @@ define $(PKG)_BUILD_COPY_DLLS
     cp $(PREFIX)/$(TARGET)/lib/libicutud.dll.a $(PREFIX)/$(TARGET)/lib/libicutu.dll.a
     cp $(PREFIX)/$(TARGET)/lib/libicuiod.dll.a $(PREFIX)/$(TARGET)/lib/libicuio.dll.a
     cp $(PREFIX)/$(TARGET)/lib/libicuucd.dll.a $(PREFIX)/$(TARGET)/lib/libicuuc.dll.a
+    # Also, icudt(d) by default is a *stub* library. libicudt(d) contains the real deal.
+    mv $(PREFIX)/$(TARGET)/bin/icudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69-stubdata.dll
+    mv $(PREFIX)/$(TARGET)/bin/libicudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69.dll
 endef
 
 define $(PKG)_BUILD_TEST

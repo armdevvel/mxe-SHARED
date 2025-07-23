@@ -1,0 +1,65 @@
+diff '--color=auto' -Naur ../native/source/common/unicode/platform.h ./source/common/unicode/platform.h
+--- ../native/source/common/unicode/platform.h	2025-07-20 01:45:11.781075300 -0400
++++ ./source/common/unicode/platform.h	2025-07-21 01:14:02.719178012 -0400
+@@ -814,7 +814,7 @@
+     /* Use the predefined value. */
+ #elif defined(U_STATIC_IMPLEMENTATION)
+ #   define U_EXPORT
+-#elif defined(_MSC_VER) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(dllexport) && \
++#elif defined(_MSC_VER) || defined(__clang__) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(dllexport) && \
+                             UPRV_HAS_DECLSPEC_ATTRIBUTE(dllimport))
+ #   define U_EXPORT __declspec(dllexport)
+ #elif defined(__GNUC__)
+@@ -839,7 +839,7 @@
+ 
+ #ifdef U_IMPORT
+     /* Use the predefined value. */
+-#elif defined(_MSC_VER) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(dllexport) && \
++#elif defined(_MSC_VER) || defined(__clang__) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(dllexport) && \
+                             UPRV_HAS_DECLSPEC_ATTRIBUTE(dllimport))
+     /* Windows needs to export/import data. */
+ #   define U_IMPORT __declspec(dllimport)
+diff '--color=auto' -Naur ../native/source/common/unicode/utypes.h ./source/common/unicode/utypes.h
+--- ../native/source/common/unicode/utypes.h	2025-07-20 01:45:11.785075320 -0400
++++ ./source/common/unicode/utypes.h	2025-07-23 17:58:29.918846246 -0400
+@@ -169,11 +169,19 @@
+ #ifndef U_DEF_ICUDATA_ENTRY_POINT
+ /* affected by symbol renaming. See platform.h */
+ #ifndef U_LIB_SUFFIX_C_NAME
++#if U_PLATFORM == U_PF_MINGW
++#define U_DEF_ICUDATA_ENTRY_POINT(major, suff) _icudt##major##_dat
++#else
+ #define U_DEF_ICUDATA_ENTRY_POINT(major, suff) icudt##major##_dat
++#endif
++#else
++#if U_PLATFORM == U_PF_MINGW
++#define U_DEF_ICUDATA_ENTRY_POINT(major, suff) _icudt##suff ## major##_dat
+ #else
+ #define U_DEF_ICUDATA_ENTRY_POINT(major, suff) icudt##suff ## major##_dat
+ #endif
+ #endif
++#endif
+ #endif  /* U_HIDE_INTERNAL_API */
+ 
+ /**
+diff '--color=auto' -Naur ../native/source/config/mh-mingw ./source/config/mh-mingw
+--- ../native/source/config/mh-mingw	2025-07-20 01:45:11.809728194 -0400
++++ ./source/config/mh-mingw	2025-07-23 18:00:27.802790219 -0400
+@@ -38,13 +38,13 @@
+ CPPFLAGS += -DWINVER=0x0601 -D_WIN32_WINNT=0x0601
+ 
+ ## Flags for position independent code
+-SHAREDLIBCFLAGS = 
+-SHAREDLIBCXXFLAGS = 
++SHAREDLIBCFLAGS = -fPIC
++SHAREDLIBCXXFLAGS = -fPIC
+ SHAREDLIBCPPFLAGS = -DPIC
+ 
+ ## Additional flags when building libraries and with threads
+-THREADSCFLAGS = -mthreads
+-THREADSCXXFLAGS = -mthreads
++THREADSCFLAGS = 
++THREADSCXXFLAGS = 
+ LIBCPPFLAGS =
+ 
+ ## Add 'd' suffix to the names of binary files with Debug configuration
