@@ -49,7 +49,7 @@ define $(PKG)_BUILD
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
-            -no-opengl \
+			-opengl dynamic \
             -no-glib \
             -accessibility \
             -nomake examples \
