@@ -1,0 +1,39 @@
+diff '--color=auto' -Naur a/src/location/CMakeLists.txt b/src/location/CMakeLists.txt
+--- a/src/location/CMakeLists.txt	2025-07-10 00:16:24.916530400 -0400
++++ b/src/location/CMakeLists.txt	2025-07-10 00:27:56.327103958 -0400
+@@ -177,6 +177,11 @@
+     NO_GENERATE_CPP_EXPORTS
+ )
+ 
++qt_internal_extend_target(Location CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
++
+ qt_internal_add_docs(Location
+     doc/qtlocation.qdocconf
+ )
+diff '--color=auto' -Naur a/src/plugins/geoservices/itemsoverlay/CMakeLists.txt b/src/plugins/geoservices/itemsoverlay/CMakeLists.txt
+--- a/src/plugins/geoservices/itemsoverlay/CMakeLists.txt	2025-07-10 00:16:24.943865740 -0400
++++ b/src/plugins/geoservices/itemsoverlay/CMakeLists.txt	2025-07-10 00:27:56.340663837 -0400
+@@ -11,3 +11,8 @@
+         Qt::LocationPrivate
+         Qt::PositioningPrivate
+ )
++
++qt_internal_extend_target(QGeoServiceProviderFactoryItemsOverlayPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)
+diff '--color=auto' -Naur a/src/plugins/geoservices/osm/CMakeLists.txt b/src/plugins/geoservices/osm/CMakeLists.txt
+--- a/src/plugins/geoservices/osm/CMakeLists.txt	2025-07-10 00:16:24.956866204 -0400
++++ b/src/plugins/geoservices/osm/CMakeLists.txt	2025-07-10 00:27:56.347104023 -0400
+@@ -24,3 +24,8 @@
+         Qt::LocationPrivate
+         Qt::PositioningPrivate
+ )
++
++qt_internal_extend_target(QGeoServiceProviderFactoryOsmPlugin CONDITION MINGW AND WIN32
++    LIBRARIES
++        ssp
++)

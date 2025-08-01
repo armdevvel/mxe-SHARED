@@ -44,6 +44,11 @@ define $(PKG)_BUILD_COMMON
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
 
+    $(if $(BUILD_RELEASE), \
+        mv -fv '$(PREFIX)/$(TARGET)/bin/icudt69.dll' '$(PREFIX)/$(TARGET)/bin/icudt69-stubdata.dll' && \
+        mv -fv '$(PREFIX)/$(TARGET)/bin/libicudt69.dll' '$(PREFIX)/$(TARGET)/bin/icudt69.dll' \
+    ,)
+
     $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_DLLS),)
 endef
 

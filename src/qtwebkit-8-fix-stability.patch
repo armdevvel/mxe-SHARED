@@ -1,0 +1,27 @@
+diff '--color=auto' -Naur -x '*.pyc' src/Source/WTF/wtf/Assertions.cpp edits/Source/WTF/wtf/Assertions.cpp
+--- src/Source/WTF/wtf/Assertions.cpp	2025-07-18 02:18:12.340110816 -0400
++++ edits/Source/WTF/wtf/Assertions.cpp	2025-07-18 02:21:49.703084727 -0400
+@@ -319,7 +319,10 @@
+         globalHook();
+ 
+     WTFReportBacktrace();
++    // Crashes on Windows 10 15035...
++#if !CPU(ARM) && COMPILER(CLANG) && OS(WINDOWS)
+     *(int *)(uintptr_t)0xbbadbeef = 0;
++#endif
+     // More reliable, but doesn't say BBADBEEF.
+ #if COMPILER(GCC_OR_CLANG)
+     __builtin_trap();
+diff '--color=auto' -Naur -x '*.pyc' src/Source/WTF/wtf/StdLibExtras.h edits/Source/WTF/wtf/StdLibExtras.h
+--- src/Source/WTF/wtf/StdLibExtras.h	2025-07-18 02:18:12.341110820 -0400
++++ edits/Source/WTF/wtf/StdLibExtras.h	2025-07-18 02:48:00.788898391 -0400
+@@ -80,7 +80,8 @@
+  * - https://bugs.webkit.org/show_bug.cgi?id=38045
+  * - http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43976
+  */
+-#if (CPU(ARM) || CPU(MIPS)) && COMPILER(GCC_OR_CLANG)
++// Todo: Does this actually need to be checked on Windows on ARM32?
++#if (CPU(ARM) || CPU(MIPS)) && COMPILER(GCC_OR_CLANG) && !OS(WINDOWS)
+ template<typename Type>
+ inline bool isPointerTypeAlignmentOkay(Type* ptr)
+ {

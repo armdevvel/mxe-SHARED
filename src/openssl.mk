@@ -41,6 +41,7 @@ define $(PKG)_BUILD
         mingw-arm \
         zlib \
         $(if $(BUILD_STATIC),no-module no-,)shared \
+        no-asm \
         no-capieng \
         --prefix='$(PREFIX)/$(TARGET)' \
         --libdir='$(PREFIX)/$(TARGET)/lib'
