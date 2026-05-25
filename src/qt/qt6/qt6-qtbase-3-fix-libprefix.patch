@@ -1,0 +1,14 @@
+diff '--color=auto' -Naur a/src/corelib/CMakeLists.txt b/src/corelib/CMakeLists.txt
+--- a/src/corelib/CMakeLists.txt	2026-05-25 14:59:13.513819566 -0400
++++ b/src/corelib/CMakeLists.txt	2026-05-25 14:59:17.287589949 -0400
+@@ -509,6 +509,10 @@
+         PROPERTIES COMPILE_OPTIONS "-fno-lto")
+ endif()
+ 
++qt_internal_extend_target(Core CONDITION MINGW AND WIN32
++    LIBRARIES
++        prefix
++)
+ 
+ qt_internal_extend_target(Core
+     CONDITION ( TEST_architecture_arch STREQUAL i386 ) OR
