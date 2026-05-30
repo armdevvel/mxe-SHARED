@@ -41,7 +41,7 @@ OPENSSL    := openssl
 PATCH      := $(shell gpatch --help >/dev/null 2>&1 && echo g)patch
 PYTHON     := $(shell PATH="$(ORIG_PATH)" which python)
 PYTHON3    := $(shell PATH="$(ORIG_PATH)" which python3)
-PY_XY_VER  := $(shell $(PYTHON) -c "import sys; print('{0[0]}.{0[1]}'.format(sys.version_info))")
+PY_XY_VER  := $(if $(PYTHON),$(shell $(PYTHON) -c "import sys; print('{0[0]}.{0[1]}'.format(sys.version_info))"))
 SED        := $(shell gsed --help >/dev/null 2>&1 && echo g)sed
 SORT       := $(shell gsort --help >/dev/null 2>&1 && echo g)sort
 TOUCH      := $(shell gtouch --help >/dev/null 2>&1 && echo g)touch
@@ -84,6 +84,7 @@ MXE_PREFIX := $(PWD)/usr
 PREFIX     := $(MXE_PREFIX)
 LOG_DIR    := $(PWD)/log
 GITS_DIR   := $(PWD)/gits
+GIT_HEAD   := $(shell git rev-parse HEAD)
 TIMESTAMP  := $(shell date +%Y%m%d_%H%M%S)
 PKG_DIR    := $(PWD)/pkg
 TMP_DIR     = $(MXE_TMP)/tmp-$(1)
@@ -169,6 +170,7 @@ MXE_NINJA = '$(PREFIX)/$(BUILD)/bin/ninja'
 # unless your changes only apply to building MXE's packages
 MXE_MESON_OPTS = \
     --buildtype=release \
+    --wrap-mode=nofallback \
     $(if $(findstring mxe,$(MXE_USE_CCACHE)), \
     --cross-file='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile-internal.meson')
 
@@ -182,28 +184,8 @@ PKG_CONFIGURE_OPTS = \
 
 PKG_CMAKE_OPTS = \
     $(_$(PKG)_CMAKE_OPTS) \
-    $($(PKG)_CMAKE_OPTS)
-
-# GCC threads and exceptions
-MXE_GCC_THREADS = \
-    $(if $(findstring win32,$(or $(TARGET),$(1))),win32,posix)
-
-# allowed exception handling for targets
-# default (first item) and alternate, revisit if gcc/mingw-w64 change defaults
-i686-w64-mingw32_EH   := sjlj dw2
-x86_64-w64-mingw32_EH := seh sjlj
-
-# functions to determine exception handling from user-specified target
-# $(or $(TARGET),$(1)) allows use as both function and inline snippet
-TARGET_EH_LIST = $($(firstword $(call split,.,$(or $(TARGET),$(1))))_EH)
-DEFAULT_EH     = $(firstword $(TARGET_EH_LIST))
-GCC_EXCEPTIONS = \
-    $(lastword $(DEFAULT_EH) \
-               $(filter $(TARGET_EH_LIST),$(call split,.,$(or $(TARGET),$(1)))))
-MXE_GCC_EXCEPTION_OPTS = \
-    $(if $(call seq,sjlj,$(GCC_EXCEPTIONS)),--enable-sjlj-exceptions) \
-    $(if $(call seq,dw2,$(GCC_EXCEPTIONS)),--disable-sjlj-exceptions)
-
+    $($(PKG)_CMAKE_OPTS) \
+    $($(PKG)_$(TARGET)_CMAKE_OPTS)
 
 # Append these to the "make" and "make install" steps of autotools packages
 # in order to neither build nor install unwanted binaries, manpages,
@@ -259,12 +241,11 @@ MXE_DISABLE_DOCS = \
 
 MXE_DISABLE_CRUFT = $(MXE_DISABLE_PROGRAMS) $(MXE_DISABLE_DOCS)
 
-# NOTE the branching on BUILD_CROSS can be removed when the native toolchain resides within the prefix. Better sooner than later!
 MAKE_SHARED_FROM_STATIC = \
 	'$(TOP_DIR)/tools/make-shared-from-static' \
 	$(if $(findstring mingw,$(TARGET)),--windowsdll) \
-	--ar $(if $(BUILD_CROSS), '$(TARGET)-ar', ar) \
-	--ld $(if $(BUILD_CROSS), '$(TARGET)-gcc', gcc) \
+	--ar '$(TARGET)-ar' \
+	--ld '$(TARGET)-gcc' \
 	--install '$(INSTALL)' \
 	--libdir '$(PREFIX)/$(TARGET)/lib' \
 	--bindir '$(PREFIX)/$(TARGET)/bin'
@@ -371,7 +352,8 @@ ESCAPE_PKG = \
 BACKUP_DOWNLOAD = \
     (echo "MXE Warning! Downloading $(1) from backup." >&2 && \
     ($(foreach SITE,$(MIRROR_SITES), \
-        $(WGET) -O '$(TMP_FILE)' $($(SITE))/`$(call ESCAPE_PKG,$(1))`_$($(1)_CHECKSUM) || ) false))
+        $(WGET) -O '$(TMP_FILE)' $($(SITE))/`$(call ESCAPE_PKG,$(1))`_$($(1)_CHECKSUM) || \
+        $(WGET) -O '$(TMP_FILE)' $($(SITE))/`$(call ESCAPE_PKG,$(1))` || ) false))
 
 DOWNLOAD_PKG_ARCHIVE = \
     $(eval TMP_FILE := $(PKG_DIR)/.tmp-$($(1)_FILE)) \
@@ -508,6 +490,13 @@ $(PREFIX)/installed/check-requirements: $(MAKEFILE) | $(PREFIX)/installed/.gitke
 	fi
 	@touch '$@'
 
+.PHONY: print-git-oneline
+print-git-oneline: $(PREFIX)/installed/print-git-oneline-$(GIT_HEAD)
+$(PREFIX)/installed/print-git-oneline-$(GIT_HEAD): | $(PREFIX)/installed/.gitkeep
+	@git log --pretty=tformat:'[git-log]   %h %s' -1 | cat
+	@rm -f '$(PREFIX)/installed/print-git-oneline-'*
+	@touch '$@'
+
 # Common dependency lists for `make` prerequisites and `build-pkg`
 #   - `make` considers only explicit normal deps to trigger rebuilds
 #   - packages can add themselves to implicit BOOTSTRAP_PKGS in the case
@@ -636,7 +625,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring arm,$(TARGET)),SHARED,STATIC)))
+    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring shared,$(TARGET)),SHARED,STATIC)))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
@@ -646,7 +635,7 @@ RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
 # foo_BUILD_i686-w64-mingw32.static.win32
 # foo_BUILD_i686-w64-mingw32.static
 # foo_BUILD_i686-w64-mingw32
-# foo_BUILD_SHARED  
+# foo_BUILD_SHARED
 # foo_BUILD
 
 # return the pre-populated rule if defined
@@ -667,6 +656,7 @@ _LOOKUP_PKG_RULE = $(strip \
     $(else),\
         $(PKG)_$(RULE)_$(3)))
 
+
 # define sentinel file name to mark build timestamp
 MXE_CUTOFF_FILE := $(PREFIX)/.last-build-start
 
@@ -679,12 +669,6 @@ RTRIM            := $(SED) 's, \+$$$$,,'
 WRAP_MESSAGE      = $(\n)$(\n)$(call repeat,-,60)$(\n)$(1)$(and $(2),$(\n)$(\n)$(2))$(\n)$(call repeat,-,60)$(\n)
 
 define TARGET_RULE
-    $(if $(findstring i686-pc-mingw32,$(1)),\
-        $(error $(call WRAP_MESSAGE,\
-                Obsolete target specified: "$(1)",\
-                Please use i686-w64-mingw32.[$(subst $(space),|,$(MXE_LIB_TYPES))]$(\n)\
-                i686-pc-mingw32 removed 2014-10-14 (https://github.com/mxe/mxe/pull/529)\
-                )))\
     $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(BUILD) $(MXE_TRIPLETS)),$(1)),,\
         $(error $(call WRAP_MESSAGE,\
                 Invalid target specified: "$(1)",\
@@ -791,7 +775,8 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
                           $(addprefix $(PREFIX)/,$(PKG_OO_DEPS)) \
                           $(addprefix download-,$(PKG_ALL_DEPS)) \
                           $(NONET_LIB) \
-                          $(PREFIX)/$(3)/installed/.gitkeep
+                          $(PREFIX)/$(3)/installed/.gitkeep \
+                          print-git-oneline
 	$(if $(value $(call LOOKUP_PKG_RULE,$(1),MESSAGE,$(3))),
 	    @$(PRINTF_FMT) '[message]'  '$(1)' '$(3) $($(call LOOKUP_PKG_RULE,$(1),MESSAGE,$(3)))' \
 	    | $(RTRIM)
@@ -809,22 +794,22 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 	        @[ -d '$(LOG_DIR)/$(TIMESTAMP)' ] || mkdir -p '$(LOG_DIR)/$(TIMESTAMP)'
 	        @touch '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'
 	        @ln -sf '$(TIMESTAMP)/$(1)_$(3)' '$(LOG_DIR)/$(1)_$(3)'
-	        @if ! (time $(PRELOAD) WINEPREFIX='$(2)/readonly' \
+	        @if ! (time $(PRELOAD) WINEPREFIX='/dev/null' \
 	               $(MAKE) -f '$(MAKEFILE)' \
 	                   'build-only-$(1)_$(3)' \
 	                   WGET=false \
-	                && CUTOFF='$(MXE_CUTOFF_FILE)' \
-	                    PREFIX='$(PREFIX)' \
-	                    BUILD='$(BUILD)' \
-	                    VERSION='$($(1)_VERSION)' \
-	                $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
-                    $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(MXE_TRIPLETS)),$(3)), \
-                        && $(MXE_EASYSTRIP_SH)  \
-                        $(if $(findstring qt,'$(1)'), \
-                            && $(MXE_EASYSTRIP_QT) \
-                        ) \
-                    ) \
-	               ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
+	               && CUTOFF='$(MXE_CUTOFF_FILE)' \
+	                   PREFIX='$(PREFIX)' \
+	                   BUILD='$(BUILD)' \
+	                   VERSION='$($(1)_VERSION)' \
+	               $(SHELL) '$(PWD)/mxe.postbuild.sh' '$(1)' '$(3)' \
+	               $(if $(filter $(addsuffix %,$(MXE_TARGET_LIST) $(MXE_TRIPLETS)),$(3)), \
+	                   && $(MXE_EASYSTRIP_SH)  \
+	                   $(if $(findstring qt,'$(1)'), \
+	                       && $(MXE_EASYSTRIP_QT) \
+	                   ) \
+	               ) \
+	            ) &> '$(LOG_DIR)/$(TIMESTAMP)/$(1)_$(3)'; then \
 	            echo; \
 	            echo 'Failed to build package $(1) for target $(3)!'; \
 	            echo '------------------------------------------------------------'; \
@@ -851,13 +836,13 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 # https://www.gnu.org/software/make/manual/html_node/Target_002dspecific.html
 build-only-$(1)_$(3): PKG = $(1)
 build-only-$(1)_$(3): TARGET = $(3)
+build-only-$(1)_$(3): BUILD_SHARED = TRUE
 # debug specific variable for extra configuration in things like qt5
 build-only-$(1)_$(3): BUILD_$(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),DEBUG,RELEASE) = TRUE
-build-only-$(1)_$(3): BUILD_SHARED = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
 build-only-$(1)_$(3): $(if $(findstring win32,$(TARGET)),WIN32,POSIX)_THREADS = TRUE
-build-only-$(1)_$(3): LIB_SUFFIX = dll
-build-only-$(1)_$(3): BITS = 32
+build-only-$(1)_$(3): LIB_SUFFIX = $(if $(findstring shared,$(3)),dll,a)
+build-only-$(1)_$(3): BITS = $(if $(findstring x86_64,$(3)),64,32)
 build-only-$(1)_$(3): PROCESSOR = $(firstword $(call split,-,$(3)))
 build-only-$(1)_$(3): BUILD_TYPE = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),debug,release)
 build-only-$(1)_$(3): BUILD_TYPE_SUFFIX = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),d)

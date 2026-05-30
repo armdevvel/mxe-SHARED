@@ -3,33 +3,24 @@
 PKG             := zlib
 $(PKG)_WEBSITE  := https://zlib.net/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.3
-$(PKG)_CHECKSUM := 8a9ba2898e1d0d774eca6ba5b4627a11e5588ba85c8851336eb38de4683050a7
-$(PKG)_SUBDIR   := zlib-$($(PKG)_VERSION)
-$(PKG)_FILE     := zlib-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://github.com/armdevvel/mxe-storage/raw/master/libraries/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_URL_2    := https://$(SOURCEFORGE_MIRROR)/project/libpng/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
+$(PKG)_VERSION  := 1.3.2
+$(PKG)_CHECKSUM := d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3
+$(PKG)_GH_CONF  := madler/zlib/releases,v,,,,.tar.xz
 $(PKG)_DEPS     := cc
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
 $(PKG)_DEPS_$(BUILD) :=
 
-define $(PKG)_UPDATE
-    $(WGET) -q -O- 'https://zlib.net/' | \
-    $(SED) -n 's,.*zlib-\([0-9][^>]*\)\.tar.*,\1,ip' | \
-    head -1
-endef
-
 define $(PKG)_BUILD
     cd '$(1)' && CHOST='$(TARGET)' ./configure \
-        --prefix='$(PREFIX)/$(TARGET)'
-    $(MAKE) SFLAGS="-fPIC" -C '$(1)' -j '$(JOBS)' install
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --static
+    $(MAKE) -C '$(1)' -j '$(JOBS)' install
 endef
 
 define $(PKG)_BUILD_SHARED
     $(MAKE) -C '$(1)' -f win32/Makefile.gcc \
         SHARED_MODE=1 \
-        $(if $(BUILD_DEBUG),DEBUG_MODE=1,) \
         STATICLIB= \
         BINARY_PATH='$(PREFIX)/$(TARGET)/bin' \
         INCLUDE_PATH='$(PREFIX)/$(TARGET)/include' \

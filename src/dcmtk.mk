@@ -24,7 +24,6 @@ endef
 define $(PKG)_BUILD
     cd '$(1)'/config && autoconf -f
     cd '$(1)' && ./configure \
-        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --prefix='$(PREFIX)/$(TARGET)' \
         --without-openssl \

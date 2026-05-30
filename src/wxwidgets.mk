@@ -4,18 +4,12 @@ PKG             := wxwidgets
 $(PKG)_WEBSITE  := https://www.wxwidgets.org/
 $(PKG)_DESCR    := wxWidgets
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.1.7
-$(PKG)_CHECKSUM := 3d666e47d86192f085c84089b850c90db7a73a5d26b684b617298d89dce84f19
+$(PKG)_VERSION  := 3.3.2
+$(PKG)_CHECKSUM := 50a28cb668de47b0e006cd6ebed8cf4f76c1cac6116fb3c978c44478219103f2
 $(PKG)_GH_CONF  := wxWidgets/wxWidgets/releases/latest,v,,,,.tar.bz2
 $(PKG)_DEPS     := cc expat jpeg libiconv libpng sdl tiff zlib
 
 define $(PKG)_BUILD
-    sed -i 's#wx_cv_cflags_mthread" = "yes#&_but_no#' \
-        '$(SOURCE_DIR)/configure'
-
-    # Also: -Wno-ignored-attributes could significantly abbreviate the 88K-line log file
-    # but passing it via CFLAGS doesn't have any effect. Not critical, but nice to have.
-
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --enable-option-checking \
@@ -24,7 +18,7 @@ define $(PKG)_BUILD
         --disable-stl \
         --disable-gtktest \
         --enable-threads \
-        --disable-backtrace \
+        --enable-backtrace \
         --disable-universal \
         --with-themes=all \
         --with-msw \

@@ -4,8 +4,8 @@ PKG             := mpc
 $(PKG)_WEBSITE  := http://www.multiprecision.org/
 $(PKG)_DESCR    := GNU MPC
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.2.1
-$(PKG)_CHECKSUM := 17503d2c395dfcf106b622dc142683c1199431d095367c6aacba6eec30340459
+$(PKG)_VERSION  := 1.3.1
+$(PKG)_CHECKSUM := ab642492f5cf882b74aa0cb730cd410a81edcdbec895183ce930e706c1c759b8
 $(PKG)_SUBDIR   := mpc-$($(PKG)_VERSION)
 $(PKG)_FILE     := mpc-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://ftp.gnu.org/gnu/mpc/$($(PKG)_FILE)
@@ -30,7 +30,7 @@ endef
 define $(PKG)_BUILD
     $($(PKG)_BUILD_$(BUILD))
     # build runtime tests to verify toolchain components
-    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k TESTS=
+    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k
     rm -rf '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     cp -R '$(1)/tests' '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     (printf 'date /t >  all-tests-$(PKG)-$($(PKG)_VERSION).txt\r\n'; \

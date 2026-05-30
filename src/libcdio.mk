@@ -18,7 +18,5 @@ endef
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS)
-    $(SED) -i 's#--version-script=libcdio.la.ver##' '$(1)/lib/driver/Makefile'
-    $(SED) -i 's#--version-script=libiso9660.la.ver##' '$(1)/lib/iso9660/Makefile'
-    $(MAKE) -C '$(1)' -j 1 LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`' install
+    $(MAKE) -C '$(1)' -j 1 install
 endef

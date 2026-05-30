@@ -16,7 +16,7 @@ diff --git a/gdb/event-top.c b/gdb/event-top.c
 index 1111111..2222222 100644
 --- a/gdb/event-top.c
 +++ b/gdb/event-top.c
-@@ -73,6 +73,11 @@ static void async_sigtstp_handler (gdb_client_data);
+@@ -80,6 +80,11 @@ static void async_sigtstp_handler (gdb_client_data);
  #endif
  static void async_sigterm_handler (gdb_client_data arg);
  
@@ -30,32 +30,37 @@ index 1111111..2222222 100644
     interface, via callback functions, so that the event loop can react
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Andreas Schwab <schwab@linux-m68k.org>
-Date: Sun, 20 Mar 2022 14:01:54 +0100
-Subject: [PATCH 2/2] Add support for readline 8.2
+From: Mark Brand <mabrand@mabrand.nl>
+Date: Mon, 20 Jan 2025 14:37:14 +0100
+Subject: [PATCH 2/2] fix test for HAVE_DECL_GETPAGESIZE
 
-In readline 8.2 the type of rl_completer_word_break_characters changed to
-include const.
+This is set to 0 or 1 by configure. Testing with #ifndef did not work,
+leading to a warning about undeclared function 'alarm'. On gcc14 this is
+an error.
 
-diff --git a/gdb/completer.c b/gdb/completer.c
+diff --git a/libbacktrace/mmap.c b/libbacktrace/mmap.c
 index 1111111..2222222 100644
---- a/gdb/completer.c
-+++ b/gdb/completer.c
-@@ -36,7 +36,7 @@
-    calling a hook instead so we eliminate the CLI dependency.  */
- #include "gdbcmd.h"
+--- a/libbacktrace/mmap.c
++++ b/libbacktrace/mmap.c
+@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.  */
+ #include "backtrace.h"
+ #include "internal.h"
  
--/* Needed for rl_completer_word_break_characters() and for
-+/* Needed for rl_completer_word_break_characters and for
-    rl_filename_completion_function.  */
- #include "readline/readline.h"
+-#ifndef HAVE_DECL_GETPAGESIZE
++#if HAVE_DECL_GETPAGESIZE < 1
+ extern int getpagesize (void);
+ #endif
  
-@@ -2011,7 +2011,7 @@ gdb_completion_word_break_characters_throw ()
-       rl_basic_quote_characters = NULL;
-     }
+diff --git a/libbacktrace/mmapio.c b/libbacktrace/mmapio.c
+index 1111111..2222222 100644
+--- a/libbacktrace/mmapio.c
++++ b/libbacktrace/mmapio.c
+@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.  */
+ #include "backtrace.h"
+ #include "internal.h"
  
--  return rl_completer_word_break_characters;
-+  return (char *) rl_completer_word_break_characters;
- }
+-#ifndef HAVE_DECL_GETPAGESIZE
++#if HAVE_DECL_GETPAGESIZE < 1
+ extern int getpagesize (void);
+ #endif
  
- char *

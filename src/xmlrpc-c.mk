@@ -29,7 +29,6 @@ define $(PKG)_BUILD_COMMON
     $(SED) -i 's,curl-config,$(TARGET)-curl-config,g' '$(1)/advanced/lib/curl_transport/Makefile'
     $(SED) -i 's,curl-config,$(TARGET)-curl-config,g' '$(1)/advanced/src/Makefile'
     cd '$(1)/advanced' && ./configure \
-        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --prefix='$(PREFIX)/$(TARGET)' \
         --enable-abyss-server=no \
@@ -44,13 +43,13 @@ define $(PKG)_BUILD_COMMON
         -W -Wall -Werror -ansi -pedantic \
         '$(1)/advanced/examples/cpp/asynch_client.cpp' -o '$(PREFIX)/$(TARGET)/bin/test-xmlrpc-c.exe' \
         `'$(PREFIX)/$(TARGET)/bin/xmlrpc-c-config' c++2 client --libs` \
-        `'$(TARGET)-pkg-config' libcurl --cflags --libs` -lws2_32
+        `'$(TARGET)-pkg-config' libcurl --cflags --libs`
 endef
 
 $(PKG)_BUILD_STATIC=$(subst @xmlrpc-c-shared-lib-type@,NONE,\
                     $(subst @xmlrpc-c-must-build-shlib@,N,\
                     $($(PKG)_BUILD_COMMON)))
 
-$(PKG)_BUILD_SHARED=$(subst @xmlrpc-c-shared-lib-type@,dll,\
-                   $(subst @xmlrpc-c-must-build-shlib@,Y,\
-                   $($(PKG)_BUILD_COMMON)))
+#$(PKG)_BUILD_SHARED=$(subst @xmlrpc-c-shared-lib-type@,dll,\
+#                    $(subst @xmlrpc-c-must-build-shlib@,Y,\
+#                    $($(PKG)_BUILD_COMMON)))

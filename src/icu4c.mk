@@ -4,9 +4,9 @@ PKG             := icu4c
 $(PKG)_WEBSITE  := https://github.com/unicode-org/icu
 $(PKG)_DESCR    := ICU4C
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 69.1
-$(PKG)_MAJOR    := icu.tar.gz
-$(PKG)_CHECKSUM := 4cba7b7acd1d3c42c44bb0c14be6637098c7faf2b330ce876bc5f3b915d09745
+$(PKG)_VERSION  := 74.2
+$(PKG)_MAJOR    := $(word 1,$(subst ., ,$($(PKG)_VERSION)))
+$(PKG)_CHECKSUM := 68db082212a96d6f53e35d60f47d38b962e9f9d207a74cfac78029ae8ff5e08c
 $(PKG)_GH_CONF  := unicode-org/icu/releases/latest,release-,,,-
 $(PKG)_SUBDIR   := icu
 $(PKG)_URL      := $($(PKG)_WEBSITE)/releases/download/release-$(subst .,-,$($(PKG)_VERSION))/icu4c-$(subst .,_,$($(PKG)_VERSION))-src.tgz
@@ -28,13 +28,11 @@ define $(PKG)_BUILD_$(BUILD)
 endef
 
 define $(PKG)_BUILD_COMMON
-    rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'*'.{a,dll,dll.a})
-    $(if $(BUILD_DEBUG), rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'*'.pdb),)
-    $(SED) -i 's/-Wl,-Bsymbolic/ /g' '$(SOURCE_DIR)/source/config/mh-mingw'
+    # '?*' to avoid matching plain "libicu.a" from gcc.
+    rm -fv $(shell echo "$(PREFIX)/$(TARGET)"/{bin,lib}/{lib,libs,}icu'?*'.{a,dll,dll.a})
     cd '$(BUILD_DIR)' && '$(SOURCE_DIR)/source/configure' \
         $(MXE_CONFIGURE_OPTS) \
         --with-cross-build='$(PREFIX)/$(BUILD)/$(PKG)' \
-        $(if $(BUILD_DEBUG), --enable-debug --enable-tracing --disable-release,)$(if $(BUILD_RELEASE), --enable-release --disable-debug,) \
         --enable-icu-config=no \
         CXXFLAGS='--std=gnu++0x' \
         SHELL=$(SHELL) \
@@ -43,28 +41,6 @@ define $(PKG)_BUILD_COMMON
 
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
-
-    $(if $(BUILD_RELEASE), \
-        mv -fv '$(PREFIX)/$(TARGET)/bin/icudt69.dll' '$(PREFIX)/$(TARGET)/bin/icudt69-stubdata.dll' && \
-        mv -fv '$(PREFIX)/$(TARGET)/bin/libicudt69.dll' '$(PREFIX)/$(TARGET)/bin/icudt69.dll' \
-    ,)
-
-    $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_DLLS),)
-endef
-
-define $(PKG)_BUILD_COPY_DLLS
-    # Debug builds save libraries to libicu*d.dll.a.
-    # This causes issues with things like Qt's configure system.
-    # TODO: Fix Qt's configure system in the future to accept libicu*d.dll.a(?)
-    cp $(PREFIX)/$(TARGET)/lib/libicudtd.dll.a $(PREFIX)/$(TARGET)/lib/libicudt.dll.a
-    cp $(PREFIX)/$(TARGET)/lib/libicutestd.dll.a $(PREFIX)/$(TARGET)/lib/libicutest.dll.a
-    cp $(PREFIX)/$(TARGET)/lib/libicuind.dll.a $(PREFIX)/$(TARGET)/lib/libicuin.dll.a
-    cp $(PREFIX)/$(TARGET)/lib/libicutud.dll.a $(PREFIX)/$(TARGET)/lib/libicutu.dll.a
-    cp $(PREFIX)/$(TARGET)/lib/libicuiod.dll.a $(PREFIX)/$(TARGET)/lib/libicuio.dll.a
-    cp $(PREFIX)/$(TARGET)/lib/libicuucd.dll.a $(PREFIX)/$(TARGET)/lib/libicuuc.dll.a
-    # Also, icudt(d) by default is a *stub* library. libicudt(d) contains the real deal.
-    mv $(PREFIX)/$(TARGET)/bin/icudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69-stubdata.dll
-    mv $(PREFIX)/$(TARGET)/bin/libicudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69.dll
 endef
 
 define $(PKG)_BUILD_TEST
@@ -72,18 +48,6 @@ define $(PKG)_BUILD_TEST
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' icu-uc icu-io --cflags --libs`
-endef
-
-define $(PKG)_BUILD_SHARED
-    $($(PKG)_BUILD_COMMON)
-    # icu4c installs its DLLs to lib/. Move them to bin/.
-    mv -fv $(PREFIX)/$(TARGET)/lib/icu*.dll '$(PREFIX)/$(TARGET)/bin/' || true
-
-    # stub data is icudt.dll, actual data is libicudt.dll - prefer actual
-    test ! -e '$(PREFIX)/$(TARGET)/lib/libicudt$($(PKG)_MAJOR).dll' \
-        || mv -fv '$(PREFIX)/$(TARGET)/lib/libicudt$($(PKG)_MAJOR).dll' '$(PREFIX)/$(TARGET)/bin/icudt$($(PKG)_MAJOR).dll'
-
-    $($(PKG)_BUILD_TEST)
 endef
 
 define $(PKG)_BUILD

@@ -3,21 +3,14 @@
 PKG             := openssl
 $(PKG)_WEBSITE  := https://www.openssl.org/
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.0.7
-$(PKG)_CHECKSUM := 83049d042a260e696f62406ac5c08bf706fd84383f945cf21bd61e9ed95c396e
+$(PKG)_VERSION  := 3.6.2
+$(PKG)_CHECKSUM := aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f
+$(PKG)_GH_CONF  := openssl/openssl/releases,openssl-
 $(PKG)_SUBDIR   := openssl-$($(PKG)_VERSION)
 $(PKG)_FILE     := openssl-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := https://www.openssl.org/source/$($(PKG)_FILE)
-$(PKG)_URL_2    := https://www.openssl.org/source/old/$(call tr,$([a-z]),,$($(PKG)_VERSION))/$($(PKG)_FILE)
+$(PKG)_URL      := https://github.com/openssl/openssl/releases/download/openssl-$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc zlib
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
-
-define $(PKG)_UPDATE
-    $(WGET) -q -O- 'https://www.openssl.org/source/' | \
-    $(SED) -n 's,.*openssl-\([0-9][0-9a-z.]*\)\.tar.*,\1,p' | \
-    $(SORT) -V | \
-    tail -1
-endef
 
 $(PKG)_MAKE = $(MAKE) -C '$(1)' -j '$(JOBS)'\
         CC='$(TARGET)-gcc' \
@@ -25,7 +18,6 @@ $(PKG)_MAKE = $(MAKE) -C '$(1)' -j '$(JOBS)'\
         AR='$(TARGET)-ar' \
         RC='$(TARGET)-windres' \
         CROSS_COMPILE='$(TARGET)-' \
-        RCFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         $(if $(BUILD_SHARED), ENGINESDIR='$(PREFIX)/$(TARGET)/bin/engines')
 
 define $(PKG)_BUILD
@@ -35,14 +27,12 @@ define $(PKG)_BUILD
     rm -fv '$(PREFIX)/$(TARGET)/'*/{libcrypto*,libssl*}
     rm -fv '$(PREFIX)/$(TARGET)/lib/pkgconfig/'{libcrypto*,libssl*,openssl*}
 
-    # MOREINFO shall we choose --api=... explicitly? In other words, is 3.x any better than 1.0.2?
     cd '$(1)' && CC='$(TARGET)-gcc' RC='$(TARGET)-windres' ./Configure \
-		$(if $(BUILD_DEBUG),-d,) \
-        mingw-arm \
+        @openssl-target@ \
         zlib \
         $(if $(BUILD_STATIC),no-module no-,)shared \
-        no-asm \
         no-capieng \
+        no-tests \
         --prefix='$(PREFIX)/$(TARGET)' \
         --libdir='$(PREFIX)/$(TARGET)/lib'
     $($(PKG)_MAKE) build_sw
@@ -58,3 +48,6 @@ define $(PKG)_BUILD_$(BUILD)
         $(if $(BUILD_SHARED), ENGINESDIR='$(PREFIX)/$(TARGET)/bin/engines') \
         install_sw
 endef
+
+$(PKG)_BUILD_i686-w64-mingw32   = $(subst @openssl-target@,mingw,$($(PKG)_BUILD))
+$(PKG)_BUILD_x86_64-w64-mingw32 = $(subst @openssl-target@,mingw64,$($(PKG)_BUILD))

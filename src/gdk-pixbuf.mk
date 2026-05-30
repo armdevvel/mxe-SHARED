@@ -4,8 +4,8 @@ PKG             := gdk-pixbuf
 $(PKG)_WEBSITE  := https://gtk.org/
 $(PKG)_DESCR    := GDK-pixbuf
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.42.6
-$(PKG)_CHECKSUM := c4a6b75b7ed8f58ca48da830b9fa00ed96d668d3ab4b1f723dcf902f78bde77f
+$(PKG)_VERSION  := 2.44.6
+$(PKG)_CHECKSUM := 140c2d0b899fcf853ee92b26373c9dc228dbcde0820a4246693f4328a27466fa
 $(PKG)_SUBDIR   := gdk-pixbuf-$($(PKG)_VERSION)
 $(PKG)_FILE     := gdk-pixbuf-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/gdk-pixbuf/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
@@ -19,6 +19,7 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    LDFLAGS="`'$(TARGET)-pkg-config' --libs libjpeg libpng libtiff-4`" \
     '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
       -Dinstalled_tests=false \
       -Dintrospection=disabled \

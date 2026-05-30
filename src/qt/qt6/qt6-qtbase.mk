@@ -5,20 +5,20 @@ PKG             := qt6-$(PKG_BASENAME)
 $(PKG)_WEBSITE  := https://www.qt.io/
 $(PKG)_DESCR    := Qt6
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 6.9.1
-$(PKG)_CHECKSUM := 40caedbf83cc9a1959610830563565889878bc95f115868bbf545d1914acf28e
+$(PKG)_VERSION  := 6.11.1
+$(PKG)_CHECKSUM := d9594a31228aa23ad6b531719a29b45f0f3989fe6c136d45767ea179f233c1ac
 $(PKG)_SUBDIR   := $(PKG_BASENAME)-everywhere-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG_BASENAME)-everywhere-src-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://download.qt.io/archive/qt/6.9/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
+$(PKG)_URL      := https://download.qt.io/archive/qt/6.11/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
-$(PKG)_DEPS     := cc freetype harfbuzz jpeg libpng mariadb-connector-c mingw-contrib openssl pcre2 sqlite zlib zstd $(BUILD)~$(PKG) \
+$(PKG)_DEPS     := cc freetype harfbuzz jpeg libpng mesa mariadb-connector-c openssl pcre2 sqlite zlib zstd $(BUILD)~$(PKG) \
                    $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_OO_DEPS_$(BUILD) := ninja
 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- https://download.qt.io/official_releases/qt/6.9/ | \
-    $(SED) -n 's,.*href="\(6\.[0-9]\.[^/]*\)/".*,\1,p' | \
+    $(WGET) -q -O- https://download.qt.io/official_releases/qt/6.11/ | \
+    $(SED) -n 's,.*href="\(6\.1[0-9]\.[^/]*\)/".*,\1,p' | \
     grep -iv -- '-rc' | \
     $(SORT) -V | \
     tail -1
@@ -36,7 +36,7 @@ define $(PKG)_BUILD
         -DQT_HOST_PATH='$(PREFIX)/$(BUILD)/$(MXE_QT6_ID)' \
         -DQT_QMAKE_DEVICE_OPTIONS='CROSS_COMPILE=$(TARGET)-;PKG_CONFIG=$(TARGET)-pkg-config' \
         -DPKG_CONFIG_EXECUTABLE='$(PREFIX)/bin/$(TARGET)-pkg-config' \
-        -DQT_QMAKE_TARGET_MKSPEC=win32-clang-g++ \
+        -DQT_QMAKE_TARGET_MKSPEC=win32-g++ \
         -DQT_BUILD_EXAMPLES=OFF \
         -DQT_BUILD_TESTS=OFF \
         -DBUILD_WITH_PCH=OFF \
@@ -47,10 +47,10 @@ define $(PKG)_BUILD
         -DFEATURE_glib=OFF \
         -DFEATURE_system_harfbuzz=ON \
         -DFEATURE_icu=$(CMAKE_SHARED_BOOL) \
-        -DINPUT_opengl=no \
+        -DFEATURE_opengl_dynamic=ON \
         -DFEATURE_openssl=ON \
         -DFEATURE_openssl_linked=ON \
-        -DOPENSSL_USE_STATIC_LIBS=FALSE \
+        -DOPENSSL_USE_STATIC_LIBS=TRUE \
         -DFEATURE_system_pcre2=ON \
         -DFEATURE_pkg_config=ON \
         -DFEATURE_sql_mysql=ON \

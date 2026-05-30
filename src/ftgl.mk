@@ -23,9 +23,9 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --without-x \
         --disable-freetypetest \
-        --with-ft-prefix='$(PREFIX)/$(TARGET)'
-    $(MAKE) -C '$(1)/src' -j '$(JOBS)' bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= \
-        LDFLAGS='`$(MXE_INTRINSIC_SH) aeabi_uidivmod.S.obj udivmodsi4.S.obj chkstk.S.obj`'
+        --with-ft-prefix='$(PREFIX)/$(TARGET)' \
+        CXXFLAGS="-fpermissive"
+    $(MAKE) -C '$(1)/src' -j '$(JOBS)' bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
     $(MAKE) -C '$(1)/src' -j 1 install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/pkgconfig'
     $(INSTALL) -m644 '$(1)/ftgl.pc' '$(PREFIX)/$(TARGET)/lib/pkgconfig/'

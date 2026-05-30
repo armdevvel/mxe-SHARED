@@ -4,8 +4,8 @@ PKG             := pango
 $(PKG)_WEBSITE  := https://www.pango.org/
 $(PKG)_DESCR    := Pango
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.50.0
-$(PKG)_CHECKSUM := dba8b62ddf86e10f73f93c3d2256b73238b2bcaf87037ca229b40bdc040eb3f3
+$(PKG)_VERSION  := 1.57.1
+$(PKG)_CHECKSUM := e65d6d117080dc3aeeb7d8b4b3b518f7383aa2e6cfce23117c623cd624764c2f
 $(PKG)_SUBDIR   := pango-$($(PKG)_VERSION)
 $(PKG)_FILE     := pango-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/pango/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
@@ -20,6 +20,8 @@ endef
 define $(PKG)_BUILD
     '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) \
         -Dintrospection=disabled \
+        -Dfreetype=enabled \
+        -Dfontconfig=enabled \
         '$(BUILD_DIR)' '$(SOURCE_DIR)' && \
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' && \
     '$(MXE_NINJA)' -C '$(BUILD_DIR)' -j '$(JOBS)' install

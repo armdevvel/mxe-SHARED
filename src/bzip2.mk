@@ -31,6 +31,11 @@ endef
 define $(PKG)_BUILD
     $($(PKG)_BUILD_COMMON)
     $(INSTALL) -m644 '$(1)/libbz2.a' '$(PREFIX)/$(TARGET)/lib/'
+endef
 
-    $(if $(BUILD_SHARED), $(MAKE_SHARED_FROM_STATIC) '$(1)/libbz2.a',)
+define $(PKG)_BUILD_SHARED
+    $($(PKG)_BUILD_COMMON)
+    '$(TARGET)-gcc' '$(1)'/*.o -shared \
+        -o '$(PREFIX)/$(TARGET)/bin/libbz2.dll' -Xlinker \
+        --out-implib -Xlinker '$(PREFIX)/$(TARGET)/lib/libbz2.dll.a'
 endef

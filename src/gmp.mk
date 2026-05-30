@@ -4,8 +4,8 @@ PKG             := gmp
 $(PKG)_WEBSITE  := https://gmplib.org/
 $(PKG)_DESCR    := GMP
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 6.2.1
-$(PKG)_CHECKSUM := fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2
+$(PKG)_VERSION  := 6.3.0
+$(PKG)_CHECKSUM := a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://gmplib.org/download/$(PKG)/$($(PKG)_FILE)
@@ -22,23 +22,17 @@ define $(PKG)_UPDATE
     tail -1
 endef
 
-# NOTE /0 to reenable assembly:
-# NOTE /1 see comments here: https://stackoverflow.com/questions/22754077/building-a-c-library-gmp-for-arm64-ios;
-# NOTE /2 make sure full 32-bit word (-marm) instruction set is enabled, or patch for Thumb (component/gmp/thumb)
-# NOTE /2.1 see (unfinished but illustrative) Thumb patch in component/gmp/thumb
-
 define $(PKG)_BUILD
     cd '$(1)' && CC_FOR_BUILD=$(BUILD_CC) ./configure \
         $(MXE_CONFIGURE_OPTS) \
+        CFLAGS='-std=gnu99' \
         --enable-cxx \
-        --disable-assembly \
         --without-readline
-
-    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`'
+    $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install
 
     # build runtime tests to verify toolchain components
-    -$(MAKE) -C '$(1)' -j '$(JOBS)' TESTS= check -k
+    -$(MAKE) -C '$(1)' -j '$(JOBS)' check -k
     rm -rf '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     cp -R '$(1)/tests' '$(PREFIX)/$(TARGET)/bin/$(PKG)-tests'
     (printf 'date /t >  all-tests-$(PKG)-$($(PKG)_VERSION).txt\r\n'; \
@@ -51,7 +45,9 @@ endef
 define $(PKG)_BUILD_$(BUILD)
     mkdir '$(1).build'
     cd    '$(1).build' && '$(1)/configure' \
-        $(MXE_CONFIGURE_OPTS)
+        $(MXE_CONFIGURE_OPTS) \
+        CC='$(BUILD_CC)' \
+        CFLAGS='-std=gnu99'
     $(MAKE) -C '$(1).build' -j '$(JOBS)' man1_MANS=
     $(MAKE) -C '$(1).build' -j 1 install man1_MANS=
 endef

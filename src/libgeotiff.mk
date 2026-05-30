@@ -4,8 +4,8 @@ PKG             := libgeotiff
 $(PKG)_WEBSITE  := https://trac.osgeo.org/geotiff/
 $(PKG)_DESCR    := GeoTiff
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.4.2
-$(PKG)_CHECKSUM := ad87048adb91167b07f34974a8e53e4ec356494c29f1748de95252e8f81a5e6e
+$(PKG)_VERSION  := 1.6.0
+$(PKG)_CHECKSUM := 9311017e5284cffb86f2c7b7a9df1fb5ebcdc61c30468fb2e6bca36e4272ebca
 $(PKG)_SUBDIR   := libgeotiff-$($(PKG)_VERSION)
 $(PKG)_FILE     := libgeotiff-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://download.osgeo.org/geotiff/libgeotiff/$($(PKG)_FILE)
@@ -27,8 +27,10 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         --with-jpeg \
         --with-zlib \
+        --with-libtiff='$(PREFIX)/$(TARGET)' \
+        --with-proj \
         --disable-towgs84 \
-        LIBS="`'$(TARGET)-pkg-config' --libs libtiff-4` -ljpeg -lz"
+        LIBS="`'$(TARGET)-pkg-config' --libs libtiff-4 proj libcurl` -ljpeg -lz"
     $(MAKE) -C '$(1)' -j 1 all install \
         LDFLAGS=-no-undefined \
         EXEEXT=.remove-me \

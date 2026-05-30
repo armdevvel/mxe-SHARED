@@ -3,12 +3,13 @@
 PKG             := brotli
 $(PKG)_WEBSITE  := https://github.com/google/brotli
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.0.9
-$(PKG)_CHECKSUM := f9e8d81d0405ba66d181529af42a3354f838c939095ff99930da6aa9cdf6fe46
+$(PKG)_VERSION  := 1.2.0
+$(PKG)_CHECKSUM := 816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe6477dfec
 $(PKG)_GH_CONF  := google/brotli/releases/tag,v,,
 $(PKG)_DEPS     := cc
 
 define $(PKG)_BUILD
     cd '$(BUILD_DIR)' && '$(TARGET)-cmake' '$(SOURCE_DIR)'
     '$(TARGET)-cmake' --build '$(BUILD_DIR)' --config Release --target install
+    rm -f '$(PREFIX)/$(TARGET)/bin/brotli.exe'
 endef

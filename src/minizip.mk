@@ -3,15 +3,16 @@
 PKG             := minizip
 $(PKG)_WEBSITE  := https://www.winimage.com/zLibDll/minizip.html
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 3.0.1
-$(PKG)_CHECKSUM := 96c95b274dd535984ce0e87691691388f2b976106e8cf8d527b15da552ac94e4
+$(PKG)_VERSION  := 4.2.1
+$(PKG)_CHECKSUM := 3cc35c2cb925dbe67cc801e3234b31b0f30197812a99377352fa1b551ab3d011
 $(PKG)_GH_CONF  := zlib-ng/minizip-ng/releases
-$(PKG)_DEPS     := cc bzip2 zlib openssl
+$(PKG)_DEPS     := cc bzip2 openssl xz zlib zstd
 
 define $(PKG)_BUILD
     # build and install the library
     cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
         -DBUILD_TEST=OFF \
+        -DMZ_PPMD=OFF \
         -DUSE_ZLIB=ON
 
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
@@ -22,5 +23,5 @@ define $(PKG)_BUILD
         -W -Wall -Werror -Wno-format \
         -DHAVE_STDINT_H -DHAVE_INTTYPES_H \
         '$(SOURCE_DIR)/minizip.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
-        `'$(TARGET)-pkg-config' $(PKG) --libs-only-l`
+        `'$(TARGET)-pkg-config' $(PKG) --cflags --libs-only-l`
 endef

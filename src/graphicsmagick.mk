@@ -4,10 +4,10 @@ PKG             := graphicsmagick
 $(PKG)_WEBSITE  := http://www.graphicsmagick.org/
 $(PKG)_DESCR    := GraphicsMagick
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.3.38
-$(PKG)_CHECKSUM := 8f8c9704ef09b24a3d233b1b8f2e98a10281f196ca6d170c466bad4f89b1a3bb
+$(PKG)_VERSION  := 1.3.47
+$(PKG)_CHECKSUM := 95fb682dab0206a9db168d065963f4ffdf5a60b0b2a375aca1f4492fb18d0627
 $(PKG)_SUBDIR   := GraphicsMagick-$($(PKG)_VERSION)
-$(PKG)_FILE     := GraphicsMagick-$($(PKG)_VERSION).tar.lz
+$(PKG)_FILE     := GraphicsMagick-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/$(PKG)/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc bzip2 freetype jasper jpeg lcms libltdl libpng libxml2 pthreads tiff zlib
 
@@ -45,11 +45,11 @@ define $(PKG)_BUILD
         ac_cv_path_xml2_config='$(PREFIX)/$(TARGET)/bin/xml2-config' \
         LIBS="`'$(TARGET)-pkg-config' libtiff-4 --libs | $(SED) s/-ltiff//`" \
         $(PKG_CONFIGURE_OPTS)
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) {{aeabi_u{i,l}divmod,udivmodsi4}.S,udivmoddi4.c}.obj`' bin_PROGRAMS=
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' bin_PROGRAMS=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install bin_PROGRAMS=
 
     '$(TARGET)-g++' \
-        -W -Wall -Werror -Wno-ignored-attributes -pedantic -std=gnu++0x \
+        -W -Wall -Werror -pedantic -std=gnu++0x \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-graphicsmagick.exe' \
         `'$(TARGET)-pkg-config' GraphicsMagick++ --cflags --libs`
 endef

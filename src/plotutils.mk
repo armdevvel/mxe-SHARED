@@ -21,7 +21,6 @@ endef
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         --prefix='$(PREFIX)/$(TARGET)' \
-        --build='$(BUILD)' \
         --host='$(TARGET)' \
         --disable-shared \
         --enable-libplotter \

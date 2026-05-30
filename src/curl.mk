@@ -1,15 +1,15 @@
 # This file is part of MXE. See LICENSE.md for licensing information.
 
 PKG             := curl
-$(PKG)_WEBSITE  := https://curl.se
+$(PKG)_WEBSITE  := https://curl.haxx.se/libcurl/
 $(PKG)_DESCR    := cURL
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 8.4.0
-$(PKG)_CHECKSUM := 816e41809c043ff285e8c0f06a75a1fa250211bbfb2dc0a037eeef39f1a9e427
+$(PKG)_VERSION  := 8.20.0
+$(PKG)_CHECKSUM := 63fe2dc148ba0ceae89922ef838f7e5c946272c2e78b7c59fab4b79d3ce2b896
 $(PKG)_SUBDIR   := curl-$($(PKG)_VERSION)
-$(PKG)_FILE     := curl-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := https://curl.se/download/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc libidn2 libssh2 pthreads
+$(PKG)_FILE     := curl-$($(PKG)_VERSION).tar.xz
+$(PKG)_URL      := https://curl.haxx.se/download/$($(PKG)_FILE)
+$(PKG)_DEPS     := cc brotli libidn2 libpsl libssh2 nghttp2 pthreads zstd
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://curl.haxx.se/download/?C=M;O=D' | \
@@ -25,7 +25,9 @@ define $(PKG)_BUILD
         --enable-sspi \
         --enable-ipv6 \
         --with-libssh2 \
-        LIBS=`'$(TARGET)-pkg-config' pthreads --libs`
+        --with-nghttp2 \
+        CPPFLAGS="`'$(TARGET)-pkg-config' libnghttp2 --cflags`" \
+        LIBS="`'$(TARGET)-pkg-config' libpsl libbrotlidec pthreads --libs` -lnetio"
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_DOCS)
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_DOCS)
     ln -sf '$(PREFIX)/$(TARGET)/bin/curl-config' '$(PREFIX)/bin/$(TARGET)-curl-config'

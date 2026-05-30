@@ -4,29 +4,27 @@ PKG             := qtbase
 $(PKG)_WEBSITE  := https://www.qt.io/
 $(PKG)_DESCR    := Qt
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 5.15.8
-$(PKG)_CHECKSUM := bfb11126c7f3abc3fdf86425ce912988b864a7e79a606d77325cffdbacb4be9c
+$(PKG)_VERSION  := 5.15.19
+$(PKG)_CHECKSUM := 51e91c73abacab81e64efd01bf95794e79c0e605ad80947a024769f0dd620a32
 $(PKG)_SUBDIR   := $(PKG)-everywhere-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-everywhere-opensource-src-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := https://github.com/armdevvel/mxe-storage/raw/master/libraries/qt/$(PKG)/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz icu4c jpeg libmysqlclient \
+$(PKG)_URL      := https://download.qt.io/archive/qt/5.15/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
+$(PKG)_DEPS     := cc dbus fontconfig freetds freetype harfbuzz jpeg mariadb-connector-c \
                    libpng mesa openssl pcre2 postgresql sqlite zlib zstd $(BUILD)~zstd \
-                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c) libprefix
+                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- https://download.qt.io/official_releases/qt/5.15/ | \
-    $(SED) -n 's,.*href="\(5\.15\.[^/]*\)/".*,\1,p' | \
+    $(WGET) -q -O- https://download.qt.io/archive/qt/5.15/ | \
+    $(SED) -n 's,.*href="\(5\.15\.[^/]\+\)/".*,\1,p' | \
     grep -iv -- '-rc' | \
-    sort |
+    sort -V |
     tail -1
 endef
 
 define $(PKG)_BUILD
     # ICU is buggy on static builds. See #653. TODO: reenable it some time in the future.
-    # xplatform win32-clang-g++ fixes Clang from erroring out due to "-fno-keep-inline-dllexport"
-    # We'll bring back GL soon
     cd '$(1)' && \
         OPENSSL_LIBS="`'$(TARGET)-pkg-config' --libs-only-l openssl`" \
         PSQL_LIBS="-lpq -lpgport -lpgcommon -lsecur32 `'$(TARGET)-pkg-config' --libs-only-l openssl pthreads` -lws2_32" \
@@ -34,28 +32,26 @@ define $(PKG)_BUILD
         PKG_CONFIG="${TARGET}-pkg-config" \
         PKG_CONFIG_SYSROOT_DIR="/" \
         PKG_CONFIG_LIBDIR="$(PREFIX)/$(TARGET)/lib/pkgconfig" \
-        LIBS='-lprefix' \
         MAKE=$(MAKE) \
         ./configure \
             -opensource \
             -confirm-license \
-            -xplatform win32-clang-g++ \
+            -xplatform win32-g++ \
             -device-option CROSS_COMPILE=${TARGET}- \
             -device-option PKG_CONFIG='${TARGET}-pkg-config' \
             -pkg-config \
             -force-pkg-config \
             -no-use-gold-linker \
-            $(if $(BUILD_DEBUG), -debug,)$(if $(BUILD_RELEASE), -release,) \
+            -release \
             $(if $(BUILD_STATIC), -static,)$(if $(BUILD_SHARED), -shared,) \
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             $(if $(BUILD_STATIC), -no)-icu \
-			-opengl dynamic \
+            -opengl dynamic \
             -no-glib \
             -accessibility \
             -nomake examples \
             -nomake tests \
             -plugin-sql-mysql \
-            -mysql_config $(PREFIX)/$(TARGET)/bin/mysql_config \
             -plugin-sql-sqlite \
             -plugin-sql-odbc \
             -plugin-sql-psql \
@@ -99,7 +95,7 @@ define $(PKG)_BUILD
         '$(1)/test-$(PKG)-pkgconfig/qrc_qt-test.cpp' \
         -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-pkgconfig.exe' \
         -I'$(1)/test-$(PKG)-pkgconfig' \
-        `'$(TARGET)-pkg-config' Qt5Widgets --cflags --libs`
+        `'$(TARGET)-pkg-config' Qt5Widgets$(BUILD_TYPE_SUFFIX) --cflags --libs`
 
     # setup cmake toolchain and test
     echo 'set(CMAKE_SYSTEM_PREFIX_PATH "$(PREFIX)/$(TARGET)/qt5" ${CMAKE_SYSTEM_PREFIX_PATH})' > '$(CMAKE_TOOLCHAIN_DIR)/$(PKG).cmake'

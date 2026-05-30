@@ -4,8 +4,8 @@ PKG             := vmime
 $(PKG)_WEBSITE  := https://www.vmime.org/
 $(PKG)_DESCR    := VMime
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := fc69321
-$(PKG)_CHECKSUM := e862a5eb8464f7dbe4d129494e515d6bcbbb0aba55f31de74c5808f309b35a1c
+$(PKG)_VERSION  := 5b01911
+$(PKG)_CHECKSUM := 036443ee79e3f9282796e2ff18ad7f072e29bcb53afff7e972e9426522028c6d
 $(PKG)_GH_CONF  := kisli/vmime/branches/master
 $(PKG)_DEPS     := cc gnutls libgsasl libiconv pthreads zlib
 
@@ -14,6 +14,7 @@ define $(PKG)_BUILD
     # -DICU_LIBRARIES="`'$(TARGET)-pkg-config' --libs-only-l icu-i18n`"
 
     cd '$(1)' && '$(TARGET)-cmake' \
+        -DCMAKE_CXX_FLAGS='-D_POSIX_C_SOURCE' \
         -DCMAKE_AR='$(PREFIX)/bin/$(TARGET)-ar' \
         -DCMAKE_RANLIB='$(PREFIX)/bin/$(TARGET)-ranlib' \
         -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL=False \
