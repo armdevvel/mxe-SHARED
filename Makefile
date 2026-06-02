@@ -133,9 +133,7 @@ MXE_CONFIGURE_OPTS = \
     --host='$(TARGET)' \
     --build='$(BUILD)' \
     --prefix='$(PREFIX)/$(TARGET)' \
-    $(if $(BUILD_STATIC), \
-        --enable-static --disable-shared , \
-        --disable-static --enable-shared ) \
+    --disable-static --enable-shared \
     $(if $(findstring debug,$(TARGET)), \
         --enable-debug ,) \
     $(MXE_DISABLE_DOC_OPTS)
@@ -625,7 +623,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring shared,$(TARGET)),SHARED,STATIC)))
+    $(eval $(TARGET)_UC_LIB_TYPE := SHARED))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
