@@ -2,18 +2,14 @@
 
 PKG             := libiberty
 $(PKG)_WEBSITE  := https://gcc.gnu.org/onlinedocs/libiberty/
-$(PKG)_IGNORE    = $(binutils_IGNORE)
-$(PKG)_VERSION   = $(binutils_VERSION)
-$(PKG)_CHECKSUM  = $(binutils_CHECKSUM)
-$(PKG)_SUBDIR    = $(binutils_SUBDIR)/libiberty
-$(PKG)_FILE      = $(binutils_FILE)
-$(PKG)_URL       = $(binutils_URL)
-$(PKG)_URL_2     = $(binutils_URL_2)
+$(PKG)_IGNORE   :=
+$(PKG)_VERSION   = 2.38
+$(PKG)_CHECKSUM  = 070ec71cf077a6a58e0b959f05a09a35015378c2d8a51e90f3aeabfe30590ef8
+$(PKG)_SUBDIR   := binutils-$($(PKG)_VERSION)/libiberty
+$(PKG)_FILE     := binutils-$($(PKG)_VERSION).tar.bz2
+$(PKG)_URL      := https://ftp.gnu.org/gnu/binutils/$($(PKG)_FILE)
+$(PKG)_URL_2    := https://ftpmirror.gnu.org/binutils/$($(PKG)_FILE)
 $(PKG)_DEPS     := cc
-
-define $(PKG)_UPDATE
-    echo $(binutils_VERSION)
-endef
 
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
