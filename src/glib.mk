@@ -22,11 +22,8 @@ endef
 
 define $(PKG)_BUILD_$(BUILD)
     # native build
-    $(if $(findstring darwin, $(BUILD)), \
-        CPPFLAGS='-I$(PREFIX)/$(TARGET).gnu/include' \
-        LDFLAGS='-L$(PREFIX)/$(TARGET).gnu/lib' \,
-        CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
-        LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \)
+    CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
+    LDFLAGS='-L$(PREFIX)/$(TARGET)/lib -Wl,-rpath-link,$(PREFIX)/$(TARGET)/lib' \
     '$(MXE_MESON_NATIVE_WRAPPER)' \
         --buildtype=release \
         -Dtests=false \
