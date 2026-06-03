@@ -25,7 +25,7 @@ define $(PKG)_BUILD
         `'$(TARGET)-pkg-config' --libs pthreads`
 
     '$(TARGET)-gcc' \
-        -W -Wall -Werror -ansi -pedantic \
+        -W -Wall -Werror -ansi -pedantic -std=c99 \
         '$(TOP_DIR)/src/$(PKG)-libgomp-test.c' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG)-libgomp.exe' \
         -fopenmp
 
