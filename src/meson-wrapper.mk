@@ -21,8 +21,8 @@ define $(PKG)_BUILD
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
         -DBUILD=$(BUILD) \
-        -DCPU_FAMILY=arm
-        -DCPU=armv7
+        -DCPU_FAMILY=arm \
+        -DCPU=armv7 \
         -DINPUT='$(PWD)/src/meson-wrapper/conf/mxe-crossfile.meson.in' \
         -DOUTPUT='$(PREFIX)/$(TARGET)/share/meson/mxe-crossfile.meson'
 
