@@ -1,0 +1,25 @@
+diff '--color=auto' -Naur a/code/Common/DefaultIOStream.cpp b/code/Common/DefaultIOStream.cpp
+--- a/code/Common/DefaultIOStream.cpp	2026-06-03 01:33:06.667233713 -0400
++++ b/code/Common/DefaultIOStream.cpp	2026-06-03 01:33:15.213909593 -0400
+@@ -61,21 +61,6 @@
+     return ::fseek(file, static_cast<long>(offset), origin);
+ }
+ 
+-
+-
+-#if defined _WIN32 && (!defined __GNUC__ || !defined __CLANG__ && __MSVCRT_VERSION__ >= 0x0601)
+-template <>
+-inline size_t select_ftell<8>(FILE *file) {
+-    return (size_t)::_ftelli64(file);
+-}
+-
+-template <>
+-inline int select_fseek<8>(FILE *file, int64_t offset, int origin) {
+-    return ::_fseeki64(file, offset, origin);
+-}
+-
+-#endif
+-
+ } // namespace
+ 
+ // ----------------------------------------------------------------------------------
