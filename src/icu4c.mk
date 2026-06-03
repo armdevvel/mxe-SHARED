@@ -41,6 +41,28 @@ define $(PKG)_BUILD_COMMON
 
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install VERBOSE=1 SO_TARGET_VERSION_SUFFIX=
+
+    $(if $(BUILD_RELEASE), \
+        mv -fv '$(PREFIX)/$(TARGET)/bin/icudt74.dll' '$(PREFIX)/$(TARGET)/bin/icudt74-stubdata.dll' && \
+        mv -fv '$(PREFIX)/$(TARGET)/bin/libicudt74.dll' '$(PREFIX)/$(TARGET)/bin/icudt74.dll' \
+    ,)
+
+    $(if $(BUILD_DEBUG),$($(PKG)_BUILD_COPY_DLLS),)
+endef
+
+define $(PKG)_BUILD_COPY_DLLS
+    # Debug builds save libraries to libicu*d.dll.a.
+    # This causes issues with things like Qt's configure system.
+    # TODO: Fix Qt's configure system in the future to accept libicu*d.dll.a(?)
+    cp $(PREFIX)/$(TARGET)/lib/libicudtd.dll.a $(PREFIX)/$(TARGET)/lib/libicudt.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicutestd.dll.a $(PREFIX)/$(TARGET)/lib/libicutest.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuind.dll.a $(PREFIX)/$(TARGET)/lib/libicuin.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicutud.dll.a $(PREFIX)/$(TARGET)/lib/libicutu.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuiod.dll.a $(PREFIX)/$(TARGET)/lib/libicuio.dll.a
+    cp $(PREFIX)/$(TARGET)/lib/libicuucd.dll.a $(PREFIX)/$(TARGET)/lib/libicuuc.dll.a
+    # Also, icudt(d) by default is a *stub* library. libicudt(d) contains the real deal.
+    mv $(PREFIX)/$(TARGET)/bin/icudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69-stubdata.dll
+    mv $(PREFIX)/$(TARGET)/bin/libicudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69.dll
 endef
 
 define $(PKG)_BUILD_TEST
