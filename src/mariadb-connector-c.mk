@@ -32,7 +32,7 @@ define $(PKG)_BUILD
     $(if $(BUILD_SHARED), '$(SED)' -i -e 's/^#define STDCALL __stdcall/#define STDCALL/;' '$(PREFIX)/$(TARGET)/include/mariadb/mysql.h')
 
     # build test
-    '$(TARGET)-g++' \
+    '$(TARGET)-gcc' \
         -W -Wall -Werror -ansi -pedantic \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-$(PKG).exe' \
         `'$(TARGET)-pkg-config' libmariadb --cflags --libs`
