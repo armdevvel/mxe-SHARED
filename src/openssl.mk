@@ -28,9 +28,11 @@ define $(PKG)_BUILD
     rm -fv '$(PREFIX)/$(TARGET)/lib/pkgconfig/'{libcrypto*,libssl*,openssl*}
 
     cd '$(1)' && CC='$(TARGET)-gcc' RC='$(TARGET)-windres' ./Configure \
-        @openssl-target@ \
+        $(if $(BUILD_DEBUG),-d,) \
+        mingw-arm \
         zlib \
         $(if $(BUILD_STATIC),no-module no-,)shared \
+        no-asm \
         no-capieng \
         no-tests \
         --prefix='$(PREFIX)/$(TARGET)' \
