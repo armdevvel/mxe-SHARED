@@ -1,0 +1,76 @@
+diff '--color=auto' -Naur a/configure b/configure
+--- a/configure	2026-06-02 20:19:17.656059615 -0400
++++ b/configure	2026-06-02 20:28:37.334035066 -0400
+@@ -11406,7 +11406,7 @@
+       file_list_spec='@'
+ 
+       if $LD --help 2>&1 | $GREP 'auto-import' > /dev/null; then
+-        archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -o $output_objdir/$soname $wl--enable-auto-image-base -Xlinker --out-implib -Xlinker $lib'
++        archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -o $output_objdir/$soname -Xlinker --out-implib -Xlinker $lib'
+ 	# If the export-symbols file already is a .def file, use it as
+ 	# is; otherwise, prepend EXPORTS...
+ 	archive_expsym_cmds='if   test DEF = "`$SED -n     -e '\''s/^[	 ]*//'\''     -e '\''/^\(;.*\)*$/d'\''     -e '\''s/^\(EXPORTS\|LIBRARY\)\([	 ].*\)*$/DEF/p'\''     -e q     $export_symbols`" ; then
+@@ -11415,7 +11415,7 @@
+           echo EXPORTS > $output_objdir/$soname.def;
+           cat $export_symbols >> $output_objdir/$soname.def;
+         fi~
+-        $CC -shared $output_objdir/$soname.def $libobjs $deplibs $compiler_flags -o $output_objdir/$soname $wl--enable-auto-image-base -Xlinker --out-implib -Xlinker $lib'
++        $CC -shared $output_objdir/$soname.def $libobjs $deplibs $compiler_flags -o $output_objdir/$soname -Xlinker --out-implib -Xlinker $lib'
+       else
+ 	ld_shlibs=no
+       fi
+diff '--color=auto' -Naur a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2026-06-02 20:19:17.654954279 -0400
++++ b/Makefile.am	2026-06-02 20:20:27.418056555 -0400
+@@ -124,7 +124,7 @@
+ 
+ if LIBFFI_BUILD_VERSIONED_SHLIB
+ if LIBFFI_BUILD_VERSIONED_SHLIB_GNU
+-libffi_version_script = -Wl,--version-script,libffi.map
++libffi_version_script =
+ libffi_version_dep = libffi.map
+ endif
+ if LIBFFI_BUILD_VERSIONED_SHLIB_SUN
+diff '--color=auto' -Naur a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2026-06-02 20:19:17.657059615 -0400
++++ b/Makefile.in	2026-06-02 20:20:09.809057328 -0400
+@@ -622,7 +622,7 @@
+ LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/libtool-ldflags $(LDFLAGS))
+ AM_CFLAGS = $(am__append_3)
+ @LIBFFI_BUILD_VERSIONED_SHLIB_FALSE@libffi_version_script = 
+-@LIBFFI_BUILD_VERSIONED_SHLIB_GNU_TRUE@@LIBFFI_BUILD_VERSIONED_SHLIB_TRUE@libffi_version_script = -Wl,--version-script,libffi.map
++@LIBFFI_BUILD_VERSIONED_SHLIB_GNU_TRUE@@LIBFFI_BUILD_VERSIONED_SHLIB_TRUE@libffi_version_script =
+ @LIBFFI_BUILD_VERSIONED_SHLIB_SUN_TRUE@@LIBFFI_BUILD_VERSIONED_SHLIB_TRUE@libffi_version_script = -Wl,-M,libffi.map-sun
+ @LIBFFI_BUILD_VERSIONED_SHLIB_FALSE@libffi_version_dep = 
+ @LIBFFI_BUILD_VERSIONED_SHLIB_GNU_TRUE@@LIBFFI_BUILD_VERSIONED_SHLIB_TRUE@libffi_version_dep = libffi.map
+diff '--color=auto' -Naur a/src/arm/ffi.c b/src/arm/ffi.c
+--- a/src/arm/ffi.c	2026-06-02 20:19:17.674876729 -0400
++++ b/src/arm/ffi.c	2026-06-02 20:55:52.784685989 -0400
+@@ -28,7 +28,7 @@
+    DEALINGS IN THE SOFTWARE.
+    ----------------------------------------------------------------------- */
+ 
+-#if defined(__arm__) || defined(_M_ARM)
++#if defined(__arm__) || defined(_WIN32)
+ #include <fficonfig.h>
+ #include <ffi.h>
+ #include <ffi_common.h>
+@@ -642,9 +642,11 @@
+   /* Initialize the dynamic trampoline. */
+ # ifndef _WIN32
+   memcpy(closure->tramp, ffi_arm_trampoline, 8);
+-# else
++# elif defined(_MSC_VER)
+   // cast away function type so MSVC doesn't set the lower bit of the function pointer
+   memcpy(closure->tramp, (void*)((uintptr_t)ffi_arm_trampoline & 0xFFFFFFFE), FFI_TRAMPOLINE_CLOSURE_OFFSET);
++# else
++  memcpy(closure->tramp, ffi_arm_trampoline, FFI_TRAMPOLINE_CLOSURE_OFFSET);
+ # endif
+ 
+ # if defined(__QNX__)
+@@ -918,4 +920,4 @@
+ }
+ #endif
+ 
+-#endif /* __arm__ or _M_ARM */
++#endif /* defined(__arm__) || defined(_WIN32) */
