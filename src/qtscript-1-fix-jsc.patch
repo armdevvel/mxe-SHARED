@@ -1,0 +1,13 @@
+diff '--color=auto' -Naur a/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp b/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp
+--- a/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp	2026-06-03 01:41:37.693211297 -0400
++++ b/src/3rdparty/javascriptcore/JavaScriptCore/runtime/Collector.cpp	2026-06-03 01:42:02.396210214 -0400
+@@ -605,6 +605,9 @@
+     // FIXME: why only for MSVC?
+     PNT_TIB64 pTib = reinterpret_cast<PNT_TIB64>(NtCurrentTeb());
+     return reinterpret_cast<void*>(pTib->StackBase);
++#elif OS(WINDOWS) && CPU(ARM) && (COMPILER(MSVC) || COMPILER(GCC))
++    PNT_TIB pTib = reinterpret_cast<PNT_TIB>(NtCurrentTeb());
++    return reinterpret_cast<void*>(pTib->StackBase);
+ #elif OS(WINDOWS) && CPU(X86) && COMPILER(GCC)
+     // offset 0x18 from the FS segment register gives a pointer to
+     // the thread information block for the current thread
