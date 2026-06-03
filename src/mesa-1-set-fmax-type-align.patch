@@ -1,0 +1,12 @@
+diff '--color=auto' -Naur a/meson.build b/meson.build
+--- a/meson.build	2026-06-02 23:57:32.934673798 -0400
++++ b/meson.build	2026-06-02 23:58:53.342317216 -0400
+@@ -49,7 +49,7 @@
+ # Arguments for c or cpp compiler, can be compiler options
+ c_cpp_args = []
+ 
+-c_args = []
++c_args = ['-fmax-type-align=8']
+ cpp_args = []
+ 
+ with_moltenvk_dir = get_option('moltenvk-dir')
