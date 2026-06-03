@@ -1,0 +1,171 @@
+diff '--color=auto' -Naur a/src/multimedia/configure.json b/src/multimedia/configure.json
+--- a/src/multimedia/configure.json	2026-06-03 01:52:52.864181682 -0400
++++ b/src/multimedia/configure.json	2026-06-03 02:29:15.988085923 -0400
+@@ -144,7 +144,7 @@
+             "label": "WMF",
+             "test": "wmf",
+             "sources": [
+-                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lMf -lMfuuid -lMfplat -lPropsys" }
++                { "libs": "-lstrmiids -ldmoguids -luuid -lmsdmo -lole32 -loleaut32 -lmf -lmfuuid -lmfplat -lpropsys" }
+             ]
+         }
+     },
+
+diff '--color=auto' -Naur a/src/plugins/plugins.pro b/src/plugins/plugins.pro
+--- a/src/plugins/plugins.pro	2026-06-03 01:52:52.920553072 -0400
++++ b/src/plugins/plugins.pro	2026-06-03 02:29:16.013869428 -0400
+@@ -34,7 +34,6 @@
+     SUBDIRS += audiocapture \
+                windowsaudio
+ 
+-    qtConfig(directshow): SUBDIRS += directshow
+     qtConfig(wmf): SUBDIRS += wmf
+ }
+ 
+diff '--color=auto' -Naur a/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp b/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp
+--- a/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp	2026-06-03 01:52:52.958181678 -0400
++++ b/src/plugins/wmf/decoder/mfaudiodecodercontrol.cpp	2026-06-03 02:29:16.035431545 -0400
+@@ -37,7 +37,7 @@
+ **
+ ****************************************************************************/
+ 
+-#include "Wmcodecdsp.h"
++#include "wmcodecdsp.h"
+ #include "mfaudiodecodercontrol.h"
+ 
+ MFAudioDecoderControl::MFAudioDecoderControl(QObject *parent)
+diff '--color=auto' -Naur a/src/plugins/wmf/decoder/mfdecodersourcereader.h b/src/plugins/wmf/decoder/mfdecodersourcereader.h
+--- a/src/plugins/wmf/decoder/mfdecodersourcereader.h	2026-06-03 01:52:52.958181678 -0400
++++ b/src/plugins/wmf/decoder/mfdecodersourcereader.h	2026-06-03 02:29:16.035431545 -0400
+@@ -41,7 +41,7 @@
+ #define MFDECODERSOURCEREADER_H
+ #include <mfapi.h>
+ #include <mfidl.h>
+-#include <Mfreadwrite.h>
++#include <mfreadwrite.h>
+ 
+ #include <QtCore/qobject.h>
+ #include <QtCore/qmutex.h>
+diff '--color=auto' -Naur a/src/plugins/wmf/player/mfmetadatacontrol.cpp b/src/plugins/wmf/player/mfmetadatacontrol.cpp
+--- a/src/plugins/wmf/player/mfmetadatacontrol.cpp	2026-06-03 01:52:52.959828435 -0400
++++ b/src/plugins/wmf/player/mfmetadatacontrol.cpp	2026-06-03 02:29:16.035768507 -0400
+@@ -43,7 +43,7 @@
+ 
+ #include "mfmetadatacontrol.h"
+ #include "mfplayerservice.h"
+-#include "Propkey.h"
++#include "propkey.h"
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
+diff '--color=auto' -Naur a/src/plugins/wmf/player/mfmetadatacontrol.h b/src/plugins/wmf/player/mfmetadatacontrol.h
+--- a/src/plugins/wmf/player/mfmetadatacontrol.h	2026-06-03 01:52:52.959828435 -0400
++++ b/src/plugins/wmf/player/mfmetadatacontrol.h	2026-06-03 02:29:16.035768507 -0400
+@@ -41,7 +41,7 @@
+ #define MFMETADATACONTROL_H
+ 
+ #include <qmetadatareadercontrol.h>
+-#include "Mfidl.h"
++#include "mfidl.h"
+ 
+ QT_USE_NAMESPACE
+ 
+diff '--color=auto' -Naur a/src/plugins/wmf/player/mfplayercontrol.cpp b/src/plugins/wmf/player/mfplayercontrol.cpp
+--- a/src/plugins/wmf/player/mfplayercontrol.cpp	2026-06-03 01:52:52.959828435 -0400
++++ b/src/plugins/wmf/player/mfplayercontrol.cpp	2026-06-03 02:29:16.035768507 -0400
+@@ -38,7 +38,7 @@
+ ****************************************************************************/
+ 
+ #include "mfplayercontrol.h"
+-#include <qtcore/qdebug.h>
++#include <QtCore/QDebug>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+ 
+diff '--color=auto' -Naur a/src/plugins/wmf/player/mftvideo.cpp b/src/plugins/wmf/player/mftvideo.cpp
+--- a/src/plugins/wmf/player/mftvideo.cpp	2026-06-03 01:52:52.960181678 -0400
++++ b/src/plugins/wmf/player/mftvideo.cpp	2026-06-03 02:29:16.035768507 -0400
+@@ -43,7 +43,7 @@
+ #include <mferror.h>
+ #include <strmif.h>
+ #include <uuids.h>
+-#include <InitGuid.h>
++#include <initguid.h>
+ #include <d3d9.h>
+ #include <qdebug.h>
+ 
+diff '--color=auto' -Naur a/src/plugins/wmf/player/mfvideorenderercontrol.cpp b/src/plugins/wmf/player/mfvideorenderercontrol.cpp
+--- a/src/plugins/wmf/player/mfvideorenderercontrol.cpp	2026-06-03 01:52:52.960181678 -0400
++++ b/src/plugins/wmf/player/mfvideorenderercontrol.cpp	2026-06-03 02:29:16.035768507 -0400
+@@ -44,13 +44,13 @@
+ 
+ #include <qabstractvideosurface.h>
+ #include <qvideosurfaceformat.h>
+-#include <qtcore/qtimer.h>
+-#include <qtcore/qmutex.h>
+-#include <qtcore/qcoreevent.h>
+-#include <qtcore/qcoreapplication.h>
+-#include <qtcore/qthread.h>
++#include <QtCore/QTimer>
++#include <QtCore/QMutex>
++#include <QtCore/qcoreevent.h>
++#include <QtCore/QCoreApplication>
++#include <QtCore/QThread>
+ #include "guiddef.h"
+-#include <qtcore/qdebug.h>
++#include <QtCore/QDebug>
+ #include <QtMultimedia/private/qmediaopenglhelper_p.h>
+ 
+ //#define DEBUG_MEDIAFOUNDATION
+@@ -125,6 +125,16 @@
+         virtual STDMETHODIMP GetContext(PROPVARIANT *pvar) = 0;
+     };
+ 
++    inline const IID IID_IMarker = {
++        0xa3ff32de, 
++        0x1031, 
++        0x438a, 
++        {
++            0x8b, 0x47, 
++            0x82, 0xf8, 0xac, 0xda, 0x59, 0xb7
++        }
++    };
++
+     class Marker : public IMarker
+     {
+     public:
+@@ -167,7 +177,7 @@
+                 return E_POINTER;
+             if (iid == IID_IUnknown) {
+                 *ppv = static_cast<IUnknown*>(this);
+-            } else if (iid == __uuidof(IMarker)) {
++            } else if (iid == IID_IMarker) {
+                 *ppv = static_cast<IMarker*>(this);
+             } else {
+                 *ppv = NULL;
+@@ -904,7 +914,6 @@
+             MFTIME m_time;
+         };
+ 
+-    protected:
+         void customEvent(QEvent *event)
+         {
+             QMutexLocker locker(&m_mutex);
+@@ -919,6 +928,8 @@
+                QObject::customEvent(event);
+             }
+         }
++
++    protected:
+         HRESULT m_startResult;
+ 
+     private:
+@@ -1240,7 +1251,7 @@
+                 pUnk = *pos;
+                 // Figure out if this is a marker or a sample.
+                 if (SUCCEEDED(hr))    {
+-                    hr = pUnk->QueryInterface(__uuidof(IMarker), (void**)&pMarker);
++                    hr = pUnk->QueryInterface(IID_IMarker, (void**)&pMarker);
+                     if (hr == E_NOINTERFACE)
+                         hr = pUnk->QueryInterface(IID_IMFSample, (void**)&pSample);
+                 }
