@@ -19,6 +19,9 @@ needs_exe_wrapper = true
 sys_root = '@PREFIX@/@TARGET@'
 pkg_config_libdir = '@PREFIX@/@TARGET@/lib/pkgconfig'
 
+[built-in options]
+buildtype = '@BUILDTYPE@'
+
 [host_machine]
 system = 'windows'
 cpu_family = '@CPU_FAMILY@'

@@ -61,8 +61,8 @@ define $(PKG)_BUILD_COPY_DLLS
     cp $(PREFIX)/$(TARGET)/lib/libicuiod.dll.a $(PREFIX)/$(TARGET)/lib/libicuio.dll.a
     cp $(PREFIX)/$(TARGET)/lib/libicuucd.dll.a $(PREFIX)/$(TARGET)/lib/libicuuc.dll.a
     # Also, icudt(d) by default is a *stub* library. libicudt(d) contains the real deal.
-    mv $(PREFIX)/$(TARGET)/bin/icudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69-stubdata.dll
-    mv $(PREFIX)/$(TARGET)/bin/libicudtd69.dll $(PREFIX)/$(TARGET)/bin/icudtd69.dll
+    mv $(PREFIX)/$(TARGET)/bin/icudtd74.dll $(PREFIX)/$(TARGET)/bin/icudtd74-stubdata.dll
+    mv $(PREFIX)/$(TARGET)/bin/libicudtd74.dll $(PREFIX)/$(TARGET)/bin/icudtd74.dll
 endef
 
 define $(PKG)_BUILD_TEST

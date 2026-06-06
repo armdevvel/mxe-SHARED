@@ -17,6 +17,7 @@ define $(PKG)_BUILD
     mkdir -p '$(PREFIX)/$(TARGET)/share/meson/mxe-conf.d'
 
     '$(PREFIX)/bin/cmake-configure-file' \
+        -DBUILDTYPE=$(if $(BUILD_DEBUG),debug,release) \
         -DLIBTYPE=$(if $(BUILD_SHARED),shared,static) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
