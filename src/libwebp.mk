@@ -17,8 +17,12 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # NEON causes debug builds to fail due to an unknown register in CodeView
+    # Check https://github.com/llvm/llvm-project/issues/64278
+    # So, for the time being, we disable it entirely.
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
+        --disable-neon \
         --enable-everything
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 endef
