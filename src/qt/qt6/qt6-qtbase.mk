@@ -12,7 +12,7 @@ $(PKG)_FILE     := $(PKG_BASENAME)-everywhere-src-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.qt.io/archive/qt/6.11/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
 $(PKG)_TARGETS  := $(BUILD) $(MXE_TARGETS)
 $(PKG)_DEPS     := cc freetype harfbuzz jpeg libpng mesa mariadb-connector-c openssl pcre2 sqlite zlib zstd $(BUILD)~$(PKG) \
-                   $(if $(findstring shared,$(MXE_TARGETS)), icu4c)
+                   icu4c
 $(PKG)_DEPS_$(BUILD) :=
 $(PKG)_OO_DEPS_$(BUILD) := ninja
 
@@ -36,7 +36,7 @@ define $(PKG)_BUILD
         -DQT_HOST_PATH='$(PREFIX)/$(BUILD)/$(MXE_QT6_ID)' \
         -DQT_QMAKE_DEVICE_OPTIONS='CROSS_COMPILE=$(TARGET)-;PKG_CONFIG=$(TARGET)-pkg-config' \
         -DPKG_CONFIG_EXECUTABLE='$(PREFIX)/bin/$(TARGET)-pkg-config' \
-        -DQT_QMAKE_TARGET_MKSPEC=win32-g++ \
+        -DQT_QMAKE_TARGET_MKSPEC=win32-clang-g++ \
         -DQT_BUILD_EXAMPLES=OFF \
         -DQT_BUILD_TESTS=OFF \
         -DBUILD_WITH_PCH=OFF \
