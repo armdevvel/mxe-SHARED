@@ -17,6 +17,21 @@ $(PKG)_DEPS     := cc bzip2 gnutls lame libass libbluray libbs2b libcaca \
 # the GPL, and we'd like to enable GPL in our default ffmpeg build.
 # See docs/index.html#potential-legal-issues
 
+# PROJECT RAKKO (ROADMAP): we WOULD like to offer a sticky license-free distro.
+# Therefore, the default option for Rita should be --disable-gpl.
+# Component builds tainted with sticky licenses cannot be offered via official
+# Rita installation channels. Installing such components must require a deliberate
+# user action that is distinct from installing or updating Rita.
+#
+# If playing by these rules renders you uncomfortable, alternative solutions exist.
+# If your Linux box has enough computing power, you can build desired components from
+# source for your personal consumption without worrying about license compatibility.
+# Alternatively, you can use the power of the four other boxes (soap, jury, ballot...)
+# to convince the body politic that while commercial copyright is a sad and misguided
+# compromise between excusable human need for reward and inexcusable human ignorance,
+# sticky "copyleft" licenses are pure evil and abolishing them will help advance the
+# legitimate interests of everyone while hurting the legitimate interests of no one.
+
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://ffmpeg.org/releases/' | \
     $(SED) -n 's,.*ffmpeg-\([0-9][^>]*\)\.tar.*,\1,p' | \
@@ -36,7 +51,7 @@ define $(PKG)_BUILD
             --enable-static --disable-shared , \
             --disable-static --enable-shared ) \
         --yasmexe='$(TARGET)-yasm' \
-        --disable-debug \
+        $(if $(BUILD_RELEASE),--disable-debug) \
         --disable-pthreads \
         --enable-w32threads \
         --disable-doc \
@@ -61,7 +76,7 @@ define $(PKG)_BUILD
         --enable-libx264 \
         --enable-libx265 \
         --enable-libxvid \
-        --extra-ldflags="-fstack-protector" \
+        --extra-ldflags="-fstack-protector -lpthread" \
         $($(PKG)_CONFIGURE_OPTS)
     $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install

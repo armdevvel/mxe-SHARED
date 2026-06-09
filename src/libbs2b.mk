@@ -24,6 +24,6 @@ define $(PKG)_BUILD
         ac_cv_func_malloc_0_nonnull=yes
     # The ac_cv_func_malloc_0_nonnull=yes is needed because the configure
     # check tries to run a program.
-    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='-no-undefined' $(MXE_DISABLE_CRUFT)
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='-no-undefined `$(MXE_INTRINSIC_SH) aeabi_uidivmod.S.obj udivmodsi4.S.obj chkstk.S.obj`' $(MXE_DISABLE_CRUFT)
     $(MAKE) -C '$(1)' -j 1 install LDFLAGS='-no-undefined' $(MXE_DISABLE_CRUFT)
 endef

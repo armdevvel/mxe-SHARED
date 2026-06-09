@@ -1,0 +1,17 @@
+diff '--color=auto' -Naur a/cmake/FindWebView2.cmake b/cmake/FindWebView2.cmake
+--- a/cmake/FindWebView2.cmake	2026-06-09 00:00:14.045224558 -0400
++++ b/cmake/FindWebView2.cmake	2026-06-09 00:00:04.630754301 -0400
+@@ -9,10 +9,13 @@
+ function(get_cpu_arch result arch)
+     set(arm64List arm64 ARM64 aarch64)
+     set(x64List x86_64 AMD64 x86_64h)
++    set(arm32List armv7)
+     if(arch IN_LIST x64List)
+         set(${result} "x64" PARENT_SCOPE)
+     elseif(arch IN_LIST arm64List)
+         set(${result} "arm64" PARENT_SCOPE)
++    elseif(arch IN_LIST arm32List)
++        set(${result} "arm32" PARENT_SCOPE)
+     else()
+         message(FATAL_ERROR "Unknown architecture: ${arch}")
+     endif()

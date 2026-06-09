@@ -17,12 +17,13 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    $(SED) -i 's,yasm_prog="yasm",yasm_prog="$(TARGET)-yasm",' \
-        '$(SOURCE_DIR)/build/generic/configure.in'
+    $(SED) -i \
+        -e 's,yasm_prog="yasm",yasm_prog="$(TARGET)-yasm",' \
+        -e 's#,--dll##' \
+            '$(SOURCE_DIR)/build/generic/configure.in'
     cd '$(SOURCE_DIR)/build/generic' && autoreconf -fi
     cd '$(SOURCE_DIR)/build/generic' && ./configure \
-        $(MXE_CONFIGURE_OPTS) \
-        CFLAGS='-std=gnu99'
+        $(MXE_CONFIGURE_OPTS)
     $(MAKE) -C '$(SOURCE_DIR)/build/generic' -j 1 BUILD_DIR='$(BUILD_DIR)' \
         $(if $(BUILD_STATIC),SHARED,STATIC)_LIB=
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/include'

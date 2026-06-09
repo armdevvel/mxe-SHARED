@@ -839,7 +839,7 @@ build-only-$(1)_$(3): BUILD_$(if $(findstring armv7,$(3) $($(1)_CONFIGURE_OPTS))
 build-only-$(1)_$(3): BUILD_$(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),DEBUG,RELEASE) = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
 build-only-$(1)_$(3): $(if $(findstring win32,$(TARGET)),WIN32,POSIX)_THREADS = TRUE
-build-only-$(1)_$(3): LIB_SUFFIX = $(if $(findstring shared,$(3)),dll,a)
+build-only-$(1)_$(3): LIB_SUFFIX = $(if $(findstring armv7,$(3)),dll,a)
 build-only-$(1)_$(3): BITS = $(if $(findstring x86_64,$(3)),64,32)
 build-only-$(1)_$(3): PROCESSOR = $(firstword $(call split,-,$(3)))
 build-only-$(1)_$(3): BUILD_TYPE = $(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),debug,release)

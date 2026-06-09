@@ -27,8 +27,9 @@ define $(PKG)_BUILD
         $(MXE_CONFIGURE_OPTS) \
         CFLAGS='-std=gnu99' \
         --enable-cxx \
+        --disable-assembly \
         --without-readline
-    $(MAKE) -C '$(1)' -j '$(JOBS)'
+    $(MAKE) -C '$(1)' -j '$(JOBS)' LDFLAGS='`$(MXE_INTRINSIC_SH) chkstk.S.obj`'
     $(MAKE) -C '$(1)' -j 1 install
 
     # build runtime tests to verify toolchain components
