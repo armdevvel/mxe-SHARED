@@ -623,7 +623,7 @@ CHOP_TARGETS = \
 
 $(foreach TARGET,$(MXE_TARGETS),\
     $(call CHOP_TARGETS,$(TARGET))\
-    $(eval $(TARGET)_UC_LIB_TYPE := SHARED))
+    $(eval $(TARGET)_UC_LIB_TYPE := $(if $(findstring armv7,$(TARGET)),SHARED,STATIC)))
 
 # finds a package rule defintion
 RULE_TYPES := BUILD DEPS FILE MESSAGE OO_DEPS URL
@@ -834,7 +834,7 @@ $(PREFIX)/$(3)/installed/$(1): $(PKG_MAKEFILES) \
 # https://www.gnu.org/software/make/manual/html_node/Target_002dspecific.html
 build-only-$(1)_$(3): PKG = $(1)
 build-only-$(1)_$(3): TARGET = $(3)
-build-only-$(1)_$(3): BUILD_SHARED = TRUE
+build-only-$(1)_$(3): BUILD_$(if $(findstring armv7,$(3) $($(1)_CONFIGURE_OPTS)),SHARED,STATIC) = TRUE
 # debug specific variable for extra configuration in things like qt5
 build-only-$(1)_$(3): BUILD_$(if $(findstring debug,$(3) $($(1)_CONFIGURE_OPTS)),DEBUG,RELEASE) = TRUE
 build-only-$(1)_$(3): BUILD_$(if $(call seq,$(TARGET),$(BUILD)),NATIVE,CROSS) = TRUE
