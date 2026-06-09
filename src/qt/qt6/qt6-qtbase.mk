@@ -41,7 +41,7 @@ define $(PKG)_BUILD
         -DQT_BUILD_TESTS=OFF \
         -DBUILD_WITH_PCH=OFF \
         -DFEATURE_accessibility=ON \
-        -DFEATURE_dbus=OFF \
+        -DFEATURE_dbus=ON \
         -DFEATURE_fontconfig=OFF \
         -DFEATURE_system_freetype=ON \
         -DFEATURE_glib=OFF \
