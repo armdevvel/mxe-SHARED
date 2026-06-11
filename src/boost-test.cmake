@@ -11,4 +11,6 @@ add_executable(${TGT} ${CMAKE_CURRENT_LIST_DIR}/${PKG}-test.cpp)
 find_package(Boost ${PKG_VERSION} EXACT COMPONENTS chrono context serialization thread REQUIRED)
 target_link_libraries(${TGT} ${Boost_LIBRARIES})
 
+message(STATUS ${Boost_THREADAPI})
+
 install(TARGETS ${TGT} DESTINATION bin)

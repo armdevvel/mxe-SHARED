@@ -1,57 +1,283 @@
-This file is part of MXE. See LICENSE.md for licensing information.
-
-Contains ad hoc patches for cross building.
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Tony Theodore <tonyt@logyst.com>
-Date: Wed, 8 Apr 2020 00:37:10 +1000
-Subject: [PATCH 1/2] fix darwin build
-
-
-diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
-index 1111111..2222222 100644
---- a/tools/build/src/tools/darwin.jam
-+++ b/tools/build/src/tools/darwin.jam
-@@ -129,11 +129,6 @@ rule init ( version ? : command * : options * : requirement * )
-     common.handle-options darwin : $(condition) : $(command) : $(options) ;
+diff '--color=auto' -Naur a/libs/atomic/CMakeLists.txt b/libs/atomic/CMakeLists.txt
+--- a/libs/atomic/CMakeLists.txt	2026-06-11 03:31:46.639517738 -0400
++++ b/libs/atomic/CMakeLists.txt	2026-06-11 03:32:49.674341060 -0400
+@@ -104,7 +104,7 @@
+             synchronization
+     )
  
-     real-version = [ regex.split $(real-version) \\. ] ;
--    # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
--    if [ version.version-less $(real-version) : 4 0 ]
--    {
--        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
--    }
-     # - GCC 4.2 and higher in Darwin does not have -Wno-long-double.
-     if [ version.version-less $(real-version) : 4 2 ]
-     {
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Orgad Shaneh <orgad.shaneh@audiocodes.com>
-Date: Wed, 11 Feb 2026 21:03:12 +0200
-Subject: [PATCH 2/2] Fix from_exception link on mingw
-
-Fixes the following linker error:
-from_exception:(.text+0x9b): undefined reference to `__current_exception'
-
-Source: https://github.com/boostorg/stacktrace/pull/225
-
-diff --git a/libs/stacktrace/build/Jamfile.v2 b/libs/stacktrace/build/Jamfile.v2
-index 1111111..2222222 100644
---- a/libs/stacktrace/build/Jamfile.v2
-+++ b/libs/stacktrace/build/Jamfile.v2
-@@ -29,6 +29,7 @@ lib dl ;
- lib gcc_s ;
- lib Dbgeng ;
- lib ole32 ;
-+lib ucrt ;
+-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
++    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER MATCHES "armv7-w64-mingw32")
+         # MinGW-w64 defines _WIN32_WINNT to _WIN32_WINNT_WS03 by default, which disables WaitOnAddress API that is required by Boost.Atomic.
+         # Define the macro ourselves to the Windows version required by Boost.Atomic.
+         # https://github.com/boostorg/atomic/issues/73
+diff '--color=auto' -Naur a/libs/cobalt/CMakeLists.txt b/libs/cobalt/CMakeLists.txt
+--- a/libs/cobalt/CMakeLists.txt	2026-06-11 03:31:46.019612354 -0400
++++ b/libs/cobalt/CMakeLists.txt	2026-06-11 03:33:08.603339655 -0400
+@@ -73,7 +73,7 @@
+     endif()
  
- local LIBBACKTRACE_PATH = [ modules.peek : LIBBACKTRACE_PATH ] ;
- lib backtrace
-@@ -264,6 +265,7 @@ lib boost_stacktrace_from_exception
-   : # requirements
-     <warnings>all
-     <target-os>linux:<library>dl
-+    <target-os>windows:<library>ucrt
+     if(MINGW OR CYGWIN)
+-        target_link_libraries(boost_cobalt PUBLIC ws2_32)
++        target_link_libraries(boost_cobalt PUBLIC bcrypt wsock32 ws2_32)
+     endif()
  
-     # Enable build when explicitly requested, or by default, when on x86
-     <conditional>@build-stacktrace-from-exception
+     if (BOOST_COBALT_USE_BOOST_CONTAINER)
+diff '--color=auto' -Naur a/libs/context/src/asm/jump_arm_aapcs_pe_gas.S b/libs/context/src/asm/jump_arm_aapcs_pe_gas.S
+--- a/libs/context/src/asm/jump_arm_aapcs_pe_gas.asm	1969-12-31 19:00:00.000000000 -0500
++++ b/libs/context/src/asm/jump_arm_aapcs_pe_gas.asm	2026-06-11 03:33:45.475336919 -0400
+@@ -0,0 +1,83 @@
++/*
++            Copyright Oliver Kowalke 2009.
++   Distributed under the Boost Software License, Version 1.0.
++      (See accompanying file LICENSE_1_0.txt or copy at
++          http://www.boost.org/LICENSE_1_0.txt)
++*/
++
++/*******************************************************
++ *                                                     *
++ *  -------------------------------------------------  *
++ *  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  *
++ *  -------------------------------------------------  *
++ *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
++ *  -------------------------------------------------  *
++ *  | s16 | s17 | s18 | s19 | s20 | s21 | s22 | s23 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
++ *  -------------------------------------------------  *
++ *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
++ *  -------------------------------------------------  *
++ *  | s24 | s25 | s26 | s27 | s28 | s29 | s30 | s31 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
++ *  -------------------------------------------------  *
++ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
++ *  -------------------------------------------------  *
++ *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
++ *  -------------------------------------------------  *
++ *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
++ *  -------------------------------------------------  *
++ *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
++ *  -------------------------------------------------  *
++ *                                                     *
++ *******************************************************/
++
++.file "jump_arm_aapcs_pe_gas.S"
++.text
++.globl jump_fcontext
++.align 2
++.syntax unified
++jump_fcontext:
++    @ save LR as PC
++    push {lr}
++    @ save hidden,V1-V8,LR
++    push {a1,v1-v8,lr}
++
++    @ prepare stack for FPU
++    sub  sp, sp, #64
++#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
++    @ save S16-S31
++    vstmia sp, {d8-d15}
++#endif
++
++    @ store RSP (pointing to context-data) in A1
++    mov  a1, sp
++
++    @ restore RSP (pointing to context-data) from A2
++    mov  sp, a2
++
++#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
++    @ restore S16-S31
++    vldmia  sp, {d8-d15}
++#endif
++    @ prepare stack for FPU
++    add  sp, sp, #64
++
++    @ restore hidden,V1-V8,LR
++    pop {a4,v1-v8,lr}
++
++    @ return transfer_t from jump
++    str  a1, [a4, #0]
++    str  a3, [a4, #4]
++    @ pass transfer_t as first arg in context function
++    @ A1 == FCTX, A2 == DATA
++    mov  a2, a3
++
++    @ restore PC
++    pop {pc}
+diff '--color=auto' -Naur a/libs/context/src/asm/make_arm_aapcs_pe_gas.S b/libs/context/src/asm/make_arm_aapcs_pe_gas.S
+--- a/libs/context/src/asm/make_arm_aapcs_pe_gas.asm	1969-12-31 19:00:00.000000000 -0500
++++ b/libs/context/src/asm/make_arm_aapcs_pe_gas.asm	2026-06-11 03:34:13.567334833 -0400
+@@ -0,0 +1,76 @@
++/*
++            Copyright Oliver Kowalke 2009.
++   Distributed under the Boost Software License, Version 1.0.
++      (See accompanying file LICENSE_1_0.txt or copy at
++          http://www.boost.org/LICENSE_1_0.txt)
++*/
++
++/*******************************************************
++ *                                                     *
++ *  -------------------------------------------------  *
++ *  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  *
++ *  -------------------------------------------------  *
++ *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
++ *  -------------------------------------------------  *
++ *  | s16 | s17 | s18 | s19 | s20 | s21 | s22 | s23 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
++ *  -------------------------------------------------  *
++ *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
++ *  -------------------------------------------------  *
++ *  | s24 | s25 | s26 | s27 | s28 | s29 | s30 | s31 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
++ *  -------------------------------------------------  *
++ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
++ *  -------------------------------------------------  *
++ *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
++ *  -------------------------------------------------  *
++ *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
++ *  -------------------------------------------------  *
++ *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
++ *  -------------------------------------------------  *
++ *                                                     *
++ *******************************************************/
++
++.file "make_arm_aapcs_pe_gas.S"
++.text
++.globl make_fcontext
++.align 2
++.syntax unified
++make_fcontext:
++    @ shift address in A1 to lower 16 byte boundary
++    bic  a1, a1, #15
++
++    @ reserve space for context-data on context-stack
++    sub  a1, a1, #124
++
++    @ third arg of make_fcontext() == address of context-function
++    str  a3, [a1, #104]
++
++    @ compute address of returned transfer_t
++    add  a2, a1, #108
++    mov  a3, a2
++    str  a3, [a1, #64]
++
++    @ compute abs address of label finish
++    adr  a2, finish
++    @ save address of finish as return-address for context-function
++    @ will be entered after context-function returns
++    str  a2, [a1, #100]
++
++#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
++#endif
++
++    bx  lr @ return pointer to context-data
++
++finish:
++    @ exit code is zero
++    mov  a1, #0
++    @ exit application
++    bl  _exit@PLT
+diff '--color=auto' -Naur a/libs/context/src/asm/ontop_arm_aapcs_pe_gas.S b/libs/context/src/asm/ontop_arm_aapcs_pe_gas.S
+--- a/libs/context/src/asm/ontop_arm_aapcs_pe_gas.asm	1969-12-31 19:00:00.000000000 -0500
++++ b/libs/context/src/asm/ontop_arm_aapcs_pe_gas.asm	2026-06-11 03:34:31.821333479 -0400
+@@ -0,0 +1,88 @@
++/*
++            Copyright Oliver Kowalke 2009.
++   Distributed under the Boost Software License, Version 1.0.
++      (See accompanying file LICENSE_1_0.txt or copy at
++          http://www.boost.org/LICENSE_1_0.txt)
++*/
++
++/*******************************************************
++ *                                                     *
++ *  -------------------------------------------------  *
++ *  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  *
++ *  -------------------------------------------------  *
++ *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
++ *  -------------------------------------------------  *
++ *  | s16 | s17 | s18 | s19 | s20 | s21 | s22 | s23 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
++ *  -------------------------------------------------  *
++ *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
++ *  -------------------------------------------------  *
++ *  | s24 | s25 | s26 | s27 | s28 | s29 | s30 | s31 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
++ *  -------------------------------------------------  *
++ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
++ *  -------------------------------------------------  *
++ *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
++ *  -------------------------------------------------  *
++ *  -------------------------------------------------  *
++ *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
++ *  -------------------------------------------------  *
++ *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
++ *  -------------------------------------------------  *
++ *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
++ *  -------------------------------------------------  *
++ *                                                     *
++ *******************************************************/
++
++.file "ontop_arm_aapcs_pe_gas.S"
++.text
++.globl ontop_fcontext
++.align 2
++.syntax unified
++ontop_fcontext:
++    @ save LR as PC
++    push {lr}
++    @ save hidden,V1-V8,LR
++    push {a1,v1-v8,lr}
++
++    @ prepare stack for FPU
++    sub  sp, sp, #64
++#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
++    @ save S16-S31
++    vstmia sp, {d8-d15}
++#endif
++
++    @ store RSP (pointing to context-data) in A1
++    mov  a1, sp
++
++    @ restore RSP (pointing to context-data) from A2
++    mov  sp, a2
++
++    @ store parent context in A2
++    mov  a2, a1
++
++#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
++    @ restore S16-S31
++    vldmia  sp, {d8-d15}
++#endif
++    @ prepare stack for FPU
++    add  sp, sp, #64
++
++    @ restore hidden,V1-V8,LR
++    pop {a1,v1-v8,lr}
++
++    @ return transfer_t from jump
++    str  a2, [a1, #0]
++    str  a3, [a1, #4]
++    @ pass transfer_t as first arg in context function
++    @ A1 == hidden, A2 == FCTX, A3 == DATA
++
++    @ skip PC
++    add  sp, sp, #4
++
++    @ jump to ontop-function
++    bx  a4

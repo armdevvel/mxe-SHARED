@@ -8,7 +8,7 @@ $(PKG)_CHECKSUM := a7ced37f4102b745ac86d6a70a9da399cc139ff168ba6b8002b4d8d43c900
 $(PKG)_GH_CONF  := anholt/libepoxy/releases/latest
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/anholt/libepoxy/releases/download/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc meson-wrapper xorg-macros
+$(PKG)_DEPS     := cc meson-wrapper mesa xorg-macros
 
 define $(PKG)_BUILD
      '$(MXE_MESON_WRAPPER)' $(MXE_MESON_OPTS) -Dtests=false -Ddocs=false '$(BUILD_DIR)' '$(SOURCE_DIR)'

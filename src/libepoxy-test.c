@@ -4,7 +4,7 @@
 
 #include <epoxy/gl.h>
 
-int main() {
+int main(void) {
     glGetString(GL_SHADING_LANGUAGE_VERSION);
     return 0;
 }
