@@ -4,8 +4,8 @@ PKG             := gtk2
 $(PKG)_WEBSITE  := https://gtk.org/
 $(PKG)_DESCR    := GTK+
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 2.24.29
-$(PKG)_CHECKSUM := 0741c59600d3d810a223866453dc2bbb18ce4723828681ba24aa6519c37631b8
+$(PKG)_VERSION  := 2.24.33
+$(PKG)_CHECKSUM := ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da
 $(PKG)_SUBDIR   := gtk+-$($(PKG)_VERSION)
 $(PKG)_FILE     := gtk+-$($(PKG)_VERSION).tar.xz
 $(PKG)_URL      := https://download.gnome.org/sources/gtk+/$(call SHORT_PKG_VERSION,$(PKG))/$($(PKG)_FILE)
@@ -27,19 +27,18 @@ define $(PKG)_BUILD
         --disable-test-print-backend \
         --disable-gtk-doc \
         --disable-man \
+        --disable-visibility \
         --with-included-immodules \
         --without-x
-    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) EXTRA_DIST=
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)' $(MXE_DISABLE_CRUFT) CFLAGS="-Wno-incompatible-pointer-types -std=c89" EXTRA_DIST=
     $(MAKE) -C '$(BUILD_DIR)' -j 1 install $(MXE_DISABLE_CRUFT) EXTRA_DIST=
 
     # cleanup to avoid gtk2/3 conflicts (EXTRA_DIST doesn't exclude it)
     # and *.def files aren't really relevant for MXE
     rm -f '$(PREFIX)/$(TARGET)/lib/gailutil.def'
 
-    '$(TARGET)-g++' \
+    '$(TARGET)-gcc' \
         -W -Wall -Werror -Wno-error=deprecated-declarations -ansi \
         '$(TEST_FILE)' -o '$(PREFIX)/$(TARGET)/bin/test-gtk2.exe' \
         `'$(TARGET)-pkg-config' gtk+-2.0 gmodule-2.0 --cflags --libs`
 endef
-
-$(PKG)_BUILD_SHARED =
