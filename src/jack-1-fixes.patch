@@ -1,0 +1,174 @@
+diff '--color=auto' -Naur a/common/jack/jack.h b/common/jack/jack.h
+--- a/common/jack/jack.h	2026-01-07 16:37:38.000000000 -0500
++++ b/common/jack/jack.h	2026-08-24 20:40:05.364514042 -0400
+@@ -25,6 +25,7 @@
+ #include <jack/types.h>
+ #include <jack/transport.h>
+ #include <jack/weakmacros.h>
++#include "JackCompilerDeps.h"
+ 
+ #ifdef __cplusplus
+ extern "C"
+@@ -1432,7 +1433,7 @@
+  *
+  * @param msg error message text (no newline at end).
+  */
+-extern void (*jack_error_callback)(const char *msg) JACK_OPTIONAL_WEAK_EXPORT;
++extern LIB_EXPORT void (*jack_error_callback)(const char *msg) JACK_OPTIONAL_WEAK_EXPORT;
+ 
+ /**
+  * Set the @ref jack_error_callback for error message display.
+@@ -1451,7 +1452,7 @@
+  *
+  * @param msg info message text (no newline at end).
+  */
+-extern void (*jack_info_callback)(const char *msg) JACK_OPTIONAL_WEAK_EXPORT;
++extern LIB_EXPORT void (*jack_info_callback)(const char *msg) JACK_OPTIONAL_WEAK_EXPORT;
+ 
+ /**
+  * Set the @ref jack_info_callback for info message display.
+diff '--color=auto' -Naur a/common/jack/uuid.h b/common/jack/uuid.h
+--- a/common/jack/uuid.h	2026-01-07 16:37:38.000000000 -0500
++++ b/common/jack/uuid.h	2026-08-24 20:37:56.327574648 -0400
+@@ -21,6 +21,7 @@
+ #define __jack_uuid_h__
+ 
+ #include <jack/types.h>
++#include <JackCompilerDeps.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -35,12 +36,12 @@
+ 
+ extern uint32_t jack_uuid_to_index (jack_uuid_t);
+ 
+-extern int  jack_uuid_compare (jack_uuid_t, jack_uuid_t);
+-extern void jack_uuid_copy (jack_uuid_t* dst, jack_uuid_t src);
+-extern void jack_uuid_clear (jack_uuid_t*);
+-extern int  jack_uuid_parse (const char *buf, jack_uuid_t*);
+-extern void jack_uuid_unparse (jack_uuid_t, char buf[JACK_UUID_STRING_SIZE]);
+-extern int  jack_uuid_empty (jack_uuid_t);
++extern LIB_EXPORT int  jack_uuid_compare (jack_uuid_t, jack_uuid_t);
++extern LIB_EXPORT void jack_uuid_copy (jack_uuid_t* dst, jack_uuid_t src);
++extern LIB_EXPORT void jack_uuid_clear (jack_uuid_t*);
++extern LIB_EXPORT int  jack_uuid_parse (const char *buf, jack_uuid_t*);
++extern LIB_EXPORT void jack_uuid_unparse (jack_uuid_t, char buf[JACK_UUID_STRING_SIZE]);
++extern LIB_EXPORT int  jack_uuid_empty (jack_uuid_t);
+ 
+ #ifdef __cplusplus
+ } /* namespace */
+diff '--color=auto' -Naur a/common/wscript b/common/wscript
+--- a/common/wscript	2026-01-07 16:37:38.000000000 -0500
++++ b/common/wscript	2026-08-24 20:38:48.652944046 -0400
+@@ -177,7 +177,7 @@
+         clientlib.env['implib_PATTERN'] = 'lib%s.dll.a'
+         if staticbuild:
+             clientlib.env['SHLIB_MARKER'] = ''
+-        clientlib.env.append_value('LINKFLAGS', ['-static-libstdc++', '--disable-auto-import'])
++        clientlib.env.append_value('LINKFLAGS', ['-static-libstdc++'])
+         clientlib.env.append_value('LINKFLAGS', ['-Wl,--output-def,lib%s.def' % clientlib.target])
+         bld.install_files(clientlib.install_path, [os.path.join(buildbindir, 'lib%s.def' % clientlib.target)])
+ 
+@@ -261,7 +261,7 @@
+         serverlib.env['implib_PATTERN'] = 'lib%s.dll.a'
+         if staticbuild:
+             serverlib.env['SHLIB_MARKER'] = ''
+-        serverlib.env.append_value('LINKFLAGS', ['-static-libstdc++', '--disable-auto-import'])
++        serverlib.env.append_value('LINKFLAGS', ['-static-libstdc++'])
+         serverlib.env.append_value('LINKFLAGS', ['-Wl,--output-def,lib%s.def' % serverlib.target])
+         bld.install_files(serverlib.install_path, [os.path.join(buildbindir, 'lib%s.def' % serverlib.target)])
+     serverlib.source = [] + common_libsources
+@@ -377,7 +377,7 @@
+             netlib.env['implib_PATTERN'] = 'lib%s.dll.a'
+             if staticbuild:
+                 netlib.env['SHLIB_MARKER'] = ''
+-            netlib.env.append_value('LINKFLAGS', ['-static-libstdc++', '--disable-auto-import'])
++            netlib.env.append_value('LINKFLAGS', ['-static-libstdc++'])
+             netlib.env.append_value('LINKFLAGS', ['-Wl,--output-def,lib%s.def' % netlib.target])
+             bld.install_files(netlib.install_path, [os.path.join(buildbindir, 'lib%s.def' % netlib.target)])
+         elif not bld.env['IS_MACOSX']:
+diff '--color=auto' -Naur a/dbus/reserve.c b/dbus/reserve.c
+--- a/dbus/reserve.c	2026-01-07 16:37:38.000000000 -0500
++++ b/dbus/reserve.c	2026-08-24 21:01:24.790720127 -0400
+@@ -178,17 +178,18 @@
+ 			   "org.freedesktop.DBus.Properties",
+ 			   "Get")) {
+ 
+-		const char *interface, *property;
++		const char *iface;
++		const char *property;
+ 
+ 		if (!dbus_message_get_args(
+ 			    m,
+ 			    &error,
+-			    DBUS_TYPE_STRING, &interface,
++			    DBUS_TYPE_STRING, &iface,
+ 			    DBUS_TYPE_STRING, &property,
+ 			    DBUS_TYPE_INVALID))
+ 			goto invalid;
+ 
+-		if (strcmp(interface, "org.freedesktop.ReserveDevice1") == 0) {
++		if (strcmp(iface, "org.freedesktop.ReserveDevice1") == 0) {
+ 			const char *empty = "";
+ 
+ 			if (strcmp(property, "ApplicationName") == 0 && d->application_name) {
+diff '--color=auto' -Naur a/windows/JackAtomic_os.h b/windows/JackAtomic_os.h
+--- a/windows/JackAtomic_os.h	2026-01-07 16:37:38.000000000 -0500
++++ b/windows/JackAtomic_os.h	2026-08-24 21:02:12.487955816 -0400
+@@ -22,55 +22,13 @@
+ 
+ #include "JackTypes.h"
+ 
+-#ifndef __MINGW32__
+-#ifdef __SMP__
+-#	define LOCK lock
+-#else
+-#	define LOCK
+-#endif
+-
+-#ifndef inline
+-	#define inline __inline
+-#endif
+-
+ //----------------------------------------------------------------
+ // CAS functions
+ //----------------------------------------------------------------
+-inline char CAS(volatile UInt32 value, UInt32 newvalue, volatile void * addr)
+-{
+-    register char c;
+-    __asm {
+-        push	ebx
+-        push	esi
+-        mov	esi, addr
+-        mov	eax, value
+-        mov	ebx, newvalue
+-        LOCK cmpxchg dword ptr [esi], ebx
+-        sete	c
+-        pop	esi
+-        pop	ebx
+-    }
+-    return c;
+-}
+-
+-#else
+-
+-#define LOCK "lock ; "
+-
+ static inline char CAS(volatile UInt32 value, UInt32 newvalue, volatile void* addr)
+ {
+-    register char ret;
+-    __asm__ __volatile__ (
+-        "# CAS \n\t"
+-        LOCK "cmpxchg %2, (%1) \n\t"
+-        "sete %0               \n\t"
+-        : "=a" (ret)
+-        : "c" (addr), "d" (newvalue), "a" (value)
+-        );
+-    return ret;
++    return __sync_bool_compare_and_swap ((UInt32*)addr, value, newvalue);
+ }
+ 
+ #endif
+ 
+-#endif
+-
