@@ -1,0 +1,30 @@
+diff '--color=auto' -Naur a/support/shobj-conf b/support/shobj-conf
+--- a/support/shobj-conf	2026-08-24 21:44:16.779340613 -0400
++++ b/support/shobj-conf	2026-08-24 21:45:07.058987138 -0400
+@@ -478,7 +478,7 @@
+ 
+ cygwin*)
+ 	SHOBJ_LD='$(CC)'
+-	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--export-all -Wl,--out-implib=$(@).a'
++	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--out-implib=$(@).a'
+ 	SHLIB_LIBPREF='cyg'
+ 	SHLIB_LIBSUFF='dll'
+ 	SHLIB_LIBVERSION='$(SHLIB_DLLVERSION).$(SHLIB_LIBSUFF)'
+@@ -496,7 +496,7 @@
+ 
+ msys*)
+ 	SHOBJ_LD='$(CC)'
+-	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--export-all -Wl,--out-implib=$(@).a'
++	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--out-implib=$(@).a'
+ 	SHLIB_LIBPREF='msys-'
+ 	SHLIB_LIBSUFF='dll'
+ 	SHLIB_LIBVERSION='$(SHLIB_DLLVERSION).$(SHLIB_LIBSUFF)'
+@@ -514,7 +514,7 @@
+ 
+ mingw*)
+ 	SHOBJ_LD='$(CC)'
+-	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--export-all -Wl,--out-implib=$(@).a'
++	SHOBJ_LDFLAGS='-shared -Wl,--enable-auto-import -Wl,--enable-auto-image-base -Wl,--out-implib=$(@).a'
+ 	SHLIB_LIBSUFF='dll'
+ 	SHLIB_LIBVERSION='$(SHLIB_DLLVERSION).$(SHLIB_LIBSUFF)'
+ 	SHLIB_LIBS='$(TERMCAP_LIB)'
