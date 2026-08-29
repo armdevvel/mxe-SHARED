@@ -20,14 +20,12 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
-    $(SED) -i 's,\$$uname,MINGW,g' '$(1)/configure'
-    cd '$(1)' && ./configure \
-        $(MXE_CONFIGURE_OPTS) \
-        --enable-threads \
-        LIBS='-lws2_32'
-    # enable exceptions, because disabling them doesn't make any sense on PCs
-    $(SED) -i 's,-fno-exceptions,,' '$(1)/makeinclude'
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install DIRS=src LIBCOMMAND='$(TARGET)-ar cr'
+    cd '$(BUILD_DIR)' && $(TARGET)-cmake '$(SOURCE_DIR)' \
+        -DFLTK_BUILD_TEST=OFF \
+        -DFLTK_BUILD_EXAMPLES=OFF \
+        -DOPTION_BUILD_SHARED_LIBS=ON
+    $(MAKE) -C '$(BUILD_DIR)' -j '$(JOBS)'
+    $(MAKE) -C '$(BUILD_DIR)' -j 1 install
     ln -sf '$(PREFIX)/$(TARGET)/bin/fltk-config' '$(PREFIX)/bin/$(TARGET)-fltk-config'
 
     '$(TARGET)-g++' \
