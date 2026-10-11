@@ -21,8 +21,10 @@ define $(PKG)_UPDATE
 endef
 
 define $(PKG)_BUILD
+    # NEON breaks build on debug!!!
     cd '$(1)' && $(SHELL) ./configure \
-        $(MXE_CONFIGURE_OPTS)
+        $(MXE_CONFIGURE_OPTS) \
+        --disable-intrinsics
     $(MAKE) -C '$(1)' -j '$(JOBS)' SHELL=$(SHELL) $(MXE_DISABLE_CRUFT)
     $(MAKE) -C '$(1)' -j 1 install SHELL=$(SHELL) $(MXE_DISABLE_CRUFT)
     rm -f '$(PREFIX)/$(TARGET)'/share/man/man3/opus_*.3
