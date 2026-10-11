@@ -11,6 +11,7 @@ $(PKG)_DEPS     := cc pthreads yasm
 
 define $(PKG)_BUILD
     $(SED) -i 's,yasm[ $$],$(TARGET)-yasm ,g' '$(1)/build/make/configure.sh'
+    # NEON breaks build on debug!!!
     cd '$(1)' && \
         CROSS='$(TARGET)-' \
         ./configure \
@@ -18,6 +19,7 @@ define $(PKG)_BUILD
         --target=@libvpx-target@ \
         --disable-examples \
         --disable-install-docs \
+        --disable-neon \
         --as=$(TARGET)-yasm \
         --disable-runtime-cpu-detect
     $(MAKE) -C '$(1)' -j '$(JOBS)'
