@@ -24,6 +24,7 @@ define $(PKG)_BUILD
         -DCMAKE_STATIC_BOOL=$(CMAKE_STATIC_BOOL) \
         -DLIBTYPE=$(if $(BUILD_SHARED),SHARED,STATIC) \
         -DPROCESSOR=$(PROCESSOR) \
+        -DBUILD_TYPE=$(if $(BUILD_DEBUG),Debug,)$(if $(BUILD_RELEASE),Release,) \
         -DPREFIX=$(PREFIX) \
         -DTARGET=$(TARGET) \
         -DBUILD=$(BUILD) \

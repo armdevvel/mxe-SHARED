@@ -98,4 +98,4 @@ foreach(mxe_cmake_file ${mxe_cmake_files})
 endforeach()
 
 ## Set a default build type in case it is not specified on the commandline.
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Default build type")
+set(CMAKE_BUILD_TYPE @BUILD_TYPE@ CACHE STRING "Default build type")
