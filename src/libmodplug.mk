@@ -19,7 +19,7 @@ endef
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS)
-    $(MAKE) -C '$(1)' -j '$(JOBS)' install
+    $(MAKE) -C '$(1)' LDFLAGS='`$(MXE_INTRINSIC_SH) {{aeabi_{u,}{i,l}divmod,{u,}divmodsi4}.S,{u,}divmoddi4.c}.obj chkstk.S.obj`' -j '$(JOBS)' install
 
     '$(TARGET)-gcc' \
         -W -Wall -ansi -pedantic \
