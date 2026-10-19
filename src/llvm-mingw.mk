@@ -12,6 +12,24 @@ $(PKG)_DEPS_$(BUILD) := snakeoil
 
 define $(PKG)_BUILD_$(BUILD)
     cp -r '$(1)'* '$(PREFIX)'
+
     mkdir -p '$(PREFIX)/lib/pkgconfig'
-    mkdir -p '$(PREFIX)/$(TARGET)/lib/pkgconfig'
+
+    # Release
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32/lib/pkgconfig'
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32/include/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32/include/GL' '$(PREFIX)/armv7-w64-mingw32/include/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32/include/KHR' '$(PREFIX)/armv7-w64-mingw32/include/BASEGL'
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32/lib/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32/lib/libglu32.a' '$(PREFIX)/armv7-w64-mingw32/lib/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32/lib/libopengl32.a' '$(PREFIX)/armv7-w64-mingw32/lib/BASEGL'
+
+    # Debug
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32.debug/lib/pkgconfig'
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32.debug/include/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32.debug/include/GL' '$(PREFIX)/armv7-w64-mingw32.debug/include/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32.debug/include/KHR' '$(PREFIX)/armv7-w64-mingw32.debug/include/BASEGL'
+    mkdir -p '$(PREFIX)/armv7-w64-mingw32.debug/lib/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32.debug/lib/libglu32.a' '$(PREFIX)/armv7-w64-mingw32.debug/lib/BASEGL'
+    mv '$(PREFIX)/armv7-w64-mingw32.debug/lib/libopengl32.a' '$(PREFIX)/armv7-w64-mingw32.debug/lib/BASEGL'
 endef
