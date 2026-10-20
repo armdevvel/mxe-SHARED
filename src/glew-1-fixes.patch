@@ -1,0 +1,26 @@
+diff '--color=auto' -Naur a/config/Makefile.linux-armv7-mingw b/config/Makefile.linux-armv7-mingw
+--- a/config/Makefile.linux-armv7-mingw	1969-12-31 19:00:00.000000000 -0500
++++ b/config/Makefile.linux-armv7-mingw	2026-10-15 02:17:20.981035821 -0400
+@@ -0,0 +1,22 @@
++# For cross-compiling from Linux to Windows x86 using mingw32
++# http://www.mingw.org/
++#
++# $ make SYSTEM=linux-armv7-mingw
++
++NAME  := glew32
++HOST  := armv7-w64-mingw32
++CC    := $(HOST)-gcc
++LD    := $(HOST)-ld
++LN    :=
++STRIP :=
++LDFLAGS.GL = -lopengl32 -lgdi32 -luser32 -lkernel32
++CFLAGS.EXTRA  += -fno-builtin -fno-stack-protector
++LDFLAGS.EXTRA += -nostdlib
++WARN = -Wall -W
++POPT = -O2
++BIN.SUFFIX = .exe
++LIB.SONAME    = lib$(NAME).dll
++LIB.DEVLNK    = lib$(NAME).dll.a    # for mingw this is the dll import lib
++LIB.SHARED    = $(NAME).dll
++LIB.STATIC    = lib$(NAME).a        # the static lib will be broken
++LDFLAGS.SO    = -shared -Wl,--out-implib=lib/$(LIB.DEVLNK)

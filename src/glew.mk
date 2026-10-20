@@ -9,7 +9,7 @@ $(PKG)_CHECKSUM := 04de91e7e6763039bc11940095cd9c7f880baba82196a7765f727ac05a993
 $(PKG)_SUBDIR   := glew-$($(PKG)_VERSION)
 $(PKG)_FILE     := glew-$($(PKG)_VERSION).tgz
 $(PKG)_URL      := https://$(SOURCEFORGE_MIRROR)/project/glew/glew/$($(PKG)_VERSION)/$($(PKG)_FILE)
-$(PKG)_DEPS     := cc
+$(PKG)_DEPS     := cc mesa
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://sourceforge.net/projects/glew/files/glew/' | \
@@ -22,9 +22,9 @@ define $(PKG)_BUILD
 
     $(MAKE) -C '$(1)' \
         GLEW_DEST=$(PREFIX)/$(TARGET) \
-        SYSTEM=linux-mingw32 \
+        SYSTEM=linux-armv7-mingw \
         CC=$(TARGET)-gcc \
-        LD=$(TARGET)-ld \
+        LD=$(TARGET)-gcc \
         NAME=GLEW \
         mxe glew.pc
 
