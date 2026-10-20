@@ -1,0 +1,12 @@
+diff '--color=auto' -Naur a/src/meson.build b/src/meson.build
+--- a/src/meson.build	2026-10-20 02:31:13.540715224 -0400
++++ b/src/meson.build	2026-10-20 02:31:20.667044671 -0400
+@@ -2,7 +2,7 @@
+ # Copyright © 2021 Intel Corporation
+ 
+ libglu = library(
+-  'GLU',
++  'glu32',
+   [
+     'libutil/error.c',
+     'libutil/glue.c',

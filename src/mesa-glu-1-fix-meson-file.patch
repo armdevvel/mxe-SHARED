@@ -1,0 +1,14 @@
+diff '--color=auto' -Naur a/src/meson.build b/src/meson.build
+--- a/src/meson.build	2026-10-20 02:31:13.540715224 -0400
++++ b/src/meson.build	2026-10-20 03:11:25.033236245 -0400
+@@ -94,8 +94,8 @@
+     'libnurbs/nurbtess/sampledLine.cc',
+     'libnurbs/nurbtess/searchTree.cc',
+   ],
+-  c_args : ['-DLIBRARYBUILD'],
+-  cpp_args : ['-DLIBRARYBUILD'],
++  c_args : ['-DLIBRARYBUILD', '-DRESOLVE_3D_TEXTURE_SUPPORT', '-DBUILD_GLU32', '-fmax-type-align=8'],
++  cpp_args : ['-DLIBRARYBUILD', '-DBUILD_GLU32', '-fmax-type-align=8'],
+   include_directories : [
+     'include',
+     'libnurbs/internals',
